@@ -1,17 +1,21 @@
 from fastapi import FastAPI
 
+from app.api.router import api_router
+from app.core.settings import settings
+
 app = FastAPI(
-    title="Hermes AI OS",
-    description="Plataforma profissional para agentes de IA.",
-    version="0.0.1",
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
 )
 
+app.include_router(api_router)
 
-@app.get("/")
-async def root():
+
+@app.get("/", tags=["Root"])
+async def root() -> dict[str, str]:
     return {
-        "project": "Hermes AI OS",
+        "project": settings.APP_NAME,
+        "version": settings.APP_VERSION,
+        "environment": settings.ENVIRONMENT,
         "status": "running",
-        "version": "0.0.1",
-        "phase": "Foundation",
     }
