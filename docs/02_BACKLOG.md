@@ -216,9 +216,16 @@ O README operacional foi criado e seus comandos principais foram validados.
 
 ## Ferramenta de snapshot técnico
 
-**Status:** ✅ Gerador e testes commitados em `1c02fb0`
+**Status:** 🟡 Semântica implementada e validada; relatório oficial ainda não adotado
 
-O relatório `docs/PROJECT_SNAPSHOT.md` ainda não foi adotado oficialmente no Git.
+- [x] Comprovar a autorreferência em clone temporário.
+- [x] Definir projeção estável da árvore Git no ADR-0005.
+- [x] Excluir o próprio snapshot da projeção e do fingerprint.
+- [x] Remover metadados de commit do conteúdo canônico.
+- [x] Adicionar prova automatizada do fluxo de commit do snapshot.
+- [ ] Gerar, validar e adotar oficialmente `docs/PROJECT_SNAPSHOT.md`.
+
+Nenhuma próxima Sprint está definida.
 
 ---
 

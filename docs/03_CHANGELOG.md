@@ -25,6 +25,9 @@ Nenhuma próxima Sprint está definida.
 
 ### Corrigido
 
+- Autorreferência que invalidava o snapshot após o commit do próprio relatório.
+- Dependência canônica de hash, data e mensagem do HEAD removida do snapshot.
+- Árvore e fingerprint passaram a excluir explicitamente o próprio snapshot.
 - Semântica do snapshot canônico definida sobre HEAD e sua árvore rastreada.
 - Estado transitório da working tree removido do conteúdo canônico e mantido como
   precondição e saída de console do gerador.

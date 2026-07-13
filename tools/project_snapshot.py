@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import hashlib
 import os
 import re
 import subprocess
@@ -14,6 +15,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 DEFAULT_OUTPUT = Path("docs/PROJECT_SNAPSHOT.md")
+SNAPSHOT_SCHEMA_VERSION = 2
+CANONICAL_SNAPSHOT_PATH = "docs/PROJECT_SNAPSHOT.md"
 NOT_IDENTIFIED = "Não identificado"
 NONE = "Nenhum"
 EXCLUDED_PARTS = {
@@ -79,6 +82,24 @@ class QualityState:
     ruff: str
     pytest: str
     application_import: str
+
+
+@dataclass(frozen=True, order=True)
+class TreeEntry:
+    path: str
+    mode: str
+    object_type: str
+    object_id: str
+
+
+@dataclass(frozen=True)
+class ProjectedTree:
+    entries: tuple[TreeEntry, ...]
+    fingerprint: str
+
+    @property
+    def paths(self) -> list[str]:
+        return [entry.path for entry in self.entries]
 
 
 def run_command(
@@ -328,11 +349,45 @@ def load_pyproject(root: Path, runner: Runner) -> dict:
         raise SnapshotError(f"pyproject.toml inválido: {error}") from error
 
 
-def collect_paths(root: Path, runner: Runner) -> list[str] | None:
-    result = runner(("git", "ls-tree", "-r", "--name-only", "-z", "HEAD"), root, None)
+def parse_ls_tree(data: str) -> ProjectedTree:
+    entries: list[TreeEntry] = []
+    for record in data.split("\0"):
+        if not record:
+            continue
+        try:
+            metadata, raw_path = record.split("\t", 1)
+            mode, object_type, object_id = metadata.split(" ", 2)
+        except ValueError as error:
+            raise SnapshotError("Saída inválida de git ls-tree.") from error
+        path = raw_path.replace("\\", "/")
+        if path == CANONICAL_SNAPSHOT_PATH or not is_relevant(path):
+            continue
+        if not re.fullmatch(r"[0-7]{6}", mode):
+            raise SnapshotError(f"Modo Git inválido em ls-tree: {mode}")
+        if object_type not in {"blob", "tree", "commit"}:
+            raise SnapshotError(f"Tipo de objeto Git inválido: {object_type}")
+        if not re.fullmatch(r"[0-9a-fA-F]{40,64}", object_id):
+            raise SnapshotError(f"Object ID inválido em ls-tree: {object_id}")
+        entries.append(TreeEntry(path, mode, object_type, object_id.lower()))
+    ordered = tuple(sorted(entries))
+    normalized = "".join(
+        f"{entry.mode} {entry.object_type} {entry.object_id}\t{entry.path}\n"
+        for entry in ordered
+    ).encode("utf-8")
+    fingerprint = hashlib.sha256(normalized).hexdigest()
+    return ProjectedTree(ordered, fingerprint)
+
+
+def collect_projection(root: Path, runner: Runner) -> ProjectedTree:
+    result = runner(("git", "ls-tree", "-r", "-z", "--full-tree", "HEAD"), root, None)
     if not result.succeeded:
-        return None
-    return sorted(path for path in result.stdout.split("\0") if path and is_relevant(path))
+        detail = result.stderr.strip() or f"código {result.returncode}"
+        raise SnapshotError(f"Não foi possível ler a árvore commitada: {detail}")
+    return parse_ls_tree(result.stdout)
+
+
+def collect_paths(root: Path, runner: Runner) -> list[str]:
+    return collect_projection(root, runner).paths
 
 
 def tree_lines(paths: list[str]) -> list[str]:
@@ -569,16 +624,15 @@ def render_snapshot(
     root: Path,
     output: Path,
     runner: Runner = run_command,
-    git_state: GitState | None = None,
 ) -> str:
-    """Build canonical snapshot text exclusively from committed HEAD state."""
-    git = git_state or inspect_git(root, output, runner)
+    """Build a canonical snapshot from the stable projected Git tree."""
     state = required_state(root, runner)
     pyproject = load_pyproject(root, runner).get("project", {})
-    paths = collect_paths(root, runner)
+    projection = collect_projection(root, runner)
+    paths = projection.paths
     modules = python_modules(paths)
     endpoints = fastapi_endpoints(root, paths, runner)
-    tree = "\n".join(tree_lines(paths or [])) if paths is not None else NOT_IDENTIFIED
+    tree = "\n".join(tree_lines(paths))
     endpoint_text = (
         "\n".join(f"- `{method} {path}` — `{source}`" for method, path, source in endpoints)
         if endpoints
@@ -608,20 +662,19 @@ def render_snapshot(
         f"{state['pytest_warnings']} aviso(s)"
     )
     observation = (
-        "o estado transitório da working tree foi observado antes da escrita e exibido "
-        "somente no console; não integra o conteúdo canônico baseado em HEAD."
+        "`docs/PROJECT_SNAPSHOT.md` é excluído da projeção para evitar "
+        "autorreferência; o estado transitório é exibido somente no console."
     )
     return f"""# Hermes AI OS  Project Snapshot
 
 ## 1. Identificação
 
-- data do commit: {git.commit_date or NOT_IDENTIFIED}
+- schema do snapshot: {SNAPSHOT_SCHEMA_VERSION}
+- fingerprint SHA-256 da árvore projetada: `{projection.fingerprint}`
+- arquivos na projeção: {len(projection.entries)}
 - projeto: {state['project']}
 - versão: {pyproject.get('version', NOT_IDENTIFIED)}
-- branch: {git.branch or NOT_IDENTIFIED}
-- upstream: {git.upstream or NOT_IDENTIFIED}
-- último commit: {git.commit or NOT_IDENTIFIED}
-- estado analisado: conteúdo commitado em HEAD
+- estado analisado: projeção determinística da árvore commitada
 - observação: {observation}
 
 ## 2. Estado Atual
@@ -813,7 +866,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"Ruff executado: {live_quality.ruff}")
         print(f"Pytest executado: {live_quality.pytest}")
         print(f"Importação executada: {live_quality.application_import}")
-        expected = render_snapshot(root, output, git_state=git)
+        expected = render_snapshot(root, output)
         return apply_output(output, expected, check=args.check)
     except SnapshotError as error:
         print(f"Falha interna: {error}", file=sys.stderr)

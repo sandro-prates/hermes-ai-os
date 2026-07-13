@@ -19,6 +19,7 @@ O status do ADR representa a decisão arquitetural, não significa necessariamen
 | [ADR-0002](ADR-0002-pacote-central-de-observabilidade.md) | Centralizar logging e futura observabilidade em `app.core.observability` | Accepted |
 | [ADR-0003](ADR-0003-middleware-asgi-e-contextvars.md) | Usar middleware ASGI puro e `ContextVar` para correlação de requisições | Accepted |
 | [ADR-0004](ADR-0004-documentacao-como-sistema-de-continuidade.md) | Usar documentação viva como mecanismo formal de continuidade | Accepted |
+| [ADR-0005](ADR-0005-snapshot-como-projecao-da-arvore-git.md) | Definir o snapshot como projeção determinística da árvore Git | Accepted |
 
 ## Regra
 

@@ -168,6 +168,7 @@ ADRs aceitos:
 - ADR-0002 — pacote central de observabilidade.
 - ADR-0003 — middleware ASGI e `ContextVar`.
 - ADR-0004 — documentação como continuidade.
+- ADR-0005 — snapshot como projeção determinística da árvore Git.
 
 O `README.md` é a entrada operacional para instalação, execução e validação local.
 

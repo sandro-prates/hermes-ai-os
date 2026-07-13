@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import hashlib
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -10,9 +13,11 @@ from tools.project_snapshot import (
     SnapshotError,
     apply_output,
     collect_paths,
+    collect_projection,
     ensure_generation_allowed,
     find_git_root,
     inspect_git,
+    parse_ls_tree,
     parse_porcelain,
     parse_simple_yaml_mapping,
     render_snapshot,
@@ -148,15 +153,47 @@ def test_audit_option_allows_relevant_changes() -> None:
 def test_tree_uses_only_tracked_head_files(tmp_path: Path) -> None:
     ignored = tmp_path / ".env.example"
     ignored.write_text("SECRET=local", encoding="utf-8")
+    (tmp_path / "untracked.txt").write_text("local", encoding="utf-8")
 
     def runner(args: tuple[str, ...], cwd: Path, env: dict[str, str] | None) -> CommandResult:
-        assert args == ("git", "ls-tree", "-r", "--name-only", "-z", "HEAD")
-        return result(args, stdout="README.md\0apps/backend/app/main.py\0")
+        assert args == ("git", "ls-tree", "-r", "-z", "--full-tree", "HEAD")
+        tree = (
+            f"100644 blob {'a' * 40}\tREADME.md\0"
+            f"100644 blob {'b' * 40}\tapps/backend/app/main.py\0"
+        )
+        return result(args, stdout=tree)
 
     paths = collect_paths(tmp_path, runner)
 
     assert paths == ["README.md", "apps/backend/app/main.py"]
     assert ".env.example" not in paths
+    assert "untracked.txt" not in paths
+
+
+def test_projection_fingerprint_is_normalized_and_excludes_snapshot() -> None:
+    data = (
+        f"100755 blob {'b' * 40}\tz espaço/ação.py\0"
+        f"100644 blob {'c' * 40}\tdocs/PROJECT_SNAPSHOT.md\0"
+        f"100644 blob {'a' * 40}\tREADME.md\0"
+    )
+    expected = (
+        f"100644 blob {'a' * 40}\tREADME.md\n"
+        f"100755 blob {'b' * 40}\tz espaço/ação.py\n"
+    ).encode()
+
+    projection = parse_ls_tree(data)
+
+    assert projection.paths == ["README.md", "z espaço/ação.py"]
+    assert len(projection.entries) == 2
+    assert projection.fingerprint == hashlib.sha256(expected).hexdigest()
+
+
+def test_projection_reports_git_ls_tree_failure(tmp_path: Path) -> None:
+    def runner(args: tuple[str, ...], cwd: Path, env: dict[str, str] | None) -> CommandResult:
+        return result(args, returncode=128, stderr="tree unavailable")
+
+    with pytest.raises(SnapshotError, match="tree unavailable"):
+        collect_projection(tmp_path, runner)
 
 
 def test_completed_readme_task_is_parsed_by_exact_path(tmp_path: Path) -> None:
@@ -231,7 +268,10 @@ dependencies = ["fastapi>=0.139,<1.0"]
         "docs/00_PROJECT_MASTER.md": "# Master\n",
         "docs/03_CHANGELOG.md": "# Changelog\n",
     }
-    tracked = "\0".join(sorted(committed_files)) + "\0"
+    tracked = "".join(
+        f"100644 blob {index:040x}\t{path}\0"
+        for index, path in enumerate(sorted(committed_files), 1)
+    )
     (tmp_path / "docs").mkdir()
     (tmp_path / "docs/01_PROJECT_STATE.yaml").write_text(
         "project:\n  name: WRONG WORKTREE VALUE\n",
@@ -240,17 +280,7 @@ dependencies = ["fastapi>=0.139,<1.0"]
     (tmp_path / ".env.example").write_text("SECRET=ignored", encoding="utf-8")
 
     def runner(args: tuple[str, ...], cwd: Path, env: dict[str, str] | None) -> CommandResult:
-        if args == ("git", "branch", "--show-current"):
-            return result(args, stdout="main\n")
-        if args == ("git", "rev-parse", "--abbrev-ref", "@{upstream}"):
-            return result(args, stdout="origin/main\n")
-        if args == ("git", "log", "-1", "--format=%h %s"):
-            return result(args, stdout="abc123 committed state\n")
-        if args == ("git", "show", "-s", "--format=%cI", "HEAD"):
-            return result(args, stdout="2026-01-01T00:00:00+00:00\n")
-        if args[:2] == ("git", "status"):
-            return result(args, stdout="?? docs/PROJECT_SNAPSHOT.md\0")
-        if args == ("git", "ls-tree", "-r", "--name-only", "-z", "HEAD"):
+        if args == ("git", "ls-tree", "-r", "-z", "--full-tree", "HEAD"):
             return result(args, stdout=tracked)
         if len(args) == 3 and args[:2] == ("git", "show") and args[2].startswith("HEAD:"):
             relative = args[2][len("HEAD:") :]
@@ -264,12 +294,14 @@ dependencies = ["fastapi>=0.139,<1.0"]
     second = render_snapshot(tmp_path, output, runner)
 
     assert first == second
-    assert "abc123 committed state" in first
+    assert "fingerprint SHA-256" in first
     assert "status: completed" in first
     assert "WRONG WORKTREE VALUE" not in first
     assert ".env.example" not in first
     assert str(tmp_path) not in first
     assert "working tree: limpa" not in first
+    assert "último commit" not in first
+    assert "data do commit" not in first
 
 
 def test_simple_yaml_rejects_unsupported_content() -> None:
@@ -343,6 +375,100 @@ def test_output_is_utf8_without_bom_and_uses_lf(tmp_path: Path) -> None:
     assert b"\r" not in raw
     assert raw.endswith(b"\n")
     assert raw.decode("utf-8") == "ação\nsegunda linha\n"
+
+
+def test_snapshot_remains_valid_after_its_own_commit(tmp_path: Path) -> None:
+    repository = tmp_path / "repositório com espaços"
+    repository.mkdir()
+    script = Path(__file__).resolve().parents[1] / "tools" / "project_snapshot.py"
+
+    def command(*args: str, expected: int = 0) -> subprocess.CompletedProcess[str]:
+        completed = subprocess.run(
+            args,
+            cwd=repository,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+        assert completed.returncode == expected, completed.stdout + completed.stderr
+        return completed
+
+    command("git", "init", "-b", "main")
+    command("git", "config", "user.name", "Snapshot Test")
+    command("git", "config", "user.email", "snapshot-test@local.invalid")
+    (repository / "docs").mkdir()
+    (repository / "pasta com espaço").mkdir()
+    (repository / ".gitignore").write_text("ignored.tmp\n", encoding="utf-8")
+    (repository / "pasta com espaço/ação.txt").write_text("inicial\n", encoding="utf-8")
+    (repository / "pyproject.toml").write_text(
+        """[project]
+name = "snapshot-fixture"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = []
+""",
+        encoding="utf-8",
+    )
+    (repository / "docs/01_PROJECT_STATE.yaml").write_text(
+        """project:
+  name: Snapshot Fixture
+last_completed_work:
+  epic:
+    id: EPIC-TEST
+    name: Snapshot
+  sprint:
+    id: SPRINT-TEST
+  manual_runtime_validation:
+    result: passed
+current_task:
+  title: Snapshot
+  status: completed
+next_task: null
+quality:
+  pytest:
+    result: passed
+    passed_tests: 1
+    warnings: 0
+  ruff:
+    result: passed
+""",
+        encoding="utf-8",
+    )
+    for name, content in {
+        "00_PROJECT_MASTER.md": "# Master\n",
+        "02_BACKLOG.md": "# Backlog\n",
+        "03_CHANGELOG.md": "# Changelog\n",
+    }.items():
+        (repository / "docs" / name).write_text(content, encoding="utf-8")
+    (repository / "ignored.tmp").write_text("ignored\n", encoding="utf-8")
+    command("git", "add", ".")
+    command("git", "commit", "-m", "initial projection")
+
+    command(sys.executable, str(script))
+    snapshot = repository / "docs/PROJECT_SNAPSHOT.md"
+    first_hash = hashlib.sha256(snapshot.read_bytes()).hexdigest()
+    command(sys.executable, str(script), "--check")
+
+    command("git", "add", "docs/PROJECT_SNAPSHOT.md")
+    command("git", "commit", "-m", "add snapshot only")
+    command(sys.executable, str(script), "--check")
+    assert hashlib.sha256(snapshot.read_bytes()).hexdigest() == first_hash
+
+    command("git", "commit", "--allow-empty", "-m", "metadata only")
+    command(sys.executable, str(script), "--check")
+
+    tracked = repository / "pasta com espaço/ação.txt"
+    tracked.write_text("alterado\n", encoding="utf-8")
+    command("git", "add", "pasta com espaço/ação.txt")
+    command("git", "commit", "-m", "change projected content")
+    command(sys.executable, str(script), "--check", expected=1)
+    command(sys.executable, str(script))
+    command(sys.executable, str(script), "--check")
+
+    snapshot.write_text(snapshot.read_text(encoding="utf-8") + "adulterado\n", encoding="utf-8")
+    command(sys.executable, str(script), "--check", expected=1)
 
 
 def test_git_state_type_documents_unknown_values() -> None:

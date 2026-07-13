@@ -111,10 +111,10 @@ quality:
   pytest:
     command: python -m pytest
     result: passed
-    collected_tests: 29
-    passed_tests: 29
+    collected_tests: 32
+    passed_tests: 32
     warnings: 1
-    reported_duration_seconds: 0.26
+    reported_duration_seconds: 5.66
   ruff:
     command: python -m ruff check .
     result: passed
@@ -128,7 +128,7 @@ quality:
       status: fixed
   automated_test_coverage:
     status: present
-    collected_tests: 29
+    collected_tests: 32
 architecture:
   active_logging_package: app.core.observability
   legacy_logging_module_removed: true
@@ -136,6 +136,13 @@ architecture:
   log_formats:
   - console
   - json
+  project_snapshot:
+    schema_version: 2
+    canonical_source: projected_git_tree
+    excluded_path: docs/PROJECT_SNAPSHOT.md
+    fingerprint: sha256_of_normalized_git_tree_entries
+    includes_commit_metadata: false
+    adr: ADR-0005
 documentation:
   readme:
     path: README.md
@@ -154,7 +161,7 @@ documentation:
     status: committed_at_2fcbd17_then_updated_locally
   adr_directory:
     path: docs/adr/
-    status: committed
+    status: updated_pending_corrective_commit
   project_snapshot:
     generator_commit: 1c02fb0
     report_path: docs/PROJECT_SNAPSHOT.md
