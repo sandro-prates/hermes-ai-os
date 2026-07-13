@@ -509,6 +509,42 @@ def current_limitations(root: Path, runner: Runner) -> list[str]:
     ]
 
 
+def request_id_contract_lines(root: Path, runner: Runner) -> list[str]:
+    """Describe Request ID behavior only when committed code proves every claim."""
+    settings_source = head_text(root, "apps/backend/app/core/settings.py", runner) or ""
+    middleware_source = (
+        head_text(root, "apps/backend/app/core/observability/middleware.py", runner) or ""
+    )
+    context_source = (
+        head_text(root, "apps/backend/app/core/observability/request_context.py", runner)
+        or ""
+    )
+    filter_source = (
+        head_text(root, "apps/backend/app/core/observability/filters.py", runner) or ""
+    )
+    evidence = (
+        'REQUEST_ID_HEADER: str = "X-Request-ID"' in settings_source,
+        "headers.get(settings.REQUEST_ID_HEADER) or str(uuid.uuid4())"
+        in middleware_source,
+        "response_headers[settings.REQUEST_ID_HEADER] = request_id"
+        in middleware_source,
+        "token = set_request_id(request_id)" in middleware_source,
+        "_request_id: ContextVar[str] = ContextVar(" in context_source,
+        "record.request_id = get_request_id()" in filter_source,
+    )
+    if not all(evidence):
+        return [NOT_IDENTIFIED]
+    return [
+        "Header de correlação configurável por `Settings.REQUEST_ID_HEADER`; padrão "
+        "`X-Request-ID`.",
+        "Request ID gerado automaticamente quando ausente.",
+        "Request ID enviado pelo cliente preservado.",
+        "Request ID incluído no header da resposta.",
+        "Contexto assíncrono de correlação baseado em `ContextVar`.",
+        "Request ID do contexto injetado nos registros de log.",
+    ]
+
+
 def load_pyproject(root: Path, runner: Runner) -> dict:
     text = head_text(root, "pyproject.toml", runner)
     if text is None:
@@ -836,6 +872,29 @@ def render_snapshot(
         "autorreferência; o estado transitório é exibido somente no console."
     )
     limitation_text = "\n".join(f"- {item}" for item in current_limitations(root, runner))
+    request_id_text = "\n".join(
+        f"- {item}" for item in request_id_contract_lines(root, runner)
+    )
+    configuration_contract = [
+        (
+            "`.env.example` presente na projeção rastreada."
+            if ".env.example" in paths
+            else NOT_IDENTIFIED
+        ),
+        (
+            "Contrato de `.env.example` protegido por `tests/test_env_example.py`."
+            if "tests/test_env_example.py" in paths
+            else NOT_IDENTIFIED
+        ),
+        (
+            "Arquivo `.env` real ausente da projeção rastreada."
+            if ".env" not in paths
+            else "Arquivo `.env` real presente na projeção rastreada."
+        ),
+    ]
+    configuration_contract_text = "\n".join(
+        f"- {item}" for item in configuration_contract
+    )
     planned_details = ""
     if state["planned_sprint"] != "nenhuma" and state["planned_sprint"] != NOT_IDENTIFIED:
         planned_details = (
@@ -902,13 +961,14 @@ def render_snapshot(
 - Python requerido: `{pyproject.get('requires-python', NOT_IDENTIFIED)}`.
 - Dependências diretas:
 {dependency_text}
+- Contrato de configuração reproduzível:
+{configuration_contract_text}
 
 ## 9. Observabilidade
 
 - Pacote: `app.core.observability`.
 - Formatos identificados no código: `console` e `json`.
-- Header padrão de correlação: `X-Request-ID`.
-- Contexto assíncrono: `ContextVar`.
+{request_id_text}
 
 ## 10. Qualidade
 

@@ -579,6 +579,22 @@ Os itens abaixo vêm do `PROJECT_MASTER` e ainda não representam Sprints planej
             "Banco de dados, runtime de agentes, memória, dashboard e\n"
             "integrações externas ainda não estão implementados.\n"
         ),
+        ".env.example": "LOG_FORMAT=console\n",
+        "tests/test_env_example.py": "def test_env_example(): ...\n",
+        "apps/backend/app/core/settings.py": (
+            'REQUEST_ID_HEADER: str = "X-Request-ID"\n'
+        ),
+        "apps/backend/app/core/observability/middleware.py": """
+request_id = headers.get(settings.REQUEST_ID_HEADER) or str(uuid.uuid4())
+token = set_request_id(request_id)
+response_headers[settings.REQUEST_ID_HEADER] = request_id
+""",
+        "apps/backend/app/core/observability/request_context.py": (
+            "_request_id: ContextVar[str] = ContextVar(\"request_id\")\n"
+        ),
+        "apps/backend/app/core/observability/filters.py": (
+            "record.request_id = get_request_id()\n"
+        ),
         "pyproject.toml": """[project]
 name = "hermes-ai-os"
 version = "0.0.1"
@@ -621,6 +637,16 @@ dependencies = []
     assert "- Memória ainda não implementada." in rendered
     assert "- Dashboard ainda não implementado." in rendered
     assert "- Integrações externas ainda não implementadas." in rendered
+    assert "- Formatos identificados no código: `console` e `json`." in rendered
+    assert "Header de correlação configurável por `Settings.REQUEST_ID_HEADER`" in rendered
+    assert "- Request ID gerado automaticamente quando ausente." in rendered
+    assert "- Request ID enviado pelo cliente preservado." in rendered
+    assert "- Request ID incluído no header da resposta." in rendered
+    assert "correlação baseado em `ContextVar`" in rendered
+    assert "Request ID do contexto injetado nos registros de log." in rendered
+    assert "`.env.example` presente na projeção rastreada." in rendered
+    assert "Contrato de `.env.example` protegido por `tests/test_env_example.py`." in rendered
+    assert "Arquivo `.env` real ausente da projeção rastreada." in rendered
 
 
 def test_simple_yaml_rejects_unsupported_content() -> None:
