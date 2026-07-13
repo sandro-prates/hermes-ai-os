@@ -3,8 +3,8 @@
 ## 1. Identificação
 
 - schema do snapshot: 3
-- fingerprint SHA-256 da árvore projetada: `a99a97baa54c6cdf9e801a31847e3c9ea404569831a7865c062f2a8e061f1bcc`
-- arquivos na projeção: 42
+- fingerprint SHA-256 da árvore projetada: `503791c3d7c2b00ce65377e93cda26eb2b6a1d234ce0a9052f020f711d06b08d`
+- arquivos na projeção: 44
 - projeto: Hermes AI OS
 - versão: 0.0.1
 - estado analisado: projeção determinística da árvore commitada
@@ -17,12 +17,10 @@
 
 - EPIC: nenhuma EPIC associada
 - Status da EPIC: não aplicável
-- Sprint: SPRINT-05 — Technology Decision Baseline
+- Sprint: SPRINT-06 — Continuity State Integrity
 - Status da Sprint: completed
-- Task: DT-007 — Pesquisa tecnológica
+- Task: DT-009 — Integridade do estado de continuidade
 - Status da Task: completed
-- Item funcional: Preencher e revisar a pesquisa tecnológica com fontes primárias
-- Status do item funcional: completed
 
 ## 3. Continuidade de Sprint
 
@@ -68,6 +66,7 @@
 │   ├── HANDOFF_2026-07-12.md
 │   ├── HANDOFF_2026-07-13-SPRINT-04.md
 │   ├── HANDOFF_2026-07-13-SPRINT-05.md
+│   ├── HANDOFF_2026-07-13-SPRINT-06.md
 │   ├── HANDOFF_2026-07-13.md
 │   ├── adr
 │   │   ├── ADR-0001-pyproject-como-fonte-de-dependencias.md
@@ -83,7 +82,8 @@
 │   ├── test_env_example.py
 │   ├── test_middleware.py
 │   ├── test_observability.py
-│   └── test_project_snapshot.py
+│   ├── test_project_snapshot.py
+│   └── test_project_state.py
 └── tools
     └── project_snapshot.py
 ```
@@ -154,7 +154,7 @@
 ## 10. Qualidade
 
 - Ruff: estado commitado `passed`.
-- Pytest: estado commitado `passed — 54 aprovado(s), 1 aviso(s)`.
+- Pytest: estado commitado `passed — 76 aprovado(s), 1 aviso(s)`.
 - importação da aplicação: estado commitado `passed`.
 
 ## 11. Documentação e ADRs
@@ -178,6 +178,7 @@
 ## 13. Dívida Técnica
 
 - DT-007 — Pesquisa tecnológica — ✅ Concluída como pesquisa na SPRINT-05
+- DT-009 — Integridade do estado de continuidade — ✅ Concluída na SPRINT-06
 
 ## 14. Próximo Passo Documentado
 
