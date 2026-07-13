@@ -14,8 +14,7 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - DT-008 concluída no commit `2ebed11`, com `.env.example` sanitizado e dois testes
   contratuais.
 - EPIC-004 concluída; seu único incremento formal foi atendido pela SPRINT-03 e DT-008.
-- Nenhuma nova Sprint está ativa. O snapshot oficial será atualizado pelo fluxo técnico
-  de continuidade.
+- Nenhuma nova Sprint está ativa.
 
 ## Funcionalidades implementadas
 
@@ -203,10 +202,17 @@ testes pode evoluir.
 
 ## Snapshot do Projeto
 
-Para atualizar o relatório técnico reutilizável do estado atual:
+O snapshot oficial reside em `docs/PROJECT_SNAPSHOT.md`, usa schema 3 e representa uma
+projeção determinística da árvore Git, excluindo o próprio relatório. Para regenerá-lo:
 
 ```text
 python tools/project_snapshot.py
+```
+
+Sua validade operacional deve ser confirmada sem escrita com:
+
+```text
+python tools/project_snapshot.py --check
 ```
 
 ## Documentação do projeto

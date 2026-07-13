@@ -8,7 +8,6 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-O snapshot final ainda não foi adotado.
 Nenhuma nova Sprint foi ativada.
 
 ### Corrigido
@@ -16,6 +15,14 @@ Nenhuma nova Sprint foi ativada.
 - O commit `686a630` tornou explícitos no snapshot os status da EPIC, Sprint e Task,
   a ausência de Sprint ativa ou planejada e as limitações atuais.
 - Quatro testes de regressão foram adicionados ao contrato do snapshot.
+- O commit `01ac0b0` explicitou o contrato funcional de Request ID: geração quando
+  ausente, preservação do valor recebido, retorno no header, correlação por
+  `ContextVar` e injeção nos logs.
+- O commit `4f4e2bb` explicitou o contrato determinístico entre `Settings` e
+  `.env.example`, incluindo `env_prefix`, aliases simples, `case_sensitive`,
+  correspondência exata e falha fechada para ambiguidades ou colisões.
+- O schema 3, a projeção Git determinística, o fingerprint e a exclusão
+  autorreferencial foram preservados.
 
 ### Validado
 

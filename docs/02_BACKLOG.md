@@ -266,8 +266,9 @@ o onboarding oficial. Essa inconsistência operacional tem prioridade maior que 
 - [x] 44 testes e Ruff aprovados;
 - [x] implementação registrada no commit `2ebed11`.
 
-**Continuidade técnica:** o snapshot oficial será atualizado separadamente. Esse
-artefato não condiciona o status funcional da EPIC, da Sprint ou da Task.
+**Continuidade técnica:** o snapshot oficial é regenerado e verificado pelo fluxo
+oficial sempre que a árvore projetada muda. Esse artefato não condiciona o status
+funcional da EPIC, da Sprint ou da Task.
 
 **Fora de escopo:** implementação de produto, novas dependências, lockfile, CI/CD,
 banco de dados, runtime de agentes, memória, dashboard, integrações e preenchimento
@@ -310,7 +311,8 @@ integralmente em clone limpo.
 
 **Execução:** Task concluída na SPRINT-03. O template sanitizado está rastreado, e seu
 contrato é protegido por dois testes automatizados. `.env` e variantes reais continuam
-ignorados. A atualização do snapshot segue separadamente como continuidade técnica.
+ignorados. A continuidade do snapshot segue o gerador oficial e a validação por
+`python tools/project_snapshot.py --check`.
 
 ---
 

@@ -135,6 +135,20 @@ Estado transitório de publicação removido da documentação permanente.
 Contrato do snapshot corrigido para representar explicitamente o estado final, com
 quatro testes de regressão adicionais.
 
+### `777a0fe`
+
+Qualidade atual e cobertura de regressão do snapshot registradas na documentação viva.
+
+### `01ac0b0`
+
+Contrato funcional de Request ID explicitado no snapshot: geração, preservação,
+retorno no header, correlação por `ContextVar` e injeção nos logs.
+
+### `4f4e2bb`
+
+Contrato determinístico entre `Settings` e `.env.example` explicitado, incluindo
+`env_prefix`, aliases, `case_sensitive` e validações fail-closed.
+
 ## Último trabalho concluído
 
 ### EPIC-004 — Foundation Reproducibility — Concluída
@@ -150,8 +164,9 @@ quatro testes de regressão adicionais.
 - nenhuma dependência ou funcionalidade de produto adicionada.
 
 A EPIC-004 possuía somente a SPRINT-03 e a DT-008 como escopo formal; todos os critérios
-funcionais foram atendidos. O snapshot oficial será atualizado separadamente como
-artefato técnico de continuidade. Nenhuma nova Sprint foi ativada.
+funcionais foram atendidos. O snapshot oficial é um artefato técnico de continuidade,
+cuja validade deve ser verificada com `python tools/project_snapshot.py --check`.
+Nenhuma nova Sprint foi ativada.
 
 ## Trabalho concluído anterior
 
@@ -227,8 +242,10 @@ ADRs aceitos:
 
 O `README.md` é a entrada operacional para instalação, execução e validação local.
 
-O gerador e `docs/PROJECT_SNAPSHOT.md` estão commitados. O modo `--check` foi aprovado
-após o commit do próprio relatório.
+O gerador oficial reside em `tools/project_snapshot.py`; o relatório reside em
+`docs/PROJECT_SNAPSHOT.md`, usa schema 3 e exclui o próprio caminho da projeção. O
+relatório deve ser regenerado e verificado com `--check` sempre que a árvore projetada
+mudar.
 
 ---
 
@@ -256,8 +273,9 @@ Somente M0 está em andamento. Os demais permanecem pendentes como milestones fo
 
 A baseline publicada em `51d3747` foi comprovada antes da ativação, e a implementação
 foi commitada em `2ebed11`. EPIC-004, SPRINT-03 e DT-008 estão concluídas. A documentação
-e o handoff estão comprovados por `b1ab2ea` e `313de97`. O snapshot oficial será
-atualizado pelo fluxo técnico. Nenhuma nova Sprint foi ativada.
+e o handoff estão comprovados por `b1ab2ea` e `313de97`. A continuidade do snapshot
+segue o contrato do ADR-0005 e é verificada operacionalmente por `--check`. Nenhuma
+nova Sprint foi ativada.
 
 ---
 

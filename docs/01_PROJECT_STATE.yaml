@@ -53,6 +53,21 @@ repository:
   - commit: 313de97249c4399deeec76b3dbe5464040bd084a
     short_commit: 313de97
     message: 'docs(project): remove transient publication state'
+  - commit: df16b37da9ec3c7565ea5c040f8f185d1b4a8f55
+    short_commit: df16b37
+    message: 'docs(project): finalize epic 004 status'
+  - commit: 686a630f38edd434890ca5ee72e255174dd34ee7
+    short_commit: 686a630
+    message: 'fix(snapshot): make final project state explicit'
+  - commit: 777a0fe70f287c4779b6ce069ce55c188a415852
+    short_commit: 777a0fe
+    message: 'docs(project): record snapshot regression coverage'
+  - commit: 01ac0b0e2d5df084a31ce444c8953adef534f5c1
+    short_commit: 01ac0b0
+    message: 'fix(snapshot): document request id behavior'
+  - commit: 4f4e2bb7eb3031a5c753f20b91c4598010d32690
+    short_commit: 4f4e2bb
+    message: 'fix(snapshot): document settings contract'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
@@ -224,16 +239,28 @@ documentation:
     path: docs/adr/
     status: committed
   project_snapshot:
+    generator_path: tools/project_snapshot.py
     generator_commit: 1c02fb0
     explicit_final_state_contract_commit: 686a630f38edd434890ca5ee72e255174dd34ee7
     explicit_final_state_regression_tests: 4
+    request_id_contract_commit: 01ac0b0e2d5df084a31ce444c8953adef534f5c1
+    settings_contract_commit: 4f4e2bb7eb3031a5c753f20b91c4598010d32690
+    protected_contracts:
+    - explicit_epic_sprint_and_task_status
+    - no_active_or_planned_sprint
+    - current_limitations
+    - request_id_generation_preservation_response_and_logging
+    - exact_settings_env_example_mapping
+    - env_prefix_simple_aliases_and_case_sensitive
+    - fail_closed_on_ambiguity_or_collision
+    - deterministic_projection_without_self_reference
     report_path: docs/PROJECT_SNAPSHOT.md
     initial_adoption_commit: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
     report_officially_adopted: true
+    generation_command: python tools/project_snapshot.py
     validity_source: python tools/project_snapshot.py --check
     fingerprint_source: docs/PROJECT_SNAPSHOT.md
     check_after_initial_adoption: passed
-    final_refresh_status: pending_formal_closure
 active_baseline:
   commit: 51d3747
   branch: main
@@ -256,8 +283,8 @@ continuity:
   - Executar git status --short --branch
   - Não iniciar uma nova Sprint sem definição explícita
   audit:
-    status: closing
-    checks_passed:
+    status: continuous
+    required_checks:
     - code_import
     - http_endpoints
     - console_logging
@@ -266,5 +293,4 @@ continuity:
     - ruff_result_confirmed
     - git_diff_check
     - sprint_commit_confirmed
-    checks_pending:
-    - final_snapshot_refresh
+    - project_snapshot_check
