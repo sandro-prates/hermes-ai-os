@@ -80,6 +80,9 @@ repository:
   - commit: 2dc6365688b06a5c27bf536fb9e508d9ac59c2fb
     short_commit: 2dc6365
     message: 'test(api): protect base endpoint contracts'
+  - commit: 67ac0200d684146e6143c21471f6ceb2110decbe
+    short_commit: 67ac020
+    message: 'docs(project): close sprint 04 and prepare handoff'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
@@ -202,7 +205,8 @@ last_completed_sprint:
   functional_item_status: completed
   implementation_scope: tests_and_continuity_documentation
   direct_api_contract_tests: 3
-  pytest_passed_tests: 51
+  implementation_baseline_pytest_passed_tests: 51
+  pytest_passed_tests: 54
   pytest_warnings: 1
   ruff: passed
   application_import: passed
@@ -217,16 +221,19 @@ last_completed_sprint:
   dt_007_activated: false
   git_evidence:
     implementation_commit: 2dc6365688b06a5c27bf536fb9e508d9ac59c2fb
-    short_commit: 2dc6365
-    message: 'test(api): protect base endpoint contracts'
+    implementation_short_commit: 2dc6365
+    implementation_message: 'test(api): protect base endpoint contracts'
+    documentation_commit: 67ac0200d684146e6143c21471f6ceb2110decbe
+    documentation_short_commit: 67ac020
+    documentation_message: 'docs(project): close sprint 04 and prepare handoff'
 quality:
   pytest:
     command: python -m pytest
     result: passed
-    collected_tests: 51
-    passed_tests: 51
+    collected_tests: 54
+    passed_tests: 54
     warnings: 1
-    reported_duration_seconds: 7.45
+    reported_duration_seconds: 6.97
   ruff:
     command: python -m ruff check .
     result: passed
@@ -240,7 +247,7 @@ quality:
       status: fixed
   automated_test_coverage:
     status: present
-    collected_tests: 51
+    collected_tests: 54
 architecture:
   active_logging_package: app.core.observability
   legacy_logging_module_removed: true
@@ -261,23 +268,24 @@ documentation:
     status: maintained
   project_master:
     path: docs/00_PROJECT_MASTER.md
-    status: committed_in_sprint_03_closure
-    commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
+    status: committed_in_sprint_04_closure
+    commit: 67ac0200d684146e6143c21471f6ceb2110decbe
   project_state:
     path: docs/01_PROJECT_STATE.yaml
-    status: committed_in_sprint_03_closure
-    commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
+    status: committed_in_sprint_04_closure
+    commit: 67ac0200d684146e6143c21471f6ceb2110decbe
   backlog:
     path: docs/02_BACKLOG.md
-    status: committed_in_sprint_03_closure
-    commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
+    status: committed_in_sprint_04_closure
+    commit: 67ac0200d684146e6143c21471f6ceb2110decbe
   changelog:
     path: docs/03_CHANGELOG.md
-    status: committed_in_sprint_03_closure
-    commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
+    status: committed_in_sprint_04_closure
+    commit: 67ac0200d684146e6143c21471f6ceb2110decbe
   handoff:
     path: docs/HANDOFF_2026-07-13-SPRINT-04.md
-    status: prepared_for_sprint_04_documental_closure
+    status: committed_in_sprint_04_closure
+    commit: 67ac0200d684146e6143c21471f6ceb2110decbe
     previous_path: docs/HANDOFF_2026-07-13.md
     historical_path: docs/HANDOFF_2026-07-12.md
   adr_directory:
@@ -299,6 +307,8 @@ documentation:
     - env_prefix_simple_aliases_and_case_sensitive
     - fail_closed_on_ambiguity_or_collision
     - deterministic_projection_without_self_reference
+    - active_then_completed_then_legacy_sprint_selection
+    - no_historical_epic_or_task_reuse
     report_path: docs/PROJECT_SNAPSHOT.md
     initial_adoption_commit: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
     report_officially_adopted: true
@@ -336,8 +346,11 @@ sprint_04_planning_baseline:
 continuity:
   active_sprint: none
   next_sprint: none
-  snapshot_final: pending_after_documental_commit
-  publication: pending_separate_authorization
+  snapshot:
+    source_of_truth: docs/PROJECT_SNAPSHOT.md
+    update_mode: dedicated_commit
+    verification_command: python tools/project_snapshot.py --check
+    publication_state_source: git
   restart_instruction:
   - Ler docs/00_PROJECT_MASTER.md
   - Ler docs/01_PROJECT_STATE.yaml

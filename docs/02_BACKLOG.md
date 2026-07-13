@@ -172,8 +172,8 @@ Pendências retrospectivas verificadas:
 **Status:** ✅ Resolvida
 
 Na resolução original desta dívida, o Pytest coletava e aprovava 32 testes. A
-quantidade atual deve ser obtida pela suíte completa e é registrada na seção da Sprint
-ativa.
+quantidade atual deve ser obtida pela suíte completa e é registrada no estado de
+qualidade vigente.
 
 ---
 
@@ -320,16 +320,19 @@ documentos vivos à baseline Git atual.
 - [x] contratos de `GET /api/v1/health` protegidos diretamente;
 - [x] header configurado de Request ID validado na aplicação real;
 - [x] nenhuma alteração funcional em `apps/`;
-- [x] suíte completa com 51 testes e Ruff aprovados;
+- [x] implementação validada com 51 testes e Ruff aprovados;
+- [x] fechamento técnico validado com 54 testes após três regressões do snapshot;
 - [x] importação, endpoints e Request ID aprovados;
 - [x] documentação viva de encerramento preparada;
 - [x] novo handoff preparado sem sobrescrever os anteriores;
 - [x] implementação registrada no commit `2dc6365`;
-- [ ] snapshot final atualizado após o commit documental;
-- [ ] publicação realizada mediante autorização separada.
+
+**Snapshot e publicação:** o snapshot oficial é mantido em commit exclusivo. Sua
+validade é comprovada por `python tools/project_snapshot.py --check`; Git determina
+se o artefato foi commitado e publicado.
 
 **Definition of Done:** atendida no escopo funcional e documental da Sprint. Snapshot
-final e publicação permanecem etapas posteriores do processo de continuidade.
+e publicação seguem o processo técnico de continuidade sem alterar esse status.
 
 **Continuidade:** nenhuma Sprint está ativa ou formalmente planejada. DT-007 permanece
 aberta, separada e não ativada.

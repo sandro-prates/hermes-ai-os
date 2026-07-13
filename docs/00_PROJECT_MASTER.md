@@ -178,16 +178,19 @@ cuja validade deve ser verificada com `python tools/project_snapshot.py --check`
   `GET /api/v1/health` e alinhar o estado documental corrente.
 - Escopo funcional restrito a testes; nenhuma mudança de comportamento da aplicação.
 - Implementação comprovada pelo commit `2dc6365`.
-- Três testes diretos da aplicação real implementados e validados.
-- Suíte atual: 51 testes aprovados e 1 aviso conhecido e não bloqueante.
+- Três testes diretos da aplicação real implementados e validados; a implementação
+  foi encerrada com 51 testes aprovados.
+- Suíte atual: 54 testes aprovados e 1 aviso conhecido e não bloqueante, após três
+  regressões do contrato de seleção da Sprint no snapshot.
 - Ruff aprovado sem violações.
 - Importação, `GET /`, `GET /api/v1/health` e Request ID aprovados.
 - Nenhuma dependência, funcionalidade de produto ou arquivo em `apps/` alterado.
 - DT-007 permanece aberta, separada e não ativada.
 - Definition of Done funcional e documental atendida.
 - Nenhuma Sprint está ativa ou formalmente planejada.
-- O snapshot será regenerado após o commit documental pelo fluxo oficial de
-  continuidade.
+- O snapshot oficial é mantido em commit exclusivo pelo fluxo de fechamento; seu
+  estado deve ser consultado em `docs/PROJECT_SNAPSHOT.md`, validado com
+  `python tools/project_snapshot.py --check` e confrontado com Git.
 
 ## Trabalho concluído anterior
 
@@ -229,8 +232,8 @@ Evidência Git:
 
 Resultado verificado:
 
-- 51 testes coletados;
-- 51 testes aprovados;
+- 54 testes coletados;
+- 54 testes aprovados;
 - 1 aviso de depreciação do `TestClient`.
 
 O aviso de depreciação é uma observação conhecida e não bloqueia o fechamento.

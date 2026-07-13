@@ -39,6 +39,8 @@
 - Contrato exato entre `Settings` e `.env.example`.
 - Formatos de logging console e JSON.
 - Snapshot determinístico, baseado em `git ls-tree HEAD` e sem autorreferência.
+- Seleção do snapshot com precedência para Sprint ativa, última Sprint concluída e
+  fallback legado, sem reutilizar EPIC ou Task históricas.
 
 ## 5. Estrutura Relevante
 
@@ -71,7 +73,7 @@ docs/
 ## 6. Qualidade Verificada
 
 - Ruff: aprovado sem violações.
-- Pytest: 51 testes aprovados.
+- Pytest: 54 testes aprovados; a implementação da Sprint havia sido encerrada com 51.
 - Aviso: 1 `StarletteDeprecationWarning` conhecido e não bloqueante.
 - Importação de `app.main`: aprovada para Hermes AI OS `0.0.1`.
 - `GET /`: HTTP 200.
@@ -103,9 +105,9 @@ ADRs aceitos:
 
 - `685b053` — baseline de planejamento da SPRINT-04 e snapshot final anterior.
 - `2dc6365` — testes diretos da API base e ativação documental da SPRINT-04.
+- `67ac020` — encerramento documental e este handoff da SPRINT-04.
 
-Nenhum hash é atribuído antecipadamente ao futuro commit documental ou ao futuro
-commit do snapshot.
+Nenhum hash, fingerprint ou estado de publicação futuro é antecipado por este handoff.
 
 ## 9. Dívidas e Limitações
 
@@ -125,6 +127,9 @@ commit do snapshot.
 - A próxima conversa deve validar Git, código, testes e snapshot antes de planejar.
 - A validade do snapshot deve ser consultada diretamente com
   `python tools/project_snapshot.py --check`.
+- Atualizações do snapshot usam commit exclusivo; Git determina seu estado de commit
+  e publicação.
+- Correções do gerador devem estar em `HEAD` antes da geração real do relatório.
 
 ## 11. Trabalhos que Não Devem Ser Repetidos
 

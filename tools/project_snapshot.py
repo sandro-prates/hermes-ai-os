@@ -319,6 +319,8 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
             "next_sprint_first_task": NOT_IDENTIFIED,
             "next_task_status": NOT_IDENTIFIED,
             "next_sprint_implementation": NOT_IDENTIFIED,
+            "functional_item": NOT_IDENTIFIED,
+            "functional_item_status": NOT_IDENTIFIED,
         }
     values = parse_simple_yaml_mapping(text)
 
@@ -326,27 +328,160 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
         value = values.get(path_key)
         return NOT_IDENTIFIED if value is None else str(value)
 
-    epic_id = get(("last_completed_work", "epic", "id"))
-    epic_name = get(("last_completed_work", "epic", "name"))
-    epic = (
-        f"{epic_id} — {epic_name}"
-        if NOT_IDENTIFIED not in {epic_id, epic_name}
-        else NOT_IDENTIFIED
+    def required_text(path: tuple[str, ...], label: str) -> str:
+        value = values.get(path)
+        if not isinstance(value, str) or not value:
+            raise SnapshotError(f"PROJECT_STATE possui {label} inválido.")
+        return value
+
+    def optional_entity(
+        prefix: tuple[str, ...],
+        *,
+        absent: str,
+    ) -> tuple[str, str]:
+        scalar = values.get(prefix)
+        entity_id = values.get((*prefix, "id"))
+        if isinstance(scalar, str) and scalar.casefold() in {"none", "nenhuma"}:
+            return absent, "não aplicável"
+        if scalar is not None:
+            raise SnapshotError(
+                f"PROJECT_STATE possui valor ambíguo em {'.'.join(prefix)}."
+            )
+        if entity_id is None:
+            return absent, "não aplicável"
+        if not isinstance(entity_id, str) or not entity_id:
+            raise SnapshotError(
+                f"PROJECT_STATE possui identificador inválido em {'.'.join(prefix)}."
+            )
+        title = values.get((*prefix, "title"), values.get((*prefix, "name")))
+        if not isinstance(title, str) or not title:
+            raise SnapshotError(
+                f"PROJECT_STATE possui título inválido em {'.'.join(prefix)}."
+            )
+        status = values.get((*prefix, "status"))
+        if not isinstance(status, str) or not status:
+            raise SnapshotError(
+                f"PROJECT_STATE possui status inválido em {'.'.join(prefix)}."
+            )
+        return f"{entity_id} — {title}", status
+
+    active_id = values.get(("active_work", "sprint", "id"))
+    active_scalar = values.get(("active_work", "sprint"))
+    completed_id = values.get(("last_completed_sprint", "sprint", "id"))
+    active_fields = any(path[:2] == ("active_work", "sprint") for path in values)
+    completed_fields = any(
+        path[:2] == ("last_completed_sprint", "sprint") for path in values
     )
-    sprint_id = get(("last_completed_work", "sprint", "id"))
-    sprint_title = get(("last_completed_work", "sprint", "title"))
+    if active_id is None and active_scalar is None and active_fields:
+        raise SnapshotError("PROJECT_STATE possui Sprint ativa incompleta.")
+    if completed_id is None and completed_fields:
+        raise SnapshotError("PROJECT_STATE possui última Sprint concluída incompleta.")
+    if active_id is not None:
+        sprint_id = required_text(("active_work", "sprint", "id"), "Sprint ativa")
+        sprint_title = required_text(
+            ("active_work", "sprint", "title"), "título da Sprint ativa"
+        )
+        sprint_status = required_text(
+            ("active_work", "sprint", "status"), "status da Sprint ativa"
+        )
+        if sprint_status != "in_progress":
+            raise SnapshotError(
+                "PROJECT_STATE possui Sprint ativa sem status 'in_progress'."
+            )
+        selected_prefix = ("active_work",)
+        selected_kind = "active"
+    elif active_scalar not in {None, "none", "nenhuma"}:
+        raise SnapshotError("PROJECT_STATE possui active_work.sprint ambíguo.")
+    elif completed_id is not None:
+        sprint_id = required_text(
+            ("last_completed_sprint", "sprint", "id"), "última Sprint concluída"
+        )
+        sprint_title = required_text(
+            ("last_completed_sprint", "sprint", "title"),
+            "título da última Sprint concluída",
+        )
+        sprint_status = required_text(
+            ("last_completed_sprint", "sprint", "status"),
+            "status da última Sprint concluída",
+        )
+        if sprint_status != "completed":
+            raise SnapshotError(
+                "PROJECT_STATE possui última Sprint concluída sem status 'completed'."
+            )
+        selected_prefix = ("last_completed_sprint",)
+        selected_kind = "completed"
+    else:
+        sprint_id = get(("last_completed_work", "sprint", "id"))
+        sprint_title = get(("last_completed_work", "sprint", "title"))
+        sprint_status = get(("last_completed_work", "sprint", "status"))
+        selected_prefix = ("last_completed_work",)
+        selected_kind = "legacy"
+
     sprint = (
         f"{sprint_id} — {sprint_title}"
         if NOT_IDENTIFIED not in {sprint_id, sprint_title}
         else sprint_id
     )
-    task_id = get(("current_task", "id"))
-    task_title = get(("current_task", "title"))
-    task = (
-        f"{task_id} — {task_title}"
-        if NOT_IDENTIFIED not in {task_id, task_title}
-        else task_title
-    )
+
+    if selected_kind == "legacy":
+        epic_id = get(("last_completed_work", "epic", "id"))
+        epic_name = get(("last_completed_work", "epic", "name"))
+        epic = (
+            f"{epic_id} — {epic_name}"
+            if NOT_IDENTIFIED not in {epic_id, epic_name}
+            else NOT_IDENTIFIED
+        )
+        epic_status = get(("last_completed_work", "epic", "status"))
+        if values.get(("current_task", "sprint")) == sprint_id:
+            task_id = get(("current_task", "id"))
+            task_title = get(("current_task", "title"))
+            task = (
+                f"{task_id} — {task_title}"
+                if NOT_IDENTIFIED not in {task_id, task_title}
+                else task_title
+            )
+            task_status = get(("current_task", "status"))
+        else:
+            task = "nenhuma Task ou DT formal"
+            task_status = "não aplicável"
+        functional_item = NOT_IDENTIFIED
+        functional_item_status = NOT_IDENTIFIED
+        application_import = get(
+            ("last_completed_work", "manual_runtime_validation", "result")
+        )
+    else:
+        epic, epic_status = optional_entity(
+            (*selected_prefix, "epic"), absent="nenhuma EPIC associada"
+        )
+        task, task_status = optional_entity(
+            (*selected_prefix, "task"), absent="nenhuma Task ou DT formal"
+        )
+        if selected_kind == "active" and task_status == "não aplicável":
+            current_sprint = values.get(("current_task", "sprint"))
+            if current_sprint == sprint_id:
+                task_id = required_text(("current_task", "id"), "Task ativa")
+                task_title = required_text(
+                    ("current_task", "title"), "título da Task ativa"
+                )
+                task_status = required_text(
+                    ("current_task", "status"), "status da Task ativa"
+                )
+                task = f"{task_id} — {task_title}"
+        item_value = values.get((*selected_prefix, "functional_item"))
+        item_status = values.get((*selected_prefix, "functional_item_status"))
+        if (item_value is None) != (item_status is None):
+            raise SnapshotError("PROJECT_STATE possui item funcional incompleto.")
+        if item_value is None:
+            functional_item = NOT_IDENTIFIED
+            functional_item_status = NOT_IDENTIFIED
+        elif not all(
+            isinstance(value, str) and value for value in (item_value, item_status)
+        ):
+            raise SnapshotError("PROJECT_STATE possui item funcional inválido.")
+        else:
+            functional_item = item_value
+            functional_item_status = item_status
+        application_import = get((*selected_prefix, "application_import"))
 
     planned_paths = {
         "epic_id": ("next_sprint", "epic", "id"),
@@ -454,9 +589,13 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
     master = head_text(root, "docs/00_PROJECT_MASTER.md", runner) or ""
     backlog = head_text(root, "docs/02_BACKLOG.md", runner) or ""
     active_sprint = (
-        "nenhuma"
-        if "> **Sprint atual:** nenhuma" in master
-        else NOT_IDENTIFIED
+        sprint
+        if selected_kind == "active"
+        else (
+            "nenhuma"
+            if "> **Sprint atual:** nenhuma" in master
+            else NOT_IDENTIFIED
+        )
     )
     no_formal_plan = (
         "Os itens abaixo vêm do `PROJECT_MASTER` e ainda não representam Sprints "
@@ -472,11 +611,13 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
     return {
         "project": get(("project", "name")),
         "epic": epic,
-        "epic_status": get(("last_completed_work", "epic", "status")),
+        "epic_status": epic_status,
         "sprint": sprint,
-        "sprint_status": get(("last_completed_work", "sprint", "status")),
+        "sprint_status": sprint_status,
         "task": task,
-        "task_status": get(("current_task", "status")),
+        "task_status": task_status,
+        "functional_item": functional_item,
+        "functional_item_status": functional_item_status,
         "active_sprint": active_sprint,
         "planned_sprint": planned_sprint,
         "next_task": get(("next_task", "title")),
@@ -484,9 +625,7 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
         "pytest": get(("quality", "pytest", "result")),
         "pytest_passed": get(("quality", "pytest", "passed_tests")),
         "pytest_warnings": get(("quality", "pytest", "warnings")),
-        "application_import": get(
-            ("last_completed_work", "manual_runtime_validation", "result")
-        ),
+        "application_import": application_import,
         **planned,
     }
 
@@ -1056,6 +1195,12 @@ def render_snapshot(
             f"\n- Status da Task planejada: {state['next_task_status']}"
             f"\n- Implementação iniciada: {state['next_sprint_implementation']}"
         )
+    functional_item_details = ""
+    if state["functional_item"] != NOT_IDENTIFIED:
+        functional_item_details = (
+            f"\n- Item funcional: {state['functional_item']}"
+            f"\n- Status do item funcional: {state['functional_item_status']}"
+        )
     return f"""# Hermes AI OS  Project Snapshot
 
 ## 1. Identificação
@@ -1078,7 +1223,7 @@ def render_snapshot(
 - Sprint: {state['sprint']}
 - Status da Sprint: {state['sprint_status']}
 - Task: {state['task']}
-- Status da Task: {state['task_status']}
+- Status da Task: {state['task_status']}{functional_item_details}
 
 ## 3. Continuidade de Sprint
 

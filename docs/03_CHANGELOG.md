@@ -26,6 +26,13 @@ SPRINT-04 — Foundation Integrity Baseline encerrada localmente no M0, sem nova
 
 ### Corrigido
 
+- Durante o fechamento técnico da SPRINT-04 foi identificada e corrigida a seleção
+  obsoleta de Sprint no gerador: Sprint ativa tem precedência, seguida da última
+  Sprint concluída e do fallback legado.
+- A seleção da SPRINT-04 não reutiliza EPIC-004 ou DT-008, que pertencem ao registro
+  histórico da SPRINT-03; ausência de EPIC ou Task formal é representada sem inventar
+  identificadores.
+- O schema 3 e os contratos determinísticos do snapshot foram preservados.
 - O commit `686a630` tornou explícitos no snapshot os status da EPIC, Sprint e Task,
   a ausência de Sprint ativa ou planejada e as limitações atuais.
 - Quatro testes de regressão foram adicionados ao contrato do snapshot.
@@ -41,7 +48,9 @@ SPRINT-04 — Foundation Integrity Baseline encerrada localmente no M0, sem nova
 ### Validado
 
 - Baseline anterior à SPRINT-04 com 48 testes aprovados.
-- Suíte atual com 51 testes aprovados e 1 aviso conhecido e não bloqueante.
+- Implementação da SPRINT-04 validada originalmente com 51 testes aprovados.
+- Suíte atual com 54 testes aprovados e 1 aviso conhecido e não bloqueante após três
+  regressões do contrato de seleção do snapshot.
 - Três testes diretos da API base aprovados, cobrindo respostas públicas e Request ID.
 - Ruff aprovado sem violações.
 - Importação, `GET /`, `GET /api/v1/health`, geração e preservação de Request ID
@@ -50,8 +59,11 @@ SPRINT-04 — Foundation Integrity Baseline encerrada localmente no M0, sem nova
 
 ### Continuidade
 
-- O snapshot final será regenerado após o commit documental.
-- A publicação depende de autorização separada e ainda não foi realizada.
+- O snapshot oficial é atualizado em commit exclusivo, validado por
+  `python tools/project_snapshot.py --check`; Git é a fonte do estado de commit e
+  publicação.
+- Correções do gerador devem integrar `HEAD` antes da geração real do relatório, que
+  permanece isolada em commit próprio.
 
 ---
 

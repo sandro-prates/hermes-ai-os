@@ -216,6 +216,7 @@ last_completed_work:
 current_task:
   id: TASK-README
   title: README e onboarding reproduzível do Hermes AI OS
+  sprint: SPRINT-02
   status: completed
 next_task: null
 quality:
@@ -270,6 +271,7 @@ last_completed_work:
 current_task:
   id: TASK-README
   title: README
+  sprint: SPRINT-02
   status: completed
 next_sprint:
   id: SPRINT-03
@@ -352,6 +354,7 @@ last_completed_work:
 current_task:
   id: DT-008
   title: Versionar e validar um .env.example sanitizado
+  sprint: SPRINT-03
   status: completed
   implementation:
     env_example_sanitized: true
@@ -363,6 +366,102 @@ quality:
   ruff:
     result: passed
 """
+
+
+def sprint04_completed_state_text() -> str:
+    return """project:
+  name: Hermes AI OS
+last_completed_work:
+  epic:
+    id: EPIC-004
+    name: Foundation Reproducibility
+    status: completed
+  sprint:
+    id: SPRINT-03
+    title: Reproducible Onboarding Baseline
+    status: completed
+  manual_runtime_validation:
+    result: passed
+current_task:
+  id: DT-008
+  title: Versionar e validar um .env.example sanitizado
+  sprint: SPRINT-03
+  status: completed
+  implementation:
+    env_example_sanitized: true
+active_work:
+  sprint: none
+last_completed_sprint:
+  sprint:
+    id: SPRINT-04
+    title: Foundation Integrity Baseline
+    status: completed
+  epic: none
+  functional_item: Criar testes automatizados da API base
+  functional_item_status: completed
+  application_import: passed
+quality:
+  pytest:
+    result: passed
+    passed_tests: 51
+    warnings: 1
+  ruff:
+    result: passed
+"""
+
+
+def test_last_completed_sprint_precedes_historical_work(tmp_path: Path) -> None:
+    state = required_state(
+        tmp_path,
+        final_state_runner(sprint04_completed_state_text()),
+    )
+
+    assert state["sprint"] == "SPRINT-04 — Foundation Integrity Baseline"
+    assert state["sprint_status"] == "completed"
+    assert state["epic"] == "nenhuma EPIC associada"
+    assert state["epic_status"] == "não aplicável"
+    assert state["task"] == "nenhuma Task ou DT formal"
+    assert state["task_status"] == "não aplicável"
+    assert state["functional_item"] == "Criar testes automatizados da API base"
+    assert state["functional_item_status"] == "completed"
+    assert state["active_sprint"] == "nenhuma"
+    assert state["planned_sprint"] == "nenhuma"
+    assert "EPIC-004" not in state["epic"]
+    assert "DT-008" not in state["task"]
+
+
+def test_active_sprint_precedes_last_completed_sprint(tmp_path: Path) -> None:
+    text = sprint04_completed_state_text().replace(
+        "active_work:\n  sprint: none\n",
+        """active_work:
+  sprint:
+    id: SPRINT-ACTIVE
+    title: Active Contract Fixture
+    status: in_progress
+  epic: none
+  task:
+    id: TASK-ACTIVE
+    title: Active Task Fixture
+    status: in_progress
+""",
+    )
+
+    state = required_state(tmp_path, final_state_runner(text))
+
+    assert state["sprint"] == "SPRINT-ACTIVE — Active Contract Fixture"
+    assert state["sprint_status"] == "in_progress"
+    assert state["active_sprint"] == "SPRINT-ACTIVE — Active Contract Fixture"
+    assert state["epic"] == "nenhuma EPIC associada"
+    assert state["task"] == "TASK-ACTIVE — Active Task Fixture"
+    assert state["task_status"] == "in_progress"
+
+
+def test_legacy_state_falls_back_to_last_completed_work(tmp_path: Path) -> None:
+    state = required_state(tmp_path, final_state_runner(completed_state_text()))
+
+    assert state["sprint"] == "SPRINT-03 — Reproducible Onboarding Baseline"
+    assert state["epic"] == "EPIC-004 — Foundation Reproducibility"
+    assert state["task"] == "DT-008 — Versionar e validar um .env.example sanitizado"
 
 
 def test_final_state_is_explicit_and_has_no_active_or_planned_sprint(
@@ -565,7 +664,7 @@ def test_final_markdown_keeps_dt007_as_debt_and_reports_limitations(
     tmp_path: Path,
 ) -> None:
     committed_files = {
-        "docs/01_PROJECT_STATE.yaml": completed_state_text(),
+        "docs/01_PROJECT_STATE.yaml": sprint04_completed_state_text(),
         "docs/00_PROJECT_MASTER.md": "> **Sprint atual:** nenhuma\n",
         "docs/02_BACKLOG.md": """# Backlog
 
@@ -650,9 +749,14 @@ dependencies = []
         rendered.index("## 4. Estrutura Relevante")
     ]
 
-    assert "- Status da EPIC: completed" in rendered
+    assert "- EPIC: nenhuma EPIC associada" in rendered
+    assert "- Status da EPIC: não aplicável" in rendered
+    assert "- Sprint: SPRINT-04 — Foundation Integrity Baseline" in rendered
     assert "- Status da Sprint: completed" in rendered
-    assert "- Status da Task: completed" in rendered
+    assert "- Task: nenhuma Task ou DT formal" in rendered
+    assert "- Status da Task: não aplicável" in rendered
+    assert "- Item funcional: Criar testes automatizados da API base" in rendered
+    assert "- Status do item funcional: completed" in rendered
     assert "\n- status:" not in rendered
     assert "- Sprint ativa: nenhuma" in continuity
     assert "- Próxima Sprint planejada: nenhuma" in continuity
