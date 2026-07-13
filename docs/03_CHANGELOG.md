@@ -8,20 +8,43 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-EPIC-004 / SPRINT-03 — Reproducible Onboarding Baseline está em andamento. DT-008 foi
-implementada e validada; snapshot final, handoff, validação de fechamento e publicação
-permanecem pendentes.
+Snapshot final, handoff, validação de fechamento e publicação permanecem pendentes.
+Nenhuma nova Sprint foi ativada.
 
-### Alterações locais da DT-008
+---
+
+## [EPIC-004-SPRINT-03] — 2026-07-13
+
+### EPIC-004 / SPRINT-03 — Reproducible Onboarding Baseline
+
+**Status:** Concluída
+
+**EPIC-004:** permanece `in_progress` até a conclusão do fluxo formal de fechamento.
+
+**Git:** implementação da DT-008 no commit `2ebed11`
+
+### Adicionado
 
 - Exceção específica de `.env.example` adicionada após as regras protetivas de `.env`.
 - Template sanitizado alinhado a todos os campos atuais de `Settings`.
-- Teste de contrato adicionado para chaves, validação Pydantic e marcadores objetivos
+- Dois testes de contrato adicionados para chaves, validação Pydantic e marcadores objetivos
   de segredo ou caminho pessoal.
-- README alinhado ao template disponível e à cópia opcional.
-- Baseline `51d3747`, Ruff, Pytest, endpoints, Request ID e formatos de logging validados.
 
-### Encerramento publicado
+### Alterado
+
+- README alinhado ao template disponível e à cópia opcional.
+- Documentação viva alinhada ao encerramento da SPRINT-03.
+
+### Validado
+
+- 44 testes aprovados e 1 aviso conhecido e não bloqueante.
+- Ruff aprovado sem violações.
+- Importação, endpoints, Request ID e formatos de logging preservados.
+- Nenhuma dependência ou funcionalidade de produto adicionada.
+- `.env` e variantes reais permanecem ignorados; `.env.example` está rastreado.
+- DT-007 permanece aberta e fora do escopo.
+
+### Baseline publicada anteriormente
 
 - `2fcbd17`: README e onboarding concluídos.
 - `1c02fb0`, `19b61d7` e `0866657`: ferramenta de snapshot implementada, corrigida e
@@ -30,13 +53,6 @@ permanecem pendentes.
 - `main` e `origin/main` verificados e sincronizados em `e1c3587` antes deste
   fechamento documental.
 
-### Planejado
-
-- EPIC-004 — Foundation Reproducibility.
-- SPRINT-03 — Reproducible Onboarding Baseline (`planned`).
-- Primeira Task: versionar e validar um `.env.example` sanitizado.
-- DT-007 permanece aberta e foi adiada por prioridade inferior à DT-008.
-
 ### Estado dos incrementos recentes
 
 - README e onboarding concluídos no commit `2fcbd17`.
@@ -44,6 +60,7 @@ permanecem pendentes.
 - Gerador determinístico de snapshot e testes adicionados em `1c02fb0`.
 - `docs/PROJECT_SNAPSHOT.md` adotado oficialmente em `e1c3587` e validado com
   `python tools/project_snapshot.py --check` após o próprio commit.
+- DT-008 implementada no commit `2ebed11`.
 
 ### Adicionado
 

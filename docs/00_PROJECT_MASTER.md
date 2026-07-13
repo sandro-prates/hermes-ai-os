@@ -10,13 +10,13 @@
 >
 > **Último EPIC concluído:** EPIC-003 — Logging System
 >
-> **Última Sprint concluída:** SPRINT-02 — Logging System
+> **Última Sprint concluída:** SPRINT-03 — Reproducible Onboarding Baseline
 >
-> **Sprint atual:** SPRINT-03 — Reproducible Onboarding Baseline (`in_progress`)
+> **Sprint atual:** nenhuma
 >
 > **Responsável:** Sandro Prates
 >
-> **Última verificação:** 12/07/2026
+> **Última verificação:** 13/07/2026
 
 ---
 
@@ -117,7 +117,30 @@ Snapshot oficial adotado e validado após o próprio commit.
 
 Encerramento documental e handoff oficial preparados.
 
+### `2ebed11`
+
+DT-008 implementada com `.env.example` sanitizado, exceção segura no `.gitignore`,
+teste contratual e documentação operacional alinhada.
+
 ## Último trabalho concluído
+
+### EPIC-004 — Foundation Reproducibility (`in_progress`)
+
+### SPRINT-03 — Reproducible Onboarding Baseline — Concluída
+
+- DT-008 concluída no commit `2ebed11`;
+- `.env.example` sanitizado e rastreado;
+- `.env` e variantes reais permanecem ignorados;
+- contrato de configuração protegido por dois testes automatizados;
+- 44 testes e Ruff aprovados;
+- endpoints, Request ID e formatos de logging preservados;
+- nenhuma dependência ou funcionalidade de produto adicionada.
+
+A implementação prevista na EPIC-004 foi atendida pela SPRINT-03 e pela DT-008. A EPIC
+permanece `in_progress` até o snapshot final, handoff, validação de fechamento e
+publicação. Nenhuma nova Sprint foi ativada.
+
+## Trabalho concluído anterior
 
 ### EPIC-003 — Logging System
 
@@ -157,8 +180,8 @@ Evidência Git:
 
 Resultado verificado:
 
-- 32 testes coletados;
-- 32 testes aprovados;
+- 44 testes coletados;
+- 44 testes aprovados;
 - 1 aviso de depreciação do `TestClient`.
 
 O aviso de depreciação é uma observação conhecida e não bloqueia o fechamento.
@@ -210,17 +233,18 @@ após o commit do próprio relatório.
 
 Somente M0 está em andamento. Os demais permanecem pendentes como milestones formais.
 
-## Sprint atual
+## Sprint concluída
 
 - EPIC-004 — Foundation Reproducibility.
 - SPRINT-03 — Reproducible Onboarding Baseline.
-- Status: `in_progress`.
+- Status: `completed`.
 - Objetivo: tornar o onboarding documentado reproduzível a partir de um clone limpo.
-- Task atual: DT-008 — versionar e validar um `.env.example` sanitizado (`in_progress`).
+- Task concluída: DT-008 — versionar e validar um `.env.example` sanitizado (`completed`).
 
-A baseline publicada em `51d3747` foi comprovada antes da ativação. A implementação
-foi validada, mas Definition of Done, snapshot final, handoff, validação de fechamento
-e publicação permanecem pendentes.
+A baseline publicada em `51d3747` foi comprovada antes da ativação, e a implementação
+foi commitada em `2ebed11`. A SPRINT-03 está concluída, mas a EPIC-004 permanece
+`in_progress` até o snapshot final, handoff, validação de fechamento e publicação.
+Nenhuma nova Sprint foi ativada.
 
 ---
 

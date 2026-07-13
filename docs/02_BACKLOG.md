@@ -227,18 +227,21 @@ O README operacional foi criado e seus comandos principais foram validados.
 
 ---
 
-# Sprint Atual
+# Sprint Concluída
 
 ## EPIC-004 — Foundation Reproducibility
 
 ### SPRINT-03 — Reproducible Onboarding Baseline
 
-**Status:** `in_progress`
+**Status da EPIC:** `in_progress` até a conclusão do fluxo formal de fechamento
+
+**Status da Sprint:** `completed`
 
 **Objetivo único:** tornar o onboarding documentado reproduzível a partir de um clone
 limpo, sem adicionar dependências nem implementar funcionalidades de produto.
 
-**Task atual:** DT-008 — versionar e validar um `.env.example` sanitizado (`in_progress`).
+**Task concluída:** DT-008 — versionar e validar um `.env.example` sanitizado
+(`completed`, commit `2ebed11`).
 
 **Justificativa:** na baseline, o README instruía copiar `.env.example`, mas o arquivo
 estava ignorado e ausente da árvore Git. O comando falhava em um clone limpo, quebrando
@@ -255,13 +258,16 @@ o onboarding oficial. Essa inconsistência operacional tem prioridade maior que 
 
 **Critérios de aceitação:**
 
-- [x] `.env.example` sanitizado e preparado para distribuição;
+- [x] `.env.example` sanitizado, rastreado e preparado para distribuição;
 - [x] nenhum segredo, credencial ou valor específico da máquina incluído;
 - [x] template consistente com os campos de `Settings`;
 - [x] sem dependência, arquitetura ou funcionalidade adicionada;
-- [ ] publicação das alterações;
-- [ ] snapshot final regenerado e aprovado por `--check`;
-- [ ] handoff e fechamento da Sprint.
+- [x] contrato de configuração protegido por dois testes automatizados;
+- [x] 44 testes e Ruff aprovados;
+- [x] implementação registrada no commit `2ebed11`.
+
+**Fluxo formal ainda pendente:** snapshot final, handoff, validação de fechamento e
+publicação. Esses itens não alteram o estado concluído da implementação da DT-008.
 
 **Fora de escopo:** implementação de produto, novas dependências, lockfile, CI/CD,
 banco de dados, runtime de agentes, memória, dashboard, integrações e preenchimento
@@ -274,8 +280,9 @@ divergente de `Settings`; ou ampliar o escopo para configuração de produto.
 testes documentais aplicáveis, quatro documentos de continuidade e snapshot no
 fechamento formal. ADR novo somente se surgir decisão arquitetural realmente nova.
 
-**Ativação:** baseline `51d3747` comprovada; implementação local iniciada. Definition
-of Done ainda não atendida.
+**Encerramento:** baseline `51d3747` comprovada e implementação concluída em `2ebed11`.
+A SPRINT-03 está concluída; a EPIC-004 permanece `in_progress` até o snapshot final,
+handoff, validação de fechamento e publicação. Nenhuma nova Sprint foi ativada.
 
 ---
 
@@ -293,15 +300,15 @@ O item foi deliberadamente adiado em favor da inconsistência operacional DT-008
 
 ## DT-008 — `.env.example` ignorado e ausente do Git
 
-**Status:** 🟡 Em andamento
+**Status:** ✅ Resolvida no commit `2ebed11`
 
 Na baseline, o README instruía copiar `.env.example`, mas `.gitignore` ignorava `.env.*`
 e o template não integrava a árvore Git. O onboarding documentado não funcionava
 integralmente em clone limpo.
 
-**Execução:** Task atual da SPRINT-03 (`in_progress`). O template e seu teste de
-contrato foram preparados e validados. O fechamento formal da Sprint e a publicação
-permanecem pendentes.
+**Execução:** Task concluída na SPRINT-03. O template sanitizado está rastreado, e seu
+contrato é protegido por dois testes automatizados. `.env` e variantes reais continuam
+ignorados. Snapshot final, handoff e publicação seguem o fluxo formal de encerramento.
 
 ---
 

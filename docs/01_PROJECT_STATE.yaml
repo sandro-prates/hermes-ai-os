@@ -1,6 +1,6 @@
 schema_version: 1
 last_verified:
-  date: '2026-07-12'
+  date: '2026-07-13'
   method: Auditoria automática contra Git, imports do código, pytest, Ruff e documentos
 project:
   name: Hermes AI OS
@@ -44,6 +44,9 @@ repository:
   - commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
     short_commit: ed233ff
     message: 'docs(project): close sprint and prepare handoff'
+  - commit: 2ebed11018ec8b394c69a01e1fff4229561c3cfd
+    short_commit: 2ebed11
+    message: 'chore(config): add sanitized environment template'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
@@ -55,7 +58,7 @@ repository:
     commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
     short_commit: ed233ff
     message: 'docs(project): close sprint and prepare handoff'
-last_completed_work:
+previous_completed_work:
   epic:
     id: EPIC-003
     name: Logging System
@@ -101,41 +104,60 @@ last_completed_work:
   git_evidence:
     commit: a1d0d21e89fdb0092313e590cfdc1a5eda2e29a3
     pushed_to: origin/main
-current_sprint:
-  id: SPRINT-03
-  title: Reproducible Onboarding Baseline
-  status: in_progress
+last_completed_work:
   epic:
     id: EPIC-004
-    title: Foundation Reproducibility
+    name: Foundation Reproducibility
+    status: in_progress
+  sprint:
+    id: SPRINT-03
+    title: Reproducible Onboarding Baseline
+    status: completed
   objective: Tornar o onboarding documentado reproduzível a partir de um clone limpo
-  activation: Baseline comprovada em 51d3747 antes das alterações locais
-  implementation_started: true
-  first_task:
-    id: DT-008
-    title: Versionar e validar um .env.example sanitizado
-    objective: Garantir que os comandos de configuração documentados funcionem sem dados locais
-    primary_file: .env.example
-current_task:
-  id: DT-008
-  title: Versionar e validar um .env.example sanitizado
-  sprint: SPRINT-03
-  status: in_progress
-  scope: configuration_template_and_documentation
-  local_implementation:
-    env_example_prepared: true
-    env_example_ignored: false
-    env_example_sanitized: true
-    contract_test_added: true
-    validated: true
-    pushed: false
-  definition_of_done_met: false
-  pending:
-  - Revisão e aprovação do usuário
+  completed_and_validated:
+  - DT-008 implementada e validada
+  - .env.example sanitizado e rastreado
+  - .env e variantes reais permanecem ignorados
+  - Contrato de configuração protegido por dois testes automatizados
+  - 44 testes aprovados com 1 aviso conhecido e não bloqueante
+  - Ruff aprovado sem violações
+  - Endpoints, Request ID e formatos de logging preservados
+  - Nenhuma dependência ou funcionalidade de produto adicionada
+  manual_runtime_validation:
+    root_endpoint: /
+    root_http_status: 200
+    health_endpoint: /api/v1/health
+    health_http_status: 200
+    generated_request_id: true
+    propagated_request_id: hermes-sprint-03-closing
+    console_logging: passed
+    json_logging: passed
+    result: passed
+  pending_formal_closure:
   - Regeneração e auditoria do snapshot oficial
   - Atualização do handoff
   - Validação final de fechamento
   - Publicação
+  definition_of_done_met: true
+  git_evidence:
+    implementation_commit: 2ebed11018ec8b394c69a01e1fff4229561c3cfd
+    published: false
+current_task:
+  id: DT-008
+  title: Versionar e validar um .env.example sanitizado
+  sprint: SPRINT-03
+  status: completed
+  scope: configuration_template_and_documentation
+  implementation:
+    env_example_tracked: true
+    env_example_ignored: false
+    env_example_sanitized: true
+    contract_tests: 2
+    validated: true
+    pushed: false
+  definition_of_done_met: true
+  git_evidence:
+    commit: 2ebed11018ec8b394c69a01e1fff4229561c3cfd
 quality:
   pytest:
     command: python -m pytest
@@ -143,7 +165,7 @@ quality:
     collected_tests: 44
     passed_tests: 44
     warnings: 1
-    reported_duration_seconds: 6.06
+    reported_duration_seconds: 5.99
   ruff:
     command: python -m ruff check .
     result: passed
@@ -175,27 +197,23 @@ architecture:
 documentation:
   readme:
     path: README.md
-    status: committed
+    status: maintained
   project_master:
     path: docs/00_PROJECT_MASTER.md
-    status: committed_in_documental_closure
-    commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
+    status: maintained
   project_state:
     path: docs/01_PROJECT_STATE.yaml
-    status: committed_in_documental_closure
-    commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
+    status: maintained
   backlog:
     path: docs/02_BACKLOG.md
-    status: committed_in_documental_closure
-    commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
+    status: maintained
   changelog:
     path: docs/03_CHANGELOG.md
-    status: committed_in_documental_closure
-    commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
+    status: maintained
   handoff:
-    path: docs/HANDOFF_2026-07-12.md
-    status: committed_in_documental_closure
-    commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
+    path: docs/HANDOFF_2026-07-13.md
+    status: prepared_for_formal_closure
+    previous_path: docs/HANDOFF_2026-07-12.md
   adr_directory:
     path: docs/adr/
     status: committed
@@ -230,7 +248,7 @@ continuity:
   - Executar git status --short --branch
   - Não iniciar uma nova Sprint sem definição explícita
   audit:
-    status: completed
+    status: closing
     checks_passed:
     - code_import
     - http_endpoints
@@ -238,9 +256,9 @@ continuity:
     - json_logging
     - pytest_result_confirmed
     - ruff_result_confirmed
-    - final_git_state
     - git_diff_check
     - sprint_commit_confirmed
-    - sprint_push_confirmed_via_origin_main
-    - documentation_commit_confirmed
-    checks_pending: []
+    checks_pending:
+    - final_snapshot_refresh
+    - final_handoff_validation
+    - publication

@@ -10,9 +10,12 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - Fase atual: `M0 — Foundation`.
 - API FastAPI executável localmente.
 - EPIC-003 / SPRINT-02 (Logging System) concluída.
-- EPIC-004 / SPRINT-03 — Reproducible Onboarding Baseline está em andamento.
-- DT-008 foi implementada e validada; o fechamento formal da Sprint e a publicação
-  permanecem pendentes.
+- SPRINT-03 — Reproducible Onboarding Baseline concluída na EPIC-004.
+- DT-008 concluída no commit `2ebed11`, com `.env.example` sanitizado e dois testes
+  contratuais.
+- Nenhuma nova Sprint está ativa; snapshot final, handoff e publicação permanecem no
+  fluxo formal de encerramento.
+- EPIC-004 permanece `in_progress` até a conclusão desse fluxo formal.
 
 ## Funcionalidades implementadas
 
@@ -42,6 +45,7 @@ apps/backend/app/
 │   └── settings.py
 └── main.py
 tests/
+├── test_env_example.py
 ├── test_middleware.py
 ├── test_observability.py
 └── test_project_snapshot.py
@@ -191,7 +195,7 @@ Executar os testes:
 python -m pytest
 ```
 
-Baseline verificada no fechamento de 12/07/2026: 32 testes aprovados e 1 aviso de
+Baseline verificada no fechamento de 13/07/2026: 44 testes aprovados e 1 aviso de
 depreciação não bloqueante do `TestClient` relacionado ao `httpx`. Execute sempre o
 comando acima para obter o resultado atual; a quantidade de testes pode evoluir.
 
