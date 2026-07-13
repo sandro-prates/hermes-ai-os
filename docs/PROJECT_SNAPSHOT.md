@@ -3,35 +3,35 @@
 ## 1. Identificação
 
 - schema do snapshot: 3
-- fingerprint SHA-256 da árvore projetada: `e036f246ad0d090e213c6cff729a85c2b68aa0af5d0781c0446a13d7f6aa725f`
-- arquivos na projeção: 36
+- fingerprint SHA-256 da árvore projetada: `4f069e2d34549cb188c76058280fcd720bdc26768b2fd39f0f257cb76e2362ff`
+- arquivos na projeção: 39
 - projeto: Hermes AI OS
 - versão: 0.0.1
 - estado analisado: projeção determinística da árvore commitada
+- origem da projeção: entradas rastreadas em HEAD obtidas por `git ls-tree HEAD`
+- ordenação da projeção: determinística pelo caminho relativo
+- metadados excluídos: branch, upstream, hash, data e mensagem de commit
 - observação: `docs/PROJECT_SNAPSHOT.md` é excluído da projeção para evitar autorreferência; o estado transitório é exibido somente no console.
 
 ## 2. Estado Atual
 
-- EPIC: EPIC-003 — Logging System
-- Sprint: SPRINT-02
-- Task: README e onboarding reproduzível do Hermes AI OS
-- status: completed
-- próxima Task: Versionar e validar um .env.example sanitizado
-
-## 3. Próxima Sprint Planejada
-
 - EPIC: EPIC-004 — Foundation Reproducibility
+- Status da EPIC: completed
 - Sprint: SPRINT-03 — Reproducible Onboarding Baseline
-- Status da Sprint: planned
-- Objetivo: Tornar o onboarding documentado reproduzível a partir de um clone limpo
-- Primeira Task: DT-008 — Versionar e validar um .env.example sanitizado
-- Status da Task: planned
-- Implementação iniciada: não
+- Status da Sprint: completed
+- Task: DT-008 — Versionar e validar um .env.example sanitizado
+- Status da Task: completed
+
+## 3. Continuidade de Sprint
+
+- Sprint ativa: nenhuma
+- Próxima Sprint planejada: nenhuma
 
 ## 4. Estrutura Relevante
 
 ```text
 ├── .editorconfig
+├── .env.example
 ├── .gitattributes
 ├── .gitignore
 ├── Hermes-AI-OS.code-workspace
@@ -64,6 +64,7 @@
 │   ├── 02_BACKLOG.md
 │   ├── 03_CHANGELOG.md
 │   ├── HANDOFF_2026-07-12.md
+│   ├── HANDOFF_2026-07-13.md
 │   ├── adr
 │   │   ├── ADR-0001-pyproject-como-fonte-de-dependencias.md
 │   │   ├── ADR-0002-pacote-central-de-observabilidade.md
@@ -74,6 +75,7 @@
 │   └── research
 │       └── 2026-07-12-stack-tecnologica.md
 ├── tests
+│   ├── test_env_example.py
 │   ├── test_middleware.py
 │   ├── test_observability.py
 │   └── test_project_snapshot.py
@@ -121,18 +123,33 @@
 - `uvicorn[standard]>=0.51,<1.0`
 - `pydantic-settings>=2.14,<3.0`
 - `orjson>=3.11,<4.0`
+- Contrato de configuração reproduzível:
+- `.env.example` presente, sanitizado e rastreado na projeção.
+- Variáveis do template correspondem exatamente aos campos externos suportados por `Settings`.
+- Variáveis suportadas, na ordem declarada em `Settings`: `APP_NAME`, `APP_VERSION`, `ENVIRONMENT`, `DEBUG`, `HOST`, `PORT`, `LOG_LEVEL`, `LOG_FORMAT`, `REQUEST_ID_HEADER`.
+- A formação dos nomes externos considera `env_prefix` e aliases simples (`validation_alias` ou `alias`); os nomes canônicos são preservados na renderização.
+- Comparação de chaves não sensível a maiúsculas e minúsculas, conforme `case_sensitive=false`.
+- Aliases complexos e configurações ambíguas são rejeitados de forma fail-closed.
+- Colisões no template ou nos nomes externos de `Settings`, assim como chaves ausentes, adicionais ou duplicadas, são rejeitadas.
+- `.env.example` carregado e validado com sucesso por `pydantic-settings`.
+- Contrato protegido por `tests/test_env_example.py`.
+- Arquivo `.env` real ausente da projeção rastreada.
 
 ## 9. Observabilidade
 
 - Pacote: `app.core.observability`.
 - Formatos identificados no código: `console` e `json`.
-- Header padrão de correlação: `X-Request-ID`.
-- Contexto assíncrono: `ContextVar`.
+- Header de correlação configurável por `Settings.REQUEST_ID_HEADER`; padrão `X-Request-ID`.
+- Request ID gerado automaticamente quando ausente.
+- Request ID enviado pelo cliente preservado.
+- Request ID incluído no header da resposta.
+- Contexto assíncrono de correlação baseado em `ContextVar`.
+- Request ID do contexto injetado nos registros de log.
 
 ## 10. Qualidade
 
 - Ruff: estado commitado `passed`.
-- Pytest: estado commitado `passed — 32 aprovado(s), 1 aviso(s)`.
+- Pytest: estado commitado `passed — 48 aprovado(s), 1 aviso(s)`.
 - importação da aplicação: estado commitado `passed`.
 
 ## 11. Documentação e ADRs
@@ -148,21 +165,23 @@
 - ADR-0004 — Documentação viva como sistema formal de continuidade — Accepted
 - ADR-0005 — Snapshot como projeção determinística da árvore Git — Accepted
 
-## 12. Alterações Locais
-
-- O estado transitório não integra o snapshot canônico.
-- Staged, unstaged e untracked são exibidos no console antes da geração ou checagem.
-
-## 13. Problemas Conhecidos
+## 12. Problemas Conhecidos
 
 - Aviso de depreciação do `TestClient` relacionado ao `httpx`, não bloqueante.
 - documento de pesquisa tecnológica vazio.
 
-## 14. Dívida Técnica
+## 13. Dívida Técnica
 
-- DT-007 — Pesquisa tecnológica vazia — ⚠️ Aberta
-- DT-008 — `.env.example` ignorado e ausente do Git — ⚠️ Aberta
+- DT-007 — Pesquisa tecnológica vazia — ⚠️ Aberta — separada do escopo encerrado e não ativada
 
-## 15. Próximo Passo Documentado
+## 14. Próximo Passo Documentado
 
-Versionar e validar um .env.example sanitizado
+Não identificado
+
+## 15. Limitações Atuais
+
+- Banco de dados ainda não implementado.
+- Runtime de agentes ainda não implementado.
+- Memória ainda não implementada.
+- Dashboard ainda não implementado.
+- Integrações externas ainda não implementadas.
