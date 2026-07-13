@@ -546,7 +546,7 @@ dependencies = ["fastapi>=0.139,<1.0"]
     assert "\n- status:" not in first
     assert "## 3. Continuidade de Sprint" in first
     assert "- Próxima Sprint planejada: SPRINT-03 — Reproducible Onboarding Baseline" in first
-    assert "## 16. Limitações Atuais" in first
+    assert "## 15. Limitações Atuais" in first
     assert "- Banco de dados ainda não implementado." in first
     assert "- Runtime de agentes ainda não implementado." in first
     assert "- Memória ainda não implementada." in first
@@ -572,6 +572,8 @@ def test_final_markdown_keeps_dt007_as_debt_and_reports_limitations(
 ## DT-007 — Pesquisa tecnológica vazia
 
 **Status:** ⚠️ Aberta
+
+DT-007 não integra formalmente a EPIC-004 e não foi ativada automaticamente.
 
 # Roadmap de Alto Nível
 
@@ -655,7 +657,10 @@ dependencies = []
     assert "- Sprint ativa: nenhuma" in continuity
     assert "- Próxima Sprint planejada: nenhuma" in continuity
     assert "DT-007" not in continuity
-    assert "DT-007 — Pesquisa tecnológica vazia — ⚠️ Aberta" in rendered
+    assert (
+        "DT-007 — Pesquisa tecnológica vazia — ⚠️ Aberta — separada do escopo "
+        "encerrado e não ativada"
+    ) in rendered
     assert "- Banco de dados ainda não implementado." in rendered
     assert "- Runtime de agentes ainda não implementado." in rendered
     assert "- Memória ainda não implementada." in rendered
@@ -680,10 +685,25 @@ dependencies = []
     )
     assert variables_line.count("`") == 20
     assert "case_sensitive=false" in rendered
-    assert "Template sem variáveis ausentes, adicionais ou duplicadas." in rendered
+    assert "considera `env_prefix` e aliases simples" in rendered
+    assert "nomes canônicos são preservados" in rendered
+    assert "Aliases complexos e configurações ambíguas" in rendered
+    assert "fail-closed" in rendered
+    assert "Colisões no template ou nos nomes externos" in rendered
+    assert "chaves ausentes, adicionais ou duplicadas" in rendered
     assert "carregado e validado com sucesso por `pydantic-settings`" in rendered
     assert "Contrato protegido por `tests/test_env_example.py`." in rendered
     assert "Arquivo `.env` real ausente da projeção rastreada." in rendered
+    assert "git ls-tree HEAD" in rendered
+    assert "entradas rastreadas em HEAD" in rendered
+    assert "ordenação da projeção: determinística" in rendered
+    assert "branch, upstream, hash, data e mensagem de commit" in rendered
+    assert "`docs/PROJECT_SNAPSHOT.md` é excluído da projeção" in rendered
+    assert "## 12. Alterações Locais" not in rendered
+    canonical_lower = rendered.casefold()
+    assert "staged" not in canonical_lower
+    assert "unstaged" not in canonical_lower
+    assert "untracked" not in canonical_lower
 
     def settings_contract(settings_source: str, template_source: str) -> list[str]:
         sources = {

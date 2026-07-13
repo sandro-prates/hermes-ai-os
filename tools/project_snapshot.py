@@ -692,9 +692,15 @@ def settings_contract_lines(
         "Variáveis do template correspondem exatamente aos campos externos "
         "suportados por `Settings`.",
         f"Variáveis suportadas, na ordem declarada em `Settings`: {variables}.",
+        "A formação dos nomes externos considera `env_prefix` e aliases simples "
+        "(`validation_alias` ou `alias`); os nomes canônicos são preservados na "
+        "renderização.",
         f"Comparação de chaves {sensitivity} a maiúsculas e minúsculas, conforme "
         f"`case_sensitive={str(case_sensitive).lower()}`.",
-        "Template sem variáveis ausentes, adicionais ou duplicadas.",
+        "Aliases complexos e configurações ambíguas são rejeitados de forma "
+        "fail-closed.",
+        "Colisões no template ou nos nomes externos de `Settings`, assim como "
+        "chaves ausentes, adicionais ou duplicadas, são rejeitadas.",
         "`.env.example` carregado e validado com sucesso por `pydantic-settings`.",
         "Contrato protegido por `tests/test_env_example.py`.",
         "Arquivo `.env` real ausente da projeção rastreada.",
@@ -970,7 +976,13 @@ def debt_lines(root: Path, runner: Runner) -> list[str]:
         status = re.search(r"\*\*Status:\*\*\s*(.+)", section)
         value = status.group(1).strip() if status else NOT_IDENTIFIED
         if "Resolvida" not in value or "pendente" in value.lower():
-            results.append(f"- {match.group(1)} — {value}")
+            scope = ""
+            if (
+                "não integra formalmente" in section
+                and "não foi ativada automaticamente" in section
+            ):
+                scope = " — separada do escopo encerrado e não ativada"
+            results.append(f"- {match.group(1)} — {value}{scope}")
     return results or [f"- {NOT_IDENTIFIED}"]
 
 
@@ -1054,6 +1066,9 @@ def render_snapshot(
 - projeto: {state['project']}
 - versão: {pyproject.get('version', NOT_IDENTIFIED)}
 - estado analisado: projeção determinística da árvore commitada
+- origem da projeção: entradas rastreadas em HEAD obtidas por `git ls-tree HEAD`
+- ordenação da projeção: determinística pelo caminho relativo
+- metadados excluídos: branch, upstream, hash, data e mensagem de commit
 - observação: {observation}
 
 ## 2. Estado Atual
@@ -1121,25 +1136,20 @@ def render_snapshot(
 
 {chr(10).join(adr_lines(root, paths, runner))}
 
-## 12. Alterações Locais
-
-- O estado transitório não integra o snapshot canônico.
-- Staged, unstaged e untracked são exibidos no console antes da geração ou checagem.
-
-## 13. Problemas Conhecidos
+## 12. Problemas Conhecidos
 
 - Aviso de depreciação do `TestClient` relacionado ao `httpx`, não bloqueante.
 - {research_status}.
 
-## 14. Dívida Técnica
+## 13. Dívida Técnica
 
 {chr(10).join(debt_lines(root, runner))}
 
-## 15. Próximo Passo Documentado
+## 14. Próximo Passo Documentado
 
 {next_step}
 
-## 16. Limitações Atuais
+## 15. Limitações Atuais
 
 {limitation_text}
 """
