@@ -157,8 +157,8 @@ Entregas verificadas:
 
 Pendências retrospectivas verificadas:
 
-- [x] Criar testes automatizados da API base — implementados e validados localmente
-  na SPRINT-04; o fechamento formal da Sprint permanece pendente.
+- [x] Criar testes automatizados da API base — concluídos na SPRINT-04, com
+  implementação comprovada pelo commit `2dc6365`.
 - [x] Preencher `README.md` com onboarding reproduzível.
 - [ ] Confirmar documentação histórica da Sprint correspondente.
 - [ ] Validar Definition of Done retrospectiva.
@@ -291,11 +291,11 @@ escopo formal documentado da EPIC. A documentação e o handoff estão comprovad
 
 ---
 
-# Sprint Atual
+# SPRINT-04 Encerrada
 
 ## SPRINT-04 — Foundation Integrity Baseline
 
-**Status:** 🟡 Em andamento
+**Status:** ✅ Concluída
 
 **Milestone:** M0 — Foundation
 
@@ -321,11 +321,18 @@ documentos vivos à baseline Git atual.
 - [x] header configurado de Request ID validado na aplicação real;
 - [x] nenhuma alteração funcional em `apps/`;
 - [x] suíte completa com 51 testes e Ruff aprovados;
-- [x] documentação viva alinhada localmente com Git e testes;
-- [ ] snapshot e handoff atualizados no fechamento formal;
-- [ ] commit e publicação realizados mediante autorização.
+- [x] importação, endpoints e Request ID aprovados;
+- [x] documentação viva de encerramento preparada;
+- [x] novo handoff preparado sem sobrescrever os anteriores;
+- [x] implementação registrada no commit `2dc6365`;
+- [ ] snapshot final atualizado após o commit documental;
+- [ ] publicação realizada mediante autorização separada.
 
-**Definition of Done:** ainda não atendida.
+**Definition of Done:** atendida no escopo funcional e documental da Sprint. Snapshot
+final e publicação permanecem etapas posteriores do processo de continuidade.
+
+**Continuidade:** nenhuma Sprint está ativa ou formalmente planejada. DT-007 permanece
+aberta, separada e não ativada.
 
 **Fora do escopo:** DT-007, nova EPIC, dependências, lockfile, CI/CD, banco de dados,
 agentes, memória, dashboard, integrações, política nova de Request ID e correção do

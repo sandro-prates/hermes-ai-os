@@ -10,9 +10,9 @@
 >
 > **Último EPIC concluído:** EPIC-004 — Foundation Reproducibility
 >
-> **Última Sprint concluída:** SPRINT-03 — Reproducible Onboarding Baseline
+> **Última Sprint concluída:** SPRINT-04 — Foundation Integrity Baseline
 >
-> **Sprint atual:** SPRINT-04 — Foundation Integrity Baseline (`in_progress`)
+> **Sprint atual:** nenhuma
 >
 > **Responsável:** Sandro Prates
 >
@@ -167,9 +167,9 @@ A EPIC-004 possuía somente a SPRINT-03 e a DT-008 como escopo formal; todos os 
 funcionais foram atendidos. O snapshot oficial é um artefato técnico de continuidade,
 cuja validade deve ser verificada com `python tools/project_snapshot.py --check`.
 
-## Trabalho atual
+## Última Sprint concluída
 
-### SPRINT-04 — Foundation Integrity Baseline — Em andamento
+### SPRINT-04 — Foundation Integrity Baseline — Concluída
 
 - Milestone: M0 — Foundation.
 - EPIC: nenhuma nova EPIC criada; EPIC-004 permanece concluída.
@@ -177,12 +177,17 @@ cuja validade deve ser verificada com `python tools/project_snapshot.py --check`
 - Objetivo: proteger diretamente os contratos públicos de `GET /` e
   `GET /api/v1/health` e alinhar o estado documental corrente.
 - Escopo funcional restrito a testes; nenhuma mudança de comportamento da aplicação.
-- Três testes diretos da API base implementados e validados localmente.
+- Implementação comprovada pelo commit `2dc6365`.
+- Três testes diretos da aplicação real implementados e validados.
 - Suíte atual: 51 testes aprovados e 1 aviso conhecido e não bloqueante.
 - Ruff aprovado sem violações.
+- Importação, `GET /`, `GET /api/v1/health` e Request ID aprovados.
+- Nenhuma dependência, funcionalidade de produto ou arquivo em `apps/` alterado.
 - DT-007 permanece aberta, separada e não ativada.
-- Definition of Done ainda não atendida.
-- Snapshot e handoff serão tratados no fluxo oficial de fechamento.
+- Definition of Done funcional e documental atendida.
+- Nenhuma Sprint está ativa ou formalmente planejada.
+- O snapshot será regenerado após o commit documental pelo fluxo oficial de
+  continuidade.
 
 ## Trabalho concluído anterior
 

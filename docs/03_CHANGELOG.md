@@ -8,16 +8,21 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-SPRINT-04 — Foundation Integrity Baseline ativada no M0, sem nova EPIC.
+SPRINT-04 — Foundation Integrity Baseline encerrada localmente no M0, sem nova EPIC.
 
-### Em andamento
+### Adicionado
 
 - Cobertura direta dos contratos públicos de `GET /` e `GET /api/v1/health` na
   aplicação FastAPI real.
 - Validação do header configurado de Request ID nas respostas da API base.
+- Três testes diretos adicionados no commit `2dc6365`.
+
+### Alterado
+
 - Alinhamento da baseline operacional e das contagens atuais nos documentos vivos.
 - EPIC-004, SPRINT-03 e DT-008 permanecem concluídas; DT-007 continua aberta e não
   ativada.
+- Nenhuma Sprint está ativa ou formalmente planejada.
 
 ### Corrigido
 
@@ -39,6 +44,14 @@ SPRINT-04 — Foundation Integrity Baseline ativada no M0, sem nova EPIC.
 - Suíte atual com 51 testes aprovados e 1 aviso conhecido e não bloqueante.
 - Três testes diretos da API base aprovados, cobrindo respostas públicas e Request ID.
 - Ruff aprovado sem violações.
+- Importação, `GET /`, `GET /api/v1/health`, geração e preservação de Request ID
+  aprovadas.
+- Nenhuma funcionalidade, dependência ou arquivo em `apps/` foi alterado.
+
+### Continuidade
+
+- O snapshot final será regenerado após o commit documental.
+- A publicação depende de autorização separada e ainda não foi realizada.
 
 ---
 

@@ -14,8 +14,10 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - DT-008 concluída no commit `2ebed11`, com `.env.example` sanitizado e dois testes
   contratuais.
 - EPIC-004 concluída; seu único incremento formal foi atendido pela SPRINT-03 e DT-008.
-- SPRINT-04 — Foundation Integrity Baseline está ativa no M0, sem nova EPIC.
-- A Sprint protege diretamente os contratos públicos da API base e alinha a
+- SPRINT-04 — Foundation Integrity Baseline concluída no M0, sem nova EPIC.
+- Nenhuma Sprint está ativa ou formalmente planejada.
+- DT-007 permanece aberta, separada e não ativada.
+- A Sprint protegeu diretamente os contratos públicos da API base e alinhou a
   continuidade documental, sem alterar funcionalidades da aplicação.
 
 ## Funcionalidades implementadas
@@ -47,6 +49,7 @@ apps/backend/app/
 │   └── settings.py
 └── main.py
 tests/
+├── test_api.py
 ├── test_env_example.py
 ├── test_middleware.py
 ├── test_observability.py

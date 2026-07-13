@@ -77,6 +77,9 @@ repository:
   - commit: 685b053ed43ad28510e3bcb16271c4bfe2e19ea5
     short_commit: 685b053
     message: 'docs(project): refresh final project snapshot'
+  - commit: 2dc6365688b06a5c27bf536fb9e508d9ac59c2fb
+    short_commit: 2dc6365
+    message: 'test(api): protect base endpoint contracts'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
@@ -184,23 +187,38 @@ current_task:
   git_evidence:
     commit: 2ebed11018ec8b394c69a01e1fff4229561c3cfd
 active_work:
+  sprint: none
+  next_sprint: none
+  dt_007_activated: false
+last_completed_sprint:
   sprint:
     id: SPRINT-04
     title: Foundation Integrity Baseline
-    status: in_progress
+    status: completed
   epic: none
   milestone: M0
   objective: Proteger diretamente os contratos públicos da API base e alinhar o estado documental corrente
   functional_item: Criar testes automatizados da API base
+  functional_item_status: completed
   implementation_scope: tests_and_continuity_documentation
   direct_api_contract_tests: 3
-  locally_validated: true
-  current_pytest_passed_tests: 51
-  current_pytest_warnings: 1
-  current_ruff: passed
+  pytest_passed_tests: 51
+  pytest_warnings: 1
+  ruff: passed
+  application_import: passed
+  root_endpoint: passed
+  health_endpoint: passed
+  request_id_generation: passed
+  request_id_preservation: passed
   product_behavior_changed: false
-  definition_of_done_met: false
+  dependencies_added: false
+  application_files_changed: false
+  definition_of_done_met: true
   dt_007_activated: false
+  git_evidence:
+    implementation_commit: 2dc6365688b06a5c27bf536fb9e508d9ac59c2fb
+    short_commit: 2dc6365
+    message: 'test(api): protect base endpoint contracts'
 quality:
   pytest:
     command: python -m pytest
@@ -258,10 +276,10 @@ documentation:
     status: committed_in_sprint_03_closure
     commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
   handoff:
-    path: docs/HANDOFF_2026-07-13.md
-    status: committed_in_sprint_03_closure
-    commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
-    previous_path: docs/HANDOFF_2026-07-12.md
+    path: docs/HANDOFF_2026-07-13-SPRINT-04.md
+    status: prepared_for_sprint_04_documental_closure
+    previous_path: docs/HANDOFF_2026-07-13.md
+    historical_path: docs/HANDOFF_2026-07-12.md
   adr_directory:
     path: docs/adr/
     status: committed
@@ -316,6 +334,10 @@ sprint_04_planning_baseline:
   application_import: passed
   verified_before_local_changes: true
 continuity:
+  active_sprint: none
+  next_sprint: none
+  snapshot_final: pending_after_documental_commit
+  publication: pending_separate_authorization
   restart_instruction:
   - Ler docs/00_PROJECT_MASTER.md
   - Ler docs/01_PROJECT_STATE.yaml
