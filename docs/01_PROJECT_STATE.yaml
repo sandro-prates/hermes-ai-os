@@ -137,13 +137,14 @@ work:
     sprint: null
     task: null
 quality:
+  application_import: passed
   pytest:
     command: python -m pytest
     result: passed
-    collected_tests: 54
-    passed_tests: 54
+    collected_tests: 76
+    passed_tests: 76
     warnings: 1
-    reported_duration_seconds: 6.97
+    reported_duration_seconds: 7.84
   ruff:
     command: python -m ruff check .
     result: passed
@@ -157,7 +158,7 @@ quality:
       status: fixed
   automated_test_coverage:
     status: present
-    collected_tests: 54
+    collected_tests: 76
 architecture:
   active_logging_package: app.core.observability
   legacy_logging_module_removed: true
@@ -214,6 +215,10 @@ documentation:
     - deterministic_projection_without_self_reference
     - active_then_completed_then_legacy_sprint_selection
     - no_historical_epic_or_task_reuse
+    - schema_2_canonical_work_state
+    - schema_1_read_only_compatibility
+    - fail_closed_on_mixed_or_ambiguous_work_state
+    - check_mode_never_writes_and_reports_validation
     report_path: docs/PROJECT_SNAPSHOT.md
     initial_adoption_commit: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
     report_officially_adopted: true

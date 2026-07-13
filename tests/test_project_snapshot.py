@@ -410,6 +410,132 @@ quality:
 """
 
 
+def schema2_state_text(*, active: bool = True, planned: bool = False) -> str:
+    active_block = (
+        """    sprint:
+      id: SPRINT-06
+      title: Continuity State Integrity
+      status: in_progress
+    task:
+      id: DT-009
+      title: Integridade do estado de continuidade
+      status: in_progress
+      sprint: SPRINT-06
+"""
+        if active
+        else "    sprint: null\n    task: null\n"
+    )
+    completed_id = "SPRINT-05" if active else "SPRINT-06"
+    completed_title = (
+        "Technology Decision Baseline" if active else "Continuity State Integrity"
+    )
+    task_id = "DT-007" if active else "DT-009"
+    task_title = "Pesquisa tecnológica" if active else "Integridade do estado de continuidade"
+    planned_block = (
+        """    sprint:
+      id: SPRINT-07
+      title: Dependency Reproducibility Proof
+      status: planned
+    task:
+      id: DT-010
+      title: Provar reprodutibilidade de dependências
+      status: planned
+      sprint: SPRINT-07
+"""
+        if planned
+        else "    sprint: null\n    task: null\n"
+    )
+    return f"""schema_version: 2
+project:
+  name: Hermes AI OS
+work:
+  active:
+{active_block}  last_completed:
+    sprint:
+      id: {completed_id}
+      title: {completed_title}
+      status: completed
+    task:
+      id: {task_id}
+      title: {task_title}
+      status: completed
+      activated_in_sprint: {completed_id}
+  planned:
+{planned_block}quality:
+  application_import: passed
+  pytest:
+    result: passed
+    passed_tests: 54
+    warnings: 1
+  ruff:
+    result: passed
+"""
+
+
+def test_schema_2_selects_active_work_exclusively(tmp_path: Path) -> None:
+    state = required_state(tmp_path, final_state_runner(schema2_state_text()))
+
+    assert state["sprint"] == "SPRINT-06 — Continuity State Integrity"
+    assert state["sprint_status"] == "in_progress"
+    assert state["task"] == "DT-009 — Integridade do estado de continuidade"
+    assert state["task_status"] == "in_progress"
+    assert state["active_sprint"] == "SPRINT-06 — Continuity State Integrity"
+    assert state["planned_sprint"] == "nenhuma"
+    assert state["epic"] == "nenhuma EPIC associada"
+
+
+def test_schema_2_falls_back_to_last_completed_when_inactive(tmp_path: Path) -> None:
+    state = required_state(
+        tmp_path,
+        final_state_runner(schema2_state_text(active=False)),
+    )
+
+    assert state["sprint"] == "SPRINT-06 — Continuity State Integrity"
+    assert state["sprint_status"] == "completed"
+    assert state["task"] == "DT-009 — Integridade do estado de continuidade"
+    assert state["task_status"] == "completed"
+    assert state["active_sprint"] == "nenhuma"
+    assert state["planned_sprint"] == "nenhuma"
+
+
+def test_schema_2_reads_only_canonical_planned_work(tmp_path: Path) -> None:
+    state = required_state(
+        tmp_path,
+        final_state_runner(schema2_state_text(planned=True)),
+    )
+
+    assert state["planned_sprint"] == "SPRINT-07 — Dependency Reproducibility Proof"
+    assert state["next_sprint_status"] == "planned"
+    assert (
+        state["next_sprint_first_task"]
+        == "DT-010 — Provar reprodutibilidade de dependências"
+    )
+    assert state["next_task_status"] == "planned"
+
+
+@pytest.mark.parametrize(
+    "legacy",
+    [
+        "current_task:\n  id: DT-008\n",
+        "active_work:\n  sprint: none\n",
+        "last_completed_sprint:\n  sprint:\n    id: SPRINT-05\n",
+    ],
+)
+def test_schema_2_rejects_legacy_mixture(tmp_path: Path, legacy: str) -> None:
+    with pytest.raises(SnapshotError, match="fontes operacionais legadas"):
+        required_state(
+            tmp_path,
+            final_state_runner(schema2_state_text() + legacy),
+        )
+
+
+def test_schema_1_rejects_schema_2_work_mixture(tmp_path: Path) -> None:
+    text = completed_state_text() + "work:\n  active:\n    sprint: null\n    task: null\n"
+
+    with pytest.raises(SnapshotError, match="mistura a estrutura work"):
+        required_state(tmp_path, final_state_runner(text))
+
+
 def test_last_completed_sprint_precedes_historical_work(tmp_path: Path) -> None:
     state = required_state(
         tmp_path,
@@ -917,13 +1043,39 @@ def test_generated_content_has_no_absolute_path(tmp_path: Path) -> None:
     assert str(tmp_path) not in output.read_text(encoding="utf-8")
 
 
-def test_check_mode_accepts_current_snapshot_without_writing(tmp_path: Path) -> None:
+def test_check_mode_accepts_current_snapshot_without_writing(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     output = tmp_path / "snapshot.md"
     output.write_text("current\n", encoding="utf-8", newline="\n")
-    before = output.stat().st_mtime_ns
+    before_bytes = output.read_bytes()
+    before_hash = hashlib.sha256(before_bytes).hexdigest()
+    before_stat = output.stat()
 
     assert apply_output(output, "current\n", check=True) == 0
-    assert output.stat().st_mtime_ns == before
+    captured = capsys.readouterr()
+    after_bytes = output.read_bytes()
+    after_stat = output.stat()
+    assert captured.out.strip() == f"Snapshot validado: {output}"
+    assert "Snapshot atualizado" not in captured.out
+    assert after_bytes == before_bytes
+    assert hashlib.sha256(after_bytes).hexdigest() == before_hash
+    assert after_stat.st_size == before_stat.st_size
+    assert after_stat.st_mtime_ns == before_stat.st_mtime_ns
+
+
+def test_generation_and_check_modes_have_distinct_messages(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    output = tmp_path / "snapshot.md"
+
+    assert apply_output(output, "current\n", check=False) == 0
+    generated = capsys.readouterr()
+    assert generated.out.strip() == f"Snapshot atualizado: {output}"
+
+    assert apply_output(output, "current\n", check=True) == 0
+    checked = capsys.readouterr()
+    assert checked.out.strip() == f"Snapshot validado: {output}"
 
 
 def test_check_mode_rejects_stale_snapshot_without_writing(tmp_path: Path) -> None:
@@ -1037,11 +1189,14 @@ quality:
     command(sys.executable, str(script))
     snapshot = repository / "docs/PROJECT_SNAPSHOT.md"
     first_hash = hashlib.sha256(snapshot.read_bytes()).hexdigest()
-    command(sys.executable, str(script), "--check")
+    initial_check = command(sys.executable, str(script), "--check")
+    assert "Snapshot validado:" in initial_check.stdout
+    assert "Snapshot atualizado:" not in initial_check.stdout
 
     command("git", "add", "docs/PROJECT_SNAPSHOT.md")
     command("git", "commit", "-m", "add snapshot only")
-    command(sys.executable, str(script), "--check")
+    committed_check = command(sys.executable, str(script), "--check")
+    assert "Snapshot validado:" in committed_check.stdout
     assert hashlib.sha256(snapshot.read_bytes()).hexdigest() == first_hash
 
     command("git", "commit", "--allow-empty", "-m", "metadata only")

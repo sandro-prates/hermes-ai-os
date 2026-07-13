@@ -417,14 +417,14 @@ com uma única fonte para trabalho ativo, última entrega concluída e planejame
 
 **Critérios de aceite:**
 
-- [ ] `work.active`, `work.last_completed` e `work.planned` são a única fonte
+- [x] `work.active`, `work.last_completed` e `work.planned` são a única fonte
   operacional;
-- [ ] campos legados não permanecem como fontes paralelas no schema 2;
-- [ ] leitura isolada do schema 1 permanece retrocompatível;
-- [ ] ambiguidades e estados incompatíveis falham de forma fechada;
-- [ ] `--check` valida sem sugerir escrita nem modificar o snapshot;
-- [ ] ADR-0004 e ADR-0005 permanecem `Accepted` e factualmente alinhados;
-- [ ] testes direcionados, Ruff, suíte completa, YAML e runtime são aprovados;
+- [x] campos legados não permanecem como fontes paralelas no schema 2;
+- [x] leitura isolada do schema 1 permanece retrocompatível;
+- [x] ambiguidades e estados incompatíveis falham de forma fechada;
+- [x] `--check` valida sem sugerir escrita nem modificar o snapshot;
+- [x] ADR-0004 e ADR-0005 permanecem `Accepted` e factualmente alinhados;
+- [x] testes direcionados, Ruff, suíte completa, YAML e runtime são aprovados;
 - [ ] documentação, handoff e snapshot são encerrados no fluxo oficial.
 
 **Fora do escopo:** aplicação, dependências, lockfiles, CI, matriz Python, banco,
@@ -434,10 +434,11 @@ agentes, memória, dashboard, integrações, cloud e warning do `TestClient`.
 
 ## DT-009 — Integridade do estado de continuidade
 
-**Status:** 🚧 Em andamento na SPRINT-06
+**Status:** 🚧 Implementada e validada; encerramento documental pendente
 
 Eliminar fontes operacionais paralelas no Project State, preservar leitura legada
-isolada no gerador e proteger a migração com validações fail-closed e testes.
+isolada no gerador e proteger a migração com validações fail-closed e testes. A
+implementação permanece associada à SPRINT-06 em andamento até o encerramento formal.
 
 ---
 

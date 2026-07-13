@@ -60,7 +60,8 @@ tests/
 ├── test_env_example.py
 ├── test_middleware.py
 ├── test_observability.py
-└── test_project_snapshot.py
+├── test_project_snapshot.py
+└── test_project_state.py
 tools/
 └── project_snapshot.py
 docs/
@@ -207,13 +208,12 @@ Executar os testes:
 python -m pytest
 ```
 
-Estado verificado em 13/07/2026 durante o fechamento técnico da SPRINT-04: 54 testes
-aprovados e 1 aviso de depreciação não bloqueante do `TestClient` relacionado ao
-`httpx`. A implementação da Sprint havia sido validada com 51 testes; três regressões
-adicionais protegem a seleção da Sprint concluída no snapshot. Três testes protegem
-diretamente os contratos públicos da API base. A baseline anterior à Sprint possuía
-48 testes. Execute sempre o comando acima para obter o resultado atual; a quantidade
-de testes pode evoluir.
+Estado atual verificado na SPRINT-06: 76 testes aprovados e 1 aviso de depreciação não
+bloqueante do `TestClient` relacionado ao `httpx`. A baseline anterior à SPRINT-06
+possuía 54 testes. As novas regressões protegem o schema 2 do Project State, a leitura
+legada do schema 1, validações fail-closed e o modo sem escrita do snapshot. Três
+testes protegem diretamente os contratos públicos da API base. Execute sempre o
+comando acima para obter o resultado atual; a quantidade de testes pode evoluir.
 
 ## Snapshot do Projeto
 

@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Data:** 2026-07-12
 - **Escopo:** Todo o projeto
-- **Implementação:** Em andamento
+- **Implementação:** Implementada; contrato operacional normalizado no schema 2
 
 ## Contexto
 
@@ -27,6 +27,12 @@ Adotar os seguintes documentos como sistema formal de continuidade:
 - `docs/02_BACKLOG.md`: trabalho concluído, atual, pendente e dívida técnica;
 - `docs/03_CHANGELOG.md`: histórico de mudanças;
 - `docs/adr/`: decisões arquiteturais.
+
+O `docs/01_PROJECT_STATE.yaml` representa de forma enxuta o estado operacional
+corrente. No schema 2, `work.active`, `work.last_completed` e `work.planned` formam a
+única fonte canônica para trabalho ativo, última entrega concluída e planejamento.
+Histórico completo permanece em Git, Backlog, Changelog, handoffs e documentos de
+Sprint; não deve ser duplicado como uma segunda fonte operacional no Project State.
 
 O estado deve ser validado contra:
 

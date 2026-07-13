@@ -226,6 +226,9 @@ cuja validade deve ser verificada com `python tools/project_snapshot.py --check`
 - Última entrega concluída preservada: SPRINT-05 e DT-007.
 - Próxima Sprint formalmente planejada: nenhuma.
 - Não inclui adoção tecnológica, dependências, CI ou código de aplicação.
+- Implementação local validada com 76 testes aprovados, 1 aviso conhecido, Ruff,
+  YAML, importação, endpoints, Request ID e logging aprovados; a Sprint permanece em
+  andamento até seu encerramento documental.
 
 ## Trabalho concluído anterior
 

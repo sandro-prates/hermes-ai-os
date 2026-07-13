@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Data:** 2026-07-12
 - **Escopo:** Continuidade técnica e tooling
-- **Implementação:** Implementada e validada; relatório oficial ainda não adotado
+- **Implementação:** Implementada, validada e oficialmente adotada
 
 ## Contexto
 
@@ -44,6 +44,13 @@ O estado da working tree continua sendo verificado antes da operação e exibido
 console. A geração normal é recusada quando existem alterações relevantes fora do
 arquivo de saída; `--audit-working-tree` é a exceção explícita para auditoria.
 
+O relatório oficial é `docs/PROJECT_SNAPSHOT.md`. Sua atualização integra o fluxo de
+continuidade em commit exclusivo, e sua validade é comprovada sem escrita por:
+
+```text
+python tools/project_snapshot.py --check
+```
+
 ## Consequências positivas
 
 - Um commit contendo somente o snapshot não invalida o próprio snapshot.
@@ -65,4 +72,5 @@ arquivo de saída; `--audit-working-tree` é a exceção explícita para auditor
 - A inspeção de endpoints é estática e pode não reconhecer registro dinâmico de rotas.
 - Resultados operacionais de Ruff, Pytest e importação são mostrados no console; o
   conteúdo canônico usa os resultados documentados na árvore commitada.
-- O relatório oficial somente será adotado após validação e commit próprios.
+- A validade do relatório depende da execução de `--check` contra a árvore commitada;
+  Git permanece responsável por comprovar commit e publicação.

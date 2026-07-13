@@ -27,6 +27,20 @@ SPRINT-06 — Continuity State Integrity ativada no M0, sem nova EPIC.
   `origin/main`, com snapshot, Ruff e 54 testes aprovados e 1 aviso conhecido.
 - Documentos históricos da SPRINT-05 permanecem inalterados.
 
+### Implementado
+
+- Parser fail-closed do schema 2, isolado da leitura retrocompatível do schema 1.
+- Mensagens distintas para geração e validação sem escrita do snapshot.
+- Contrato real do Project State protegido por `tests/test_project_state.py`.
+- ADR-0004 e ADR-0005 alinhados factualmente sem mudança de status ou decisão.
+
+### Validado
+
+- 76 testes aprovados com 1 `StarletteDeprecationWarning` conhecido.
+- Ruff, YAML, importação Hermes AI OS 0.0.1, endpoints, Request ID, logging console e
+  JSON e contrato `.env.example`/`Settings` aprovados.
+- Nenhuma alteração em `apps/`, dependências, pesquisa ou handoffs históricos.
+
 ## [SPRINT-05] — 2026-07-13
 
 SPRINT-05 — Technology Decision Baseline concluída no M0, sem nova EPIC.

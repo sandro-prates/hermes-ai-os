@@ -298,6 +298,198 @@ def head_text(root: Path, relative: str, runner: Runner) -> str | None:
     return result.stdout if result.succeeded else None
 
 
+LEGACY_WORK_ROOTS = {
+    "active_work",
+    "current_task",
+    "dt_007_activated",
+    "last_completed_sprint",
+    "last_completed_work",
+    "next_sprint",
+    "next_task",
+    "previous_completed_work",
+}
+
+
+def required_state_v2(values: dict[tuple[str, ...], object]) -> dict[str, str]:
+    """Read the canonical schema 2 work state and reject ambiguous sources."""
+
+    legacy = sorted({path[0] for path in values if path[0] in LEGACY_WORK_ROOTS})
+    parallel_continuity = sorted(
+        ".".join(path)
+        for path in values
+        if path in {("continuity", "active_sprint"), ("continuity", "next_sprint")}
+    )
+    if legacy or parallel_continuity:
+        fields = legacy + parallel_continuity
+        raise SnapshotError(
+            "PROJECT_STATE schema 2 mistura fontes operacionais legadas: "
+            + ", ".join(fields)
+        )
+
+    work_paths = [path for path in values if path and path[0] == "work"]
+    if not work_paths:
+        raise SnapshotError("PROJECT_STATE schema 2 não possui a raiz operacional work.")
+    allowed_sections = {"active", "last_completed", "planned"}
+    unknown_sections = sorted(
+        {path[1] for path in work_paths if len(path) > 1 and path[1] not in allowed_sections}
+    )
+    if unknown_sections:
+        raise SnapshotError(
+            "PROJECT_STATE schema 2 possui campos desconhecidos em work: "
+            + ", ".join(unknown_sections)
+        )
+    for section in allowed_sections:
+        if not any(path[:2] == ("work", section) for path in work_paths):
+            raise SnapshotError(
+                f"PROJECT_STATE schema 2 não possui work.{section} explícito."
+            )
+    unknown_entities = sorted(
+        {
+            ".".join(path[:3])
+            for path in work_paths
+            if len(path) > 2 and path[2] not in {"sprint", "task"}
+        }
+    )
+    if unknown_entities:
+        raise SnapshotError(
+            "PROJECT_STATE schema 2 possui campos desconhecidos: "
+            + ", ".join(unknown_entities)
+        )
+
+    def entity(
+        section: str,
+        kind: str,
+        expected_status: str,
+    ) -> dict[str, str] | None:
+        prefix = ("work", section, kind)
+        scalar_present = prefix in values
+        children = {
+            path[len(prefix) :]: value
+            for path, value in values.items()
+            if path[: len(prefix)] == prefix and len(path) > len(prefix)
+        }
+        if scalar_present:
+            if values[prefix] is None and not children:
+                return None
+            raise SnapshotError(
+                f"PROJECT_STATE schema 2 possui valor ambíguo em {'.'.join(prefix)}."
+            )
+        if not children:
+            raise SnapshotError(
+                f"PROJECT_STATE schema 2 não representa {'.'.join(prefix)} explicitamente."
+            )
+        association = None
+        allowed = {("id",), ("title",), ("status",)}
+        if kind == "task":
+            association = "activated_in_sprint" if section == "last_completed" else "sprint"
+            allowed.add((association,))
+        unknown = sorted(".".join(path) for path in children if path not in allowed)
+        if unknown:
+            raise SnapshotError(
+                f"PROJECT_STATE schema 2 possui campos desconhecidos em {'.'.join(prefix)}: "
+                + ", ".join(unknown)
+            )
+        required = {("id",), ("title",), ("status",)}
+        if association:
+            required.add((association,))
+        missing = sorted(path[0] for path in required if path not in children)
+        if missing:
+            raise SnapshotError(
+                f"PROJECT_STATE schema 2 possui {'.'.join(prefix)} incompleto: "
+                + ", ".join(missing)
+            )
+        parsed = {path[0]: value for path, value in children.items()}
+        invalid = sorted(
+            name for name, value in parsed.items() if not isinstance(value, str) or not value
+        )
+        if invalid:
+            raise SnapshotError(
+                f"PROJECT_STATE schema 2 possui valores inválidos em {'.'.join(prefix)}: "
+                + ", ".join(invalid)
+            )
+        if parsed["status"] != expected_status:
+            raise SnapshotError(
+                f"PROJECT_STATE schema 2 possui status incompatível em {'.'.join(prefix)}: "
+                f"{parsed['status']!r}; esperado {expected_status!r}."
+            )
+        return parsed  # type: ignore[return-value]
+
+    active_sprint = entity("active", "sprint", "in_progress")
+    active_task = entity("active", "task", "in_progress")
+    completed_sprint = entity("last_completed", "sprint", "completed")
+    completed_task = entity("last_completed", "task", "completed")
+    planned_sprint = entity("planned", "sprint", "planned")
+    planned_task = entity("planned", "task", "planned")
+
+    pairs = (
+        ("active", active_sprint, active_task, "sprint"),
+        ("last_completed", completed_sprint, completed_task, "activated_in_sprint"),
+        ("planned", planned_sprint, planned_task, "sprint"),
+    )
+    for section, sprint_value, task_value, association in pairs:
+        if sprint_value is None and task_value is not None:
+            raise SnapshotError(
+                f"PROJECT_STATE schema 2 possui Task em work.{section} sem Sprint."
+            )
+        if sprint_value and task_value and task_value[association] != sprint_value["id"]:
+            raise SnapshotError(
+                f"PROJECT_STATE schema 2 associa a Task de work.{section} à Sprint errada."
+            )
+
+    sprint_ids = [
+        value["id"] for value in (active_sprint, completed_sprint, planned_sprint) if value
+    ]
+    task_ids = [
+        value["id"] for value in (active_task, completed_task, planned_task) if value
+    ]
+    if len(sprint_ids) != len(set(sprint_ids)):
+        raise SnapshotError("PROJECT_STATE schema 2 repete uma Sprint entre estados.")
+    if len(task_ids) != len(set(task_ids)):
+        raise SnapshotError("PROJECT_STATE schema 2 repete uma Task entre estados.")
+    if completed_sprint is None:
+        raise SnapshotError("PROJECT_STATE schema 2 não informa a última Sprint concluída.")
+
+    selected_sprint = active_sprint or completed_sprint
+    selected_task = active_task if active_sprint else completed_task
+    selected_status = "in_progress" if active_sprint else "completed"
+
+    def label(value: dict[str, str] | None, absent: str) -> str:
+        return absent if value is None else f"{value['id']} — {value['title']}"
+
+    def get(path: tuple[str, ...]) -> str:
+        value = values.get(path)
+        return NOT_IDENTIFIED if value is None else str(value)
+
+    planned_label = label(planned_sprint, "nenhuma")
+    planned_task_label = label(planned_task, NOT_IDENTIFIED)
+    return {
+        "project": get(("project", "name")),
+        "epic": "nenhuma EPIC associada",
+        "epic_status": "não aplicável",
+        "sprint": label(selected_sprint, NOT_IDENTIFIED),
+        "sprint_status": selected_status,
+        "task": label(selected_task, "nenhuma Task ou DT formal"),
+        "task_status": selected_task["status"] if selected_task else "não aplicável",
+        "functional_item": NOT_IDENTIFIED,
+        "functional_item_status": NOT_IDENTIFIED,
+        "active_sprint": label(active_sprint, "nenhuma"),
+        "planned_sprint": planned_label,
+        "next_task": planned_task_label,
+        "next_epic": NOT_IDENTIFIED,
+        "next_sprint": planned_label,
+        "next_sprint_status": planned_sprint["status"] if planned_sprint else NOT_IDENTIFIED,
+        "next_sprint_objective": NOT_IDENTIFIED,
+        "next_sprint_first_task": planned_task_label,
+        "next_task_status": planned_task["status"] if planned_task else NOT_IDENTIFIED,
+        "next_sprint_implementation": "não" if planned_sprint else NOT_IDENTIFIED,
+        "ruff": get(("quality", "ruff", "result")),
+        "pytest": get(("quality", "pytest", "result")),
+        "pytest_passed": get(("quality", "pytest", "passed_tests")),
+        "pytest_warnings": get(("quality", "pytest", "warnings")),
+        "application_import": get(("quality", "application_import")),
+    }
+
+
 def required_state(root: Path, runner: Runner) -> dict[str, str]:
     text = head_text(root, "docs/01_PROJECT_STATE.yaml", runner)
     if text is None:
@@ -323,6 +515,15 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
             "functional_item_status": NOT_IDENTIFIED,
         }
     values = parse_simple_yaml_mapping(text)
+    schema_version = values.get(("schema_version",), 1)
+    if schema_version == 2:
+        return required_state_v2(values)
+    if schema_version != 1:
+        raise SnapshotError(
+            f"PROJECT_STATE possui schema_version não suportado: {schema_version!r}."
+        )
+    if any(path and path[0] == "work" for path in values):
+        raise SnapshotError("PROJECT_STATE schema 1 mistura a estrutura work do schema 2.")
 
     def get(path_key: tuple[str, ...]) -> str:
         value = values.get(path_key)
@@ -811,8 +1012,11 @@ def settings_contract_lines(
         )
 
     state = parse_simple_yaml_mapping(state_source)
-    sanitized = state.get(
-        ("current_task", "implementation", "env_example_sanitized")
+    state_schema = state.get(("schema_version",), 1)
+    sanitized = (
+        True
+        if state_schema == 2
+        else state.get(("current_task", "implementation", "env_example_sanitized"))
     )
     test_evidence = (
         "assert set(values) == expected_names" in test_source
@@ -1362,11 +1566,11 @@ def apply_output(output: Path, expected: str, *, check: bool) -> int:
         if output.read_bytes() != expected_bytes:
             print(f"Snapshot desatualizado: {output}", file=sys.stderr)
             return 1
-        print(f"Snapshot atualizado: {output}")
+        print(f"Snapshot validado: {output}")
         return 0
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_bytes(expected_bytes)
-    print(f"Snapshot gerado: {output}")
+    print(f"Snapshot atualizado: {output}")
     return 0
 
 
