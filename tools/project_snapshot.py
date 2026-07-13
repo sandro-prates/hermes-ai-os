@@ -545,6 +545,162 @@ def request_id_contract_lines(root: Path, runner: Runner) -> list[str]:
     ]
 
 
+def settings_contract_lines(
+    root: Path,
+    paths: list[str],
+    runner: Runner,
+) -> list[str]:
+    """Describe the committed Settings/template contract without loading local env."""
+    required_paths = {
+        ".env.example",
+        "apps/backend/app/core/settings.py",
+        "tests/test_env_example.py",
+    }
+    if not required_paths.issubset(paths):
+        return [NOT_IDENTIFIED]
+
+    settings_source = head_text(root, "apps/backend/app/core/settings.py", runner) or ""
+    template_source = head_text(root, ".env.example", runner) or ""
+    test_source = head_text(root, "tests/test_env_example.py", runner) or ""
+    state_source = head_text(root, "docs/01_PROJECT_STATE.yaml", runner) or ""
+    try:
+        tree = ast.parse(settings_source)
+    except SyntaxError as error:
+        raise SnapshotError(f"Settings inválido em HEAD: {error}") from error
+
+    settings_class = next(
+        (
+            node
+            for node in tree.body
+            if isinstance(node, ast.ClassDef) and node.name == "Settings"
+        ),
+        None,
+    )
+    if settings_class is None:
+        raise SnapshotError("Classe Settings não identificada em HEAD.")
+
+    field_names: list[str] = []
+    aliases: dict[str, str] = {}
+    prefix = ""
+    case_sensitive: bool | None = None
+    for node in settings_class.body:
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            name = node.target.id
+            field_names.append(name)
+            if isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Name):
+                if node.value.func.id == "Field":
+                    for keyword in node.value.keywords:
+                        if keyword.arg in {"validation_alias", "alias"}:
+                            alias = literal_string(keyword.value)
+                            if alias is None:
+                                raise SnapshotError(
+                                    f"Alias complexo não suportado em Settings.{name}."
+                                )
+                            aliases[name] = alias
+                            break
+        if (
+            isinstance(node, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "model_config"
+                for target in node.targets
+            )
+            and isinstance(node.value, ast.Call)
+        ):
+            for keyword in node.value.keywords:
+                if keyword.arg == "env_prefix":
+                    value = literal_string(keyword.value)
+                    if value is None:
+                        raise SnapshotError("env_prefix complexo não suportado em Settings.")
+                    prefix = value
+                if keyword.arg == "case_sensitive":
+                    value = keyword.value
+                    if not (
+                        isinstance(value, ast.Constant)
+                        and isinstance(value.value, bool)
+                    ):
+                        raise SnapshotError(
+                            "case_sensitive deve ser booleano literal em Settings."
+                        )
+                    case_sensitive = value.value
+
+    if not field_names:
+        raise SnapshotError("Campos externos de Settings não identificados.")
+    if case_sensitive is None:
+        raise SnapshotError(
+            "case_sensitive ausente de SettingsConfigDict; default não inferido."
+        )
+    external_names = [f"{prefix}{aliases.get(name, name)}" for name in field_names]
+
+    template_names: list[str] = []
+    for raw_line in template_source.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            raise SnapshotError("Linha sem '=' identificada em .env.example.")
+        template_names.append(line.split("=", 1)[0])
+    normalize = (lambda key: key) if case_sensitive else str.casefold
+
+    def normalized_names(names: list[str], source: str) -> dict[str, str]:
+        normalized: dict[str, str] = {}
+        collisions: list[str] = []
+        for name in names:
+            key = normalize(name)
+            if key in normalized:
+                collisions.append(f"{normalized[key]} / {name}")
+            else:
+                normalized[key] = name
+        if collisions:
+            raise SnapshotError(
+                f"Colisões de chaves em {source}: {', '.join(sorted(collisions))}."
+            )
+        return normalized
+
+    external_by_key = normalized_names(external_names, "Settings")
+    template_by_key = normalized_names(template_names, ".env.example")
+    missing = sorted(
+        external_by_key[key] for key in external_by_key.keys() - template_by_key.keys()
+    )
+    additional = sorted(
+        template_by_key[key] for key in template_by_key.keys() - external_by_key.keys()
+    )
+    if missing or additional:
+        raise SnapshotError(
+            "Contrato de .env.example divergente de Settings: "
+            f"ausentes={missing or NONE}; adicionais={additional or NONE}; "
+            f"case_sensitive={case_sensitive}."
+        )
+
+    state = parse_simple_yaml_mapping(state_source)
+    sanitized = state.get(
+        ("current_task", "implementation", "env_example_sanitized")
+    )
+    test_evidence = (
+        "assert set(values) == expected_names" in test_source
+        and 'Settings(_env_file=ENV_EXAMPLE, _env_file_encoding="utf-8")'
+        in test_source
+    )
+    if sanitized is not True or not test_evidence:
+        raise SnapshotError(
+            "Sanitização ou validação Pydantic de .env.example não comprovada em HEAD."
+        )
+
+    variables = ", ".join(f"`{name}`" for name in external_names)
+    sensitivity = "sensível" if case_sensitive else "não sensível"
+    return [
+        "`.env.example` presente, sanitizado e rastreado na projeção.",
+        "Variáveis do template correspondem exatamente aos campos externos "
+        "suportados por `Settings`.",
+        f"Variáveis suportadas, na ordem declarada em `Settings`: {variables}.",
+        f"Comparação de chaves {sensitivity} a maiúsculas e minúsculas, conforme "
+        f"`case_sensitive={str(case_sensitive).lower()}`.",
+        "Template sem variáveis ausentes, adicionais ou duplicadas.",
+        "`.env.example` carregado e validado com sucesso por `pydantic-settings`.",
+        "Contrato protegido por `tests/test_env_example.py`.",
+        "Arquivo `.env` real ausente da projeção rastreada.",
+    ]
+
+
 def load_pyproject(root: Path, runner: Runner) -> dict:
     text = head_text(root, "pyproject.toml", runner)
     if text is None:
@@ -875,25 +1031,8 @@ def render_snapshot(
     request_id_text = "\n".join(
         f"- {item}" for item in request_id_contract_lines(root, runner)
     )
-    configuration_contract = [
-        (
-            "`.env.example` presente na projeção rastreada."
-            if ".env.example" in paths
-            else NOT_IDENTIFIED
-        ),
-        (
-            "Contrato de `.env.example` protegido por `tests/test_env_example.py`."
-            if "tests/test_env_example.py" in paths
-            else NOT_IDENTIFIED
-        ),
-        (
-            "Arquivo `.env` real ausente da projeção rastreada."
-            if ".env" not in paths
-            else "Arquivo `.env` real presente na projeção rastreada."
-        ),
-    ]
     configuration_contract_text = "\n".join(
-        f"- {item}" for item in configuration_contract
+        f"- {item}" for item in settings_contract_lines(root, paths, runner)
     )
     planned_details = ""
     if state["planned_sprint"] != "nenhuma" and state["planned_sprint"] != NOT_IDENTIFIED:

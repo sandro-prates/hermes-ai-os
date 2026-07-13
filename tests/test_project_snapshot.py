@@ -24,6 +24,7 @@ from tools.project_snapshot import (
     parse_simple_yaml_mapping,
     render_snapshot,
     required_state,
+    settings_contract_lines,
 )
 
 
@@ -352,6 +353,8 @@ current_task:
   id: DT-008
   title: Versionar e validar um .env.example sanitizado
   status: completed
+  implementation:
+    env_example_sanitized: true
 quality:
   pytest:
     result: passed
@@ -579,11 +582,32 @@ Os itens abaixo vêm do `PROJECT_MASTER` e ainda não representam Sprints planej
             "Banco de dados, runtime de agentes, memória, dashboard e\n"
             "integrações externas ainda não estão implementados.\n"
         ),
-        ".env.example": "LOG_FORMAT=console\n",
-        "tests/test_env_example.py": "def test_env_example(): ...\n",
-        "apps/backend/app/core/settings.py": (
-            'REQUEST_ID_HEADER: str = "X-Request-ID"\n'
-        ),
+        ".env.example": """APP_NAME=Hermes AI OS
+APP_VERSION=0.0.1
+ENVIRONMENT=development
+DEBUG=true
+HOST=127.0.0.1
+PORT=8000
+log_level=INFO
+LOG_FORMAT=console
+REQUEST_ID_HEADER=X-Request-ID
+""",
+        "tests/test_env_example.py": """
+assert set(values) == expected_names
+loaded = Settings(_env_file=ENV_EXAMPLE, _env_file_encoding="utf-8")
+""",
+        "apps/backend/app/core/settings.py": """class Settings(BaseSettings):
+    APP_NAME: str = "Hermes AI OS"
+    APP_VERSION: str = "0.0.1"
+    ENVIRONMENT: str = "development"
+    DEBUG: bool = True
+    HOST: str = "127.0.0.1"
+    PORT: int = 8000
+    LOG_LEVEL: str = "INFO"
+    LOG_FORMAT: str = "console"
+    REQUEST_ID_HEADER: str = "X-Request-ID"
+    model_config = SettingsConfigDict(case_sensitive=False, extra="ignore")
+""",
         "apps/backend/app/core/observability/middleware.py": """
 request_id = headers.get(settings.REQUEST_ID_HEADER) or str(uuid.uuid4())
 token = set_request_id(request_id)
@@ -644,9 +668,104 @@ dependencies = []
     assert "- Request ID incluído no header da resposta." in rendered
     assert "correlação baseado em `ContextVar`" in rendered
     assert "Request ID do contexto injetado nos registros de log." in rendered
-    assert "`.env.example` presente na projeção rastreada." in rendered
-    assert "Contrato de `.env.example` protegido por `tests/test_env_example.py`." in rendered
+    assert "`.env.example` presente, sanitizado e rastreado na projeção." in rendered
+    assert "correspondem exatamente aos campos externos suportados por `Settings`" in rendered
+    expected_variables = (
+        "`APP_NAME`, `APP_VERSION`, `ENVIRONMENT`, `DEBUG`, `HOST`, `PORT`, "
+        "`LOG_LEVEL`, `LOG_FORMAT`, `REQUEST_ID_HEADER`"
+    )
+    assert expected_variables in rendered
+    variables_line = next(
+        line for line in rendered.splitlines() if line.startswith("- Variáveis suportadas")
+    )
+    assert variables_line.count("`") == 20
+    assert "case_sensitive=false" in rendered
+    assert "Template sem variáveis ausentes, adicionais ou duplicadas." in rendered
+    assert "carregado e validado com sucesso por `pydantic-settings`" in rendered
+    assert "Contrato protegido por `tests/test_env_example.py`." in rendered
     assert "Arquivo `.env` real ausente da projeção rastreada." in rendered
+
+    def settings_contract(settings_source: str, template_source: str) -> list[str]:
+        sources = {
+            "apps/backend/app/core/settings.py": settings_source,
+            ".env.example": template_source,
+            "tests/test_env_example.py": """
+assert set(values) == expected_names
+loaded = Settings(_env_file=ENV_EXAMPLE, _env_file_encoding="utf-8")
+""",
+            "docs/01_PROJECT_STATE.yaml": completed_state_text(),
+        }
+
+        def contract_runner(
+            args: tuple[str, ...], cwd: Path, env: dict[str, str] | None
+        ) -> CommandResult:
+            if (
+                len(args) == 3
+                and args[:2] == ("git", "show")
+                and args[2].startswith("HEAD:")
+            ):
+                path = args[2][len("HEAD:") :]
+                if path in sources:
+                    return result(args, stdout=sources[path])
+            return result(args, returncode=128)
+
+        return settings_contract_lines(tmp_path, sorted(sources), contract_runner)
+
+    false_settings = """class Settings(BaseSettings):
+    LOG_LEVEL: str = "INFO"
+    model_config = SettingsConfigDict(case_sensitive=False)
+"""
+    assert "`LOG_LEVEL`" in "\n".join(
+        settings_contract(false_settings, "log_level=INFO\n")
+    )
+
+    true_settings = false_settings.replace("False", "True")
+    with pytest.raises(SnapshotError, match="divergente"):
+        settings_contract(true_settings, "log_level=INFO\n")
+
+    with pytest.raises(SnapshotError, match="Colisões.*env.example"):
+        settings_contract(false_settings, "LOG_LEVEL=INFO\nlog_level=DEBUG\n")
+
+    colliding_settings = """class Settings(BaseSettings):
+    LOG_LEVEL: str = "INFO"
+    log_level: str = "DEBUG"
+    model_config = SettingsConfigDict(case_sensitive=False)
+"""
+    with pytest.raises(SnapshotError, match="Colisões.*Settings"):
+        settings_contract(colliding_settings, "LOG_LEVEL=INFO\n")
+
+    prefixed_settings = """class Settings(BaseSettings):
+    LOG_LEVEL: str = "INFO"
+    model_config = SettingsConfigDict(env_prefix="HERMES_", case_sensitive=False)
+"""
+    assert "`HERMES_LOG_LEVEL`" in "\n".join(
+        settings_contract(prefixed_settings, "hermes_log_level=INFO\n")
+    )
+
+    aliased_settings = """class Settings(BaseSettings):
+    LOG_LEVEL: str = Field("INFO", validation_alias="LEVEL")
+    model_config = SettingsConfigDict(case_sensitive=False)
+"""
+    assert "`LEVEL`" in "\n".join(
+        settings_contract(aliased_settings, "level=INFO\n")
+    )
+
+    complex_alias = aliased_settings.replace(
+        'validation_alias="LEVEL"',
+        'validation_alias=AliasChoices("LEVEL", "LOG_LEVEL")',
+    )
+    with pytest.raises(SnapshotError, match="Alias complexo"):
+        settings_contract(complex_alias, "LEVEL=INFO\n")
+
+    with pytest.raises(SnapshotError, match="ausentes"):
+        settings_contract(true_settings, "OTHER=INFO\n")
+    with pytest.raises(SnapshotError, match="Colisões"):
+        settings_contract(true_settings, "LOG_LEVEL=INFO\nLOG_LEVEL=DEBUG\n")
+    with pytest.raises(SnapshotError, match="case_sensitive ausente"):
+        settings_contract(
+            true_settings.replace("case_sensitive=True", "extra=\"ignore\""),
+            "LOG_LEVEL=INFO\n",
+        )
 
 
 def test_simple_yaml_rejects_unsupported_content() -> None:
