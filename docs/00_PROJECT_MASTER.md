@@ -70,9 +70,10 @@ Evoluir desde uma instalação local até uma plataforma comercial gerenciada, c
 
 - Branch: `main`
 - Upstream: `origin/main`
-- HEAD publicado: `e1c3587`.
-- `main` e `origin/main`: sincronizados em `e1c3587`.
-- Working tree: limpa antes das alterações documentais deste encerramento.
+- Baseline publicada antes do fechamento documental: `e1c3587`.
+- Commit do encerramento documental: `ed233ff`.
+- O estado operacional de branch, upstream e working tree deve ser consultado
+  diretamente com Git.
 
 ## Entregas commitadas
 
@@ -112,6 +113,10 @@ Autorreferência removida por projeção determinística da árvore Git.
 
 Snapshot oficial adotado e validado após o próprio commit.
 
+### `ed233ff`
+
+Encerramento documental e handoff oficial preparados.
+
 ## Último trabalho concluído
 
 ### EPIC-003 — Logging System
@@ -142,7 +147,7 @@ Evidência Git:
 - commit `a1d0d21` — `feat(observability): complete logging system sprint`;
 - publicado em `origin/main`;
 - `main` e a referência remota local `origin/main` sincronizadas nesse commit.
-- após o push da Sprint, a working tree foi registrada como limpa; as alterações atuais são exclusivamente deste fechamento documental.
+- após o push da Sprint, a working tree foi registrada como limpa naquele ponto histórico.
 
 ---
 

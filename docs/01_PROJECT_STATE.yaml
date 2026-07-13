@@ -41,17 +41,20 @@ repository:
   - commit: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
     short_commit: e1c3587
     message: 'docs(project): add official project snapshot'
+  - commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
+    short_commit: ed233ff
+    message: 'docs(project): close sprint and prepare handoff'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
-  upstream_relation_at_last_verified:
-    local_head: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
-    upstream_head: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
-    commits_ahead: 0
-  verified_base_commit:
+  published_baseline_before_documental_closure:
     commit: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
     short_commit: e1c3587
     message: 'docs(project): add official project snapshot'
+  documental_closure:
+    commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
+    short_commit: ed233ff
+    message: 'docs(project): close sprint and prepare handoff'
 last_completed_work:
   epic:
     id: EPIC-003
@@ -174,25 +177,35 @@ documentation:
     status: committed
   project_master:
     path: docs/00_PROJECT_MASTER.md
-    status: updated_for_handoff_pending_commit
+    status: committed_in_documental_closure
+    commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
   project_state:
     path: docs/01_PROJECT_STATE.yaml
-    status: updated_for_handoff_pending_commit
+    status: committed_in_documental_closure
+    commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
   backlog:
     path: docs/02_BACKLOG.md
-    status: updated_for_handoff_pending_commit
+    status: committed_in_documental_closure
+    commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
   changelog:
     path: docs/03_CHANGELOG.md
-    status: updated_for_handoff_pending_commit
+    status: committed_in_documental_closure
+    commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
+  handoff:
+    path: docs/HANDOFF_2026-07-12.md
+    status: committed_in_documental_closure
+    commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
   adr_directory:
     path: docs/adr/
     status: committed
   project_snapshot:
     generator_commit: 1c02fb0
     report_path: docs/PROJECT_SNAPSHOT.md
-    report_commit: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
+    initial_adoption_commit: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
     report_officially_adopted: true
-    check_after_report_commit: passed
+    validity_source: python tools/project_snapshot.py --check
+    fingerprint_source: docs/PROJECT_SNAPSHOT.md
+    check_after_initial_adoption: passed
 continuity:
   restart_instruction:
   - Ler docs/00_PROJECT_MASTER.md
