@@ -3,8 +3,8 @@
 ## 1. Identificação
 
 - schema do snapshot: 3
-- fingerprint SHA-256 da árvore projetada: `4f069e2d34549cb188c76058280fcd720bdc26768b2fd39f0f257cb76e2362ff`
-- arquivos na projeção: 39
+- fingerprint SHA-256 da árvore projetada: `b86780fb133ce8dac5a477d47612921e7bc90cc9e5161d5c72e4e6cff5e19163`
+- arquivos na projeção: 41
 - projeto: Hermes AI OS
 - versão: 0.0.1
 - estado analisado: projeção determinística da árvore commitada
@@ -15,12 +15,14 @@
 
 ## 2. Estado Atual
 
-- EPIC: EPIC-004 — Foundation Reproducibility
-- Status da EPIC: completed
-- Sprint: SPRINT-03 — Reproducible Onboarding Baseline
+- EPIC: nenhuma EPIC associada
+- Status da EPIC: não aplicável
+- Sprint: SPRINT-04 — Foundation Integrity Baseline
 - Status da Sprint: completed
-- Task: DT-008 — Versionar e validar um .env.example sanitizado
-- Status da Task: completed
+- Task: nenhuma Task ou DT formal
+- Status da Task: não aplicável
+- Item funcional: Criar testes automatizados da API base
+- Status do item funcional: completed
 
 ## 3. Continuidade de Sprint
 
@@ -64,6 +66,7 @@
 │   ├── 02_BACKLOG.md
 │   ├── 03_CHANGELOG.md
 │   ├── HANDOFF_2026-07-12.md
+│   ├── HANDOFF_2026-07-13-SPRINT-04.md
 │   ├── HANDOFF_2026-07-13.md
 │   ├── adr
 │   │   ├── ADR-0001-pyproject-como-fonte-de-dependencias.md
@@ -75,6 +78,7 @@
 │   └── research
 │       └── 2026-07-12-stack-tecnologica.md
 ├── tests
+│   ├── test_api.py
 │   ├── test_env_example.py
 │   ├── test_middleware.py
 │   ├── test_observability.py
@@ -149,7 +153,7 @@
 ## 10. Qualidade
 
 - Ruff: estado commitado `passed`.
-- Pytest: estado commitado `passed — 48 aprovado(s), 1 aviso(s)`.
+- Pytest: estado commitado `passed — 54 aprovado(s), 1 aviso(s)`.
 - importação da aplicação: estado commitado `passed`.
 
 ## 11. Documentação e ADRs
