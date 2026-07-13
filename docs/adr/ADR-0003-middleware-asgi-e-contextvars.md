@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Data:** 2026-07-12
 - **Escopo:** Requisições HTTP
-- **Implementação:** Parcial, validada manualmente
+- **Implementação:** Concluída, testada e commitada em `a1d0d21`
 
 ## Contexto
 
@@ -60,4 +60,5 @@ Foram validados manualmente:
 - HTTP 200 no health endpoint;
 - campos de método, caminho, status e duração.
 
-Não há testes automatizados.
+Os testes automatizados comprovam geração e preservação do Request ID, inclusão do
+header na resposta, logging de conclusão e falha e restauração do contexto.

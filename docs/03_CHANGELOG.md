@@ -10,6 +10,25 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 Nenhuma próxima Sprint está definida.
 
+### Adicionado
+
+- README operacional com instalação, execução, endpoints, configuração, qualidade,
+  arquitetura, documentação e limitações atuais.
+- Instruções equivalentes para Windows PowerShell, Linux e macOS.
+
+### Corrigido
+
+- Estados de implementação dos ADRs 0001, 0002 e 0003, que ainda declaravam trabalho
+  parcial ou não commitado apesar das evidências em `a1d0d21`.
+- Estado Git dos documentos de continuidade após `ded359d`.
+
+### Validado
+
+- Resolução de `python -m pip install --dry-run -e ".[dev]"`.
+- Execução com `python -m uvicorn app.main:app --app-dir apps/backend --reload`.
+- Endpoints `/` e `/api/v1/health`, Request ID gerado e Request ID preservado.
+- Logging nos formatos `console` e `json`, Ruff e 8 testes automatizados.
+
 ---
 
 ## [EPIC-003-SPRINT-02] — 2026-07-12

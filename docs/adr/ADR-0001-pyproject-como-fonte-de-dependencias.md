@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Data:** 2026-07-12
 - **Escopo:** Backend Python
-- **Implementação:** Em andamento, ainda não commitada
+- **Implementação:** Concluída e commitada em `a1d0d21`
 
 ## Contexto
 
@@ -43,6 +43,6 @@ Não usar `pip freeze` como definição principal de dependências, porque ele m
 
 ## Estado verificado
 
-O arquivo `pyproject.toml` existe localmente e é carregado pelo pytest após a remoção de um UTF-8 BOM.
-
-Ainda não está commitado.
+O arquivo `pyproject.toml` está rastreado e commitado em `a1d0d21`. Ele é carregado
+pelo pytest após a remoção de um UTF-8 BOM e também define os metadados, dependências
+e configurações do Ruff.

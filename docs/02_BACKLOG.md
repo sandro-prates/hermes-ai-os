@@ -97,6 +97,25 @@ Nenhuma próxima Sprint está definida.
 
 ---
 
+# Task atual do M0 — sem Sprint
+
+## README e onboarding reproduzível do Hermes AI OS
+
+**Status:** 🟡 Implementada e validada, pendente de commit documental
+
+- [x] Criar README operacional e factual.
+- [x] Documentar instalação para Windows PowerShell, Linux e macOS.
+- [x] Validar resolução da instalação editável com extras de desenvolvimento.
+- [x] Validar o comando de execução da API com Uvicorn.
+- [x] Documentar endpoints, configurações, qualidade e limitações.
+- [x] Corrigir estados factuais dos ADRs 0001, 0002 e 0003.
+- [x] Reexecutar validações de código, testes e runtime.
+- [ ] Criar commit exclusivamente documental.
+
+Nenhuma Sprint foi criada para esta Task.
+
+---
+
 # Trabalho Histórico Verificado
 
 ## Bootstrap do Hermes AI OS
@@ -139,7 +158,7 @@ Entregas verificadas:
 Pendências retrospectivas verificadas:
 
 - [ ] Criar testes automatizados da API base.
-- [ ] Preencher `README.md`, atualmente vazio.
+- [x] Preencher `README.md` com onboarding reproduzível.
 - [ ] Confirmar documentação histórica da Sprint correspondente.
 - [ ] Validar Definition of Done retrospectiva.
 
@@ -189,9 +208,9 @@ O módulo redundante `apps/backend/app/core/logging.py` foi removido.
 
 ## DT-006 — README vazio
 
-**Status:** ⚠️ Aberta
+**Status:** 🟡 Resolvida no working tree, pendente de commit documental
 
-O arquivo existe no Git, mas possui tamanho zero.
+O README operacional foi criado e seus comandos principais foram validados.
 
 ---
 

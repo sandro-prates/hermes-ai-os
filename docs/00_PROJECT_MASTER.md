@@ -68,9 +68,9 @@ Evoluir desde uma instalação local até uma plataforma comercial gerenciada, c
 
 - Branch: `main`
 - Upstream: `origin/main`
-- HEAD verificado: `a1d0d21`
-- `main` e `origin/main`: sincronizados em `a1d0d21`.
-- Working tree: possui somente alterações documentais deste fechamento, ainda não commitadas.
+- Base Git verificada: `ded359d`.
+- `main` e `origin/main`: sincronizados em `ded359d` no início desta Task.
+- Working tree: possui somente alterações documentais desta Task, ainda não commitadas.
 
 ## Entregas commitadas
 
@@ -85,6 +85,10 @@ API v1, settings centralizados e health endpoint.
 ### `a1d0d21`
 
 Sistema de observabilidade, logging JSON, correlação de requisições e testes automatizados.
+
+### `ded359d`
+
+Fechamento documental da EPIC-003 / SPRINT-02.
 
 ## Último trabalho concluído
 
@@ -156,6 +160,8 @@ ADRs aceitos:
 - ADR-0002 — pacote central de observabilidade.
 - ADR-0003 — middleware ASGI e `ContextVar`.
 - ADR-0004 — documentação como continuidade.
+
+O `README.md` é a entrada operacional para instalação, execução e validação local.
 
 ---
 

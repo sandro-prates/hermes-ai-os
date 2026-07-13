@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Data:** 2026-07-12
 - **Escopo:** Backend e futuros runtimes
-- **Implementação:** Parcial, SPRINT-02 em andamento
+- **Implementação:** Concluída na SPRINT-02 e commitada em `a1d0d21`
 
 ## Contexto
 
@@ -53,6 +53,6 @@ Não foi adotada nesta fase para evitar uma dependência adicional antes de exis
 
 ## Estado verificado
 
-Console logging, filtro de contexto, formatter e middleware HTTP estão implementados localmente.
-
-JSON logging e testes automatizados ainda estão pendentes.
+O pacote central de observabilidade, logging em console e JSON, filtro de contexto e
+middleware HTTP estão implementados e commitados em `a1d0d21`. Os testes automatizados
+correspondentes estão presentes e aprovados.

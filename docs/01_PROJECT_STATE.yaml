@@ -23,6 +23,9 @@ repository:
   - commit: a1d0d21e89fdb0092313e590cfdc1a5eda2e29a3
     short_commit: a1d0d21
     message: 'feat(observability): complete logging system sprint'
+  - commit: ded359dff574a39a6654101ccc8e3ee93ea9f71e
+    short_commit: ded359d
+    message: 'docs(project): close EPIC-003 sprint 02'
   working_tree:
     status: dirty_documentation_only
     staged_changes: false
@@ -30,9 +33,9 @@ repository:
     untracked: []
     synchronized_with_upstream: true
   verified_base_commit:
-    commit: a1d0d21e89fdb0092313e590cfdc1a5eda2e29a3
-    short_commit: a1d0d21
-    message: 'feat(observability): complete logging system sprint'
+    commit: ded359dff574a39a6654101ccc8e3ee93ea9f71e
+    short_commit: ded359d
+    message: 'docs(project): close EPIC-003 sprint 02'
 last_completed_work:
   epic:
     id: EPIC-003
@@ -80,6 +83,20 @@ last_completed_work:
     commit: a1d0d21e89fdb0092313e590cfdc1a5eda2e29a3
     pushed_to: origin/main
 next_sprint: null
+current_task:
+  title: README e onboarding reproduzível do Hermes AI OS
+  sprint: null
+  status: implemented_and_validated_pending_commit
+  scope: documentation_only
+  completed_and_validated:
+  - README operacional criado
+  - Instalação editável com extras de desenvolvimento validada em modo dry-run
+  - Execução da API com Uvicorn validada
+  - Endpoints raiz e health validados
+  - Geração e preservação de X-Request-ID validadas
+  - Estados de implementação dos ADRs 0001, 0002 e 0003 corrigidos
+  pending:
+  - Commit documental
 quality:
   pytest:
     command: python -m pytest
@@ -110,6 +127,9 @@ architecture:
   - console
   - json
 documentation:
+  readme:
+    path: README.md
+    status: updated_pending_documentation_commit
   project_master:
     path: docs/00_PROJECT_MASTER.md
     status: updated_pending_documentation_commit
@@ -124,7 +144,7 @@ documentation:
     status: updated_pending_documentation_commit
   adr_directory:
     path: docs/adr/
-    status: validated
+    status: updated_pending_documentation_commit
 continuity:
   restart_instruction:
   - Ler docs/00_PROJECT_MASTER.md
@@ -135,7 +155,7 @@ continuity:
   - Executar git status --short --branch
   - Não iniciar uma nova Sprint sem definição explícita
   audit:
-    status: completed_pending_documentation_commit
+    status: completed
     checks_passed:
     - code_import
     - http_endpoints
@@ -147,5 +167,5 @@ continuity:
     - git_diff_check
     - sprint_commit_confirmed
     - sprint_push_confirmed_via_origin_main
-    checks_pending:
-    - documentation_commit
+    - documentation_commit_confirmed
+    checks_pending: []
