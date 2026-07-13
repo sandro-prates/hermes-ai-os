@@ -233,7 +233,7 @@ O README operacional foi criado e seus comandos principais foram validados.
 
 ### SPRINT-03 — Reproducible Onboarding Baseline
 
-**Status da EPIC:** `in_progress` até a conclusão do fluxo formal de fechamento
+**Status da EPIC:** `in_progress` até a adoção do snapshot final
 
 **Status da Sprint:** `completed`
 
@@ -266,8 +266,8 @@ o onboarding oficial. Essa inconsistência operacional tem prioridade maior que 
 - [x] 44 testes e Ruff aprovados;
 - [x] implementação registrada no commit `2ebed11`.
 
-**Fluxo formal ainda pendente:** snapshot final, handoff, validação de fechamento e
-publicação. Esses itens não alteram o estado concluído da implementação da DT-008.
+**Fluxo formal ainda pendente:** adoção do snapshot final. Esse item não altera o
+estado concluído da implementação da DT-008.
 
 **Fora de escopo:** implementação de produto, novas dependências, lockfile, CI/CD,
 banco de dados, runtime de agentes, memória, dashboard, integrações e preenchimento
@@ -281,8 +281,9 @@ testes documentais aplicáveis, quatro documentos de continuidade e snapshot no
 fechamento formal. ADR novo somente se surgir decisão arquitetural realmente nova.
 
 **Encerramento:** baseline `51d3747` comprovada e implementação concluída em `2ebed11`.
-A SPRINT-03 está concluída; a EPIC-004 permanece `in_progress` até o snapshot final,
-handoff, validação de fechamento e publicação. Nenhuma nova Sprint foi ativada.
+A SPRINT-03 está concluída; a EPIC-004 permanece `in_progress` somente até a adoção do
+snapshot final. A documentação e o handoff estão comprovados por `b1ab2ea`. Nenhuma
+nova Sprint foi ativada.
 
 ---
 
@@ -308,7 +309,7 @@ integralmente em clone limpo.
 
 **Execução:** Task concluída na SPRINT-03. O template sanitizado está rastreado, e seu
 contrato é protegido por dois testes automatizados. `.env` e variantes reais continuam
-ignorados. Snapshot final, handoff e publicação seguem o fluxo formal de encerramento.
+ignorados. A adoção do snapshot final segue o fluxo formal de encerramento.
 
 ---
 

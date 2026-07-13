@@ -8,7 +8,7 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-Snapshot final, handoff, validação de fechamento e publicação permanecem pendentes.
+O snapshot final ainda não foi adotado.
 Nenhuma nova Sprint foi ativada.
 
 ---
@@ -19,7 +19,7 @@ Nenhuma nova Sprint foi ativada.
 
 **Status:** Concluída
 
-**EPIC-004:** permanece `in_progress` até a conclusão do fluxo formal de fechamento.
+**EPIC-004:** permanece `in_progress` somente até a adoção do snapshot final.
 
 **Git:** implementação da DT-008 no commit `2ebed11`
 
@@ -61,6 +61,7 @@ Nenhuma nova Sprint foi ativada.
 - `docs/PROJECT_SNAPSHOT.md` adotado oficialmente em `e1c3587` e validado com
   `python tools/project_snapshot.py --check` após o próprio commit.
 - DT-008 implementada no commit `2ebed11`.
+- Documentação final e handoff da SPRINT-03 commitados em `b1ab2ea`.
 
 ### Adicionado
 

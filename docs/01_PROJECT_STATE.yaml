@@ -47,6 +47,9 @@ repository:
   - commit: 2ebed11018ec8b394c69a01e1fff4229561c3cfd
     short_commit: 2ebed11
     message: 'chore(config): add sanitized environment template'
+  - commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
+    short_commit: b1ab2ea
+    message: 'docs(project): close sprint 03 and prepare handoff'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
@@ -134,14 +137,11 @@ last_completed_work:
     json_logging: passed
     result: passed
   pending_formal_closure:
-  - Regeneração e auditoria do snapshot oficial
-  - Atualização do handoff
-  - Validação final de fechamento
-  - Publicação
+  - Adoção do snapshot final
   definition_of_done_met: true
   git_evidence:
     implementation_commit: 2ebed11018ec8b394c69a01e1fff4229561c3cfd
-    published: false
+    documentation_commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
 current_task:
   id: DT-008
   title: Versionar e validar um .env.example sanitizado
@@ -154,7 +154,6 @@ current_task:
     env_example_sanitized: true
     contract_tests: 2
     validated: true
-    pushed: false
   definition_of_done_met: true
   git_evidence:
     commit: 2ebed11018ec8b394c69a01e1fff4229561c3cfd
@@ -200,19 +199,24 @@ documentation:
     status: maintained
   project_master:
     path: docs/00_PROJECT_MASTER.md
-    status: maintained
+    status: committed_in_sprint_03_closure
+    commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
   project_state:
     path: docs/01_PROJECT_STATE.yaml
-    status: maintained
+    status: committed_in_sprint_03_closure
+    commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
   backlog:
     path: docs/02_BACKLOG.md
-    status: maintained
+    status: committed_in_sprint_03_closure
+    commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
   changelog:
     path: docs/03_CHANGELOG.md
-    status: maintained
+    status: committed_in_sprint_03_closure
+    commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
   handoff:
     path: docs/HANDOFF_2026-07-13.md
-    status: prepared_for_formal_closure
+    status: committed_in_sprint_03_closure
+    commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
     previous_path: docs/HANDOFF_2026-07-12.md
   adr_directory:
     path: docs/adr/
@@ -260,5 +264,3 @@ continuity:
     - sprint_commit_confirmed
     checks_pending:
     - final_snapshot_refresh
-    - final_handoff_validation
-    - publication

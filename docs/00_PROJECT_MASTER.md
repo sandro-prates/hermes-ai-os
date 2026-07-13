@@ -122,6 +122,10 @@ Encerramento documental e handoff oficial preparados.
 DT-008 implementada com `.env.example` sanitizado, exceção segura no `.gitignore`,
 teste contratual e documentação operacional alinhada.
 
+### `b1ab2ea`
+
+Documentação final da SPRINT-03 e handoff de 13/07/2026 preparados e commitados.
+
 ## Último trabalho concluído
 
 ### EPIC-004 — Foundation Reproducibility (`in_progress`)
@@ -137,8 +141,8 @@ teste contratual e documentação operacional alinhada.
 - nenhuma dependência ou funcionalidade de produto adicionada.
 
 A implementação prevista na EPIC-004 foi atendida pela SPRINT-03 e pela DT-008. A EPIC
-permanece `in_progress` até o snapshot final, handoff, validação de fechamento e
-publicação. Nenhuma nova Sprint foi ativada.
+permanece `in_progress` somente até a adoção do snapshot final. Nenhuma nova Sprint foi
+ativada.
 
 ## Trabalho concluído anterior
 
@@ -243,8 +247,8 @@ Somente M0 está em andamento. Os demais permanecem pendentes como milestones fo
 
 A baseline publicada em `51d3747` foi comprovada antes da ativação, e a implementação
 foi commitada em `2ebed11`. A SPRINT-03 está concluída, mas a EPIC-004 permanece
-`in_progress` até o snapshot final, handoff, validação de fechamento e publicação.
-Nenhuma nova Sprint foi ativada.
+`in_progress` somente até a adoção do snapshot final. A documentação e o handoff estão
+comprovados por `b1ab2ea`. Nenhuma nova Sprint foi ativada.
 
 ---
 
