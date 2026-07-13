@@ -345,7 +345,7 @@ aviso do `TestClient`.
 
 ## DT-007 — Pesquisa tecnológica
 
-**Status:** 🟡 Em andamento na SPRINT-05
+**Status:** ✅ Concluída como pesquisa na SPRINT-05
 
 Arquivo:
 
@@ -353,15 +353,16 @@ Arquivo:
 
 O item foi deliberadamente adiado em favor da inconsistência operacional DT-008.
 DT-007 não integra formalmente a EPIC-004 e foi ativada explicitamente apenas como
-pesquisa documental da SPRINT-05.
+pesquisa documental da SPRINT-05. O documento foi preenchido, revisado e commitado em
+`126aff8`. A conclusão não aceita ou implementa suas recomendações.
 
 ---
 
-# SPRINT-05 Ativa
+# SPRINT-05 Encerrada
 
 ## SPRINT-05 — Technology Decision Baseline
 
-**Status:** 🟡 Em andamento
+**Status:** ✅ Concluída
 
 **Milestone:** M0 — Foundation
 
@@ -375,18 +376,23 @@ demais temas sem implementação.
 
 **Critérios de aceite:**
 
-- [ ] preencher e revisar o documento de pesquisa com fontes oficiais atuais;
-- [ ] separar fatos, inferências, recomendações e decisões adiadas;
-- [ ] classificar alternativas como adotar, prototipar, adiar, rejeitar ou pendente
+- [x] preencher e revisar o documento de pesquisa com fontes oficiais atuais;
+- [x] separar fatos, inferências, recomendações e decisões adiadas;
+- [x] classificar alternativas como adotar, prototipar, adiar, rejeitar ou pendente
   de aprovação humana;
-- [ ] recomendar a sequência técnica das duas próximas Sprints;
-- [ ] não adicionar dependências, lockfile, CI, código de produto ou ADR aceito;
-- [ ] aprovar Ruff, testes, importação, endpoints e Request ID;
-- [ ] atualizar documentação viva, handoff e snapshot no fluxo de fechamento.
+- [x] recomendar a sequência técnica das duas próximas Sprints;
+- [x] não adicionar dependências, lockfile, CI, código de produto ou ADR aceito;
+- [x] aprovar Ruff, testes, importação, endpoints e Request ID;
+- [x] atualizar documentação viva e preparar handoff no fluxo de fechamento.
 
 **Fora do escopo:** implementação de banco, migrations, filas, workers, agentes,
 modelos, memória, dashboard, integrações, cloud, lockfile, CI/CD, novas dependências,
 alteração de aplicação e aceitação automática de ADRs.
+
+**Evidência:** ativação `2f79d8c`; pesquisa `126aff8`.
+
+**Continuidade:** nenhuma Sprint está ativa ou aprovada. SPRINT-06 e SPRINT-07 são
+somente candidatas. O snapshot segue o fluxo oficial em commit exclusivo.
 
 ---
 

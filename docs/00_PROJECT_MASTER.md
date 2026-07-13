@@ -10,9 +10,9 @@
 >
 > **Último EPIC concluído:** EPIC-004 — Foundation Reproducibility
 >
-> **Última Sprint concluída:** SPRINT-04 — Foundation Integrity Baseline
+> **Última Sprint concluída:** SPRINT-05 — Technology Decision Baseline
 >
-> **Sprint atual:** SPRINT-05 — Technology Decision Baseline
+> **Sprint atual:** nenhuma
 >
 > **Responsável:** Sandro Prates
 >
@@ -167,7 +167,7 @@ A EPIC-004 possuía somente a SPRINT-03 e a DT-008 como escopo formal; todos os 
 funcionais foram atendidos. O snapshot oficial é um artefato técnico de continuidade,
 cuja validade deve ser verificada com `python tools/project_snapshot.py --check`.
 
-## Última Sprint concluída
+## Sprint concluída anterior
 
 ### SPRINT-04 — Foundation Integrity Baseline — Concluída
 
@@ -192,19 +192,21 @@ cuja validade deve ser verificada com `python tools/project_snapshot.py --check`
   estado deve ser consultado em `docs/PROJECT_SNAPSHOT.md`, validado com
   `python tools/project_snapshot.py --check` e confrontado com Git.
 
-## Sprint ativa
+## Última Sprint concluída
 
-### SPRINT-05 — Technology Decision Baseline — Em andamento
+### SPRINT-05 — Technology Decision Baseline — Concluída
 
 - Milestone: M0 — Foundation.
 - EPIC: nenhuma nova EPIC.
 - Item formal: DT-007 — pesquisa tecnológica.
 - Objetivo: produzir uma baseline decisória para lock de dependências, matriz Python
   e quality gate/CI, mantendo os demais temas em matriz preparatória compacta.
-- Resultado autorizado: recomendações e decisões adiadas, sem adoção automática,
-  ADR aceito, dependência, lockfile, CI ou código de produto.
+- Resultado: pesquisa commitada em `126aff8`, com recomendações e decisões adiadas,
+  sem adoção automática, ADR aceito, dependência, lockfile, CI ou código de produto.
 - Baseline de ativação: `1dfd3ee`, sincronizada com `origin/main`, snapshot schema 3,
   Ruff aprovado e 54 testes aprovados com 1 aviso conhecido.
+- Recomendação imediata: prova de reprodutibilidade de dependências antes de CI.
+- SPRINT-06 e SPRINT-07 são apenas candidatas; nenhuma Sprint seguinte foi ativada.
 
 ## Trabalho concluído anterior
 

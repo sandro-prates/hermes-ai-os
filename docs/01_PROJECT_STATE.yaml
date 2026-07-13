@@ -83,6 +83,18 @@ repository:
   - commit: 67ac0200d684146e6143c21471f6ceb2110decbe
     short_commit: 67ac020
     message: 'docs(project): close sprint 04 and prepare handoff'
+  - commit: 307f0b710c1145ddaefccca44378080ca515e25d
+    short_commit: 307f0b7
+    message: 'fix(snapshot): align completed sprint selection'
+  - commit: 1dfd3ee33b6de2556a3b2293132242b6c9342c8f
+    short_commit: 1dfd3ee
+    message: 'docs(project): refresh sprint 04 snapshot'
+  - commit: 2f79d8cfeb1e6d55e9968e8a5d535d8140a72462
+    short_commit: 2f79d8c
+    message: 'docs(project): activate sprint 05 technology baseline'
+  - commit: 126aff84af9832ebf577e1d06e61953754af13d4
+    short_commit: 126aff8
+    message: 'docs(research): complete technology decision baseline'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
@@ -190,32 +202,30 @@ current_task:
   git_evidence:
     commit: 2ebed11018ec8b394c69a01e1fff4229561c3cfd
 active_work:
+  sprint: none
+  next_sprint: none
+  dt_007_activated: false
+last_completed_sprint:
   sprint:
     id: SPRINT-05
     title: Technology Decision Baseline
-    status: in_progress
-  epic: none
-  task:
-    id: DT-007
-    title: Pesquisa tecnológica
-    status: in_progress
-  objective: Produzir baseline decisória para dependências, Python e quality gate sem adoção tecnológica
-  definition_of_done_met: false
-  next_sprint: none
-  dt_007_activated: true
-last_completed_sprint:
-  sprint:
-    id: SPRINT-04
-    title: Foundation Integrity Baseline
     status: completed
   epic: none
   milestone: M0
-  objective: Proteger diretamente os contratos públicos da API base e alinhar o estado documental corrente
-  functional_item: Criar testes automatizados da API base
+  objective: Produzir baseline decisória para dependências, Python e quality gate sem adoção tecnológica
+  task:
+    id: DT-007
+    title: Pesquisa tecnológica
+    status: completed
+  functional_item: Preencher e revisar a pesquisa tecnológica com fontes primárias
   functional_item_status: completed
-  implementation_scope: tests_and_continuity_documentation
-  direct_api_contract_tests: 3
-  implementation_baseline_pytest_passed_tests: 51
+  implementation_scope: research_and_continuity_documentation
+  research_commit: 126aff84af9832ebf577e1d06e61953754af13d4
+  decisions_automatically_accepted: false
+  dependencies_added: false
+  lockfile_added: false
+  ci_added: false
+  application_files_changed: false
   pytest_passed_tests: 54
   pytest_warnings: 1
   ruff: passed
@@ -224,18 +234,15 @@ last_completed_sprint:
   health_endpoint: passed
   request_id_generation: passed
   request_id_preservation: passed
-  product_behavior_changed: false
-  dependencies_added: false
-  application_files_changed: false
   definition_of_done_met: true
   dt_007_activated: false
-  git_evidence:
-    implementation_commit: 2dc6365688b06a5c27bf536fb9e508d9ac59c2fb
-    implementation_short_commit: 2dc6365
-    implementation_message: 'test(api): protect base endpoint contracts'
-    documentation_commit: 67ac0200d684146e6143c21471f6ceb2110decbe
-    documentation_short_commit: 67ac020
-    documentation_message: 'docs(project): close sprint 04 and prepare handoff'
+  recommendations:
+  - Prototipar uv em Sprint própria antes de adoção
+  - Manter Python 3.12 a 3.14 como matriz candidata
+  - Prototipar GitHub Actions somente após decisão de lock
+  next_sprint_candidates:
+  - SPRINT-06 — Dependency Reproducibility Proof
+  - SPRINT-07 — Automated Quality Gate
 quality:
   pytest:
     command: python -m pytest
@@ -278,25 +285,20 @@ documentation:
     status: maintained
   project_master:
     path: docs/00_PROJECT_MASTER.md
-    status: committed_in_sprint_04_closure
-    commit: 67ac0200d684146e6143c21471f6ceb2110decbe
+    status: maintained
   project_state:
     path: docs/01_PROJECT_STATE.yaml
-    status: committed_in_sprint_04_closure
-    commit: 67ac0200d684146e6143c21471f6ceb2110decbe
+    status: maintained
   backlog:
     path: docs/02_BACKLOG.md
-    status: committed_in_sprint_04_closure
-    commit: 67ac0200d684146e6143c21471f6ceb2110decbe
+    status: maintained
   changelog:
     path: docs/03_CHANGELOG.md
-    status: committed_in_sprint_04_closure
-    commit: 67ac0200d684146e6143c21471f6ceb2110decbe
+    status: maintained
   handoff:
-    path: docs/HANDOFF_2026-07-13-SPRINT-04.md
-    status: committed_in_sprint_04_closure
-    commit: 67ac0200d684146e6143c21471f6ceb2110decbe
-    previous_path: docs/HANDOFF_2026-07-13.md
+    path: docs/HANDOFF_2026-07-13-SPRINT-05.md
+    status: current
+    previous_path: docs/HANDOFF_2026-07-13-SPRINT-04.md
     historical_path: docs/HANDOFF_2026-07-12.md
   adr_directory:
     path: docs/adr/
@@ -369,7 +371,7 @@ sprint_05_activation_baseline:
   application_import: passed
   verified_before_local_changes: true
 continuity:
-  active_sprint: SPRINT-05
+  active_sprint: none
   next_sprint: none
   snapshot:
     source_of_truth: docs/PROJECT_SNAPSHOT.md
