@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from tools.project_snapshot import (
+    SNAPSHOT_SCHEMA_VERSION,
     CommandResult,
     GitState,
     SnapshotError,
@@ -232,9 +233,11 @@ quality:
     assert state["next_task"] == "Não identificado"
 
 
-def test_snapshot_uses_committed_head_and_is_deterministic(tmp_path: Path) -> None:
-    committed_state = """project:
+def planned_state_text(*, status: str = "planned", implementation: str = "false") -> str:
+    return f"""project:
   name: Hermes AI OS
+  phase:
+    status: in_progress
 last_completed_work:
   epic:
     id: EPIC-003
@@ -244,17 +247,94 @@ last_completed_work:
   manual_runtime_validation:
     result: passed
 current_task:
-  title: README e onboarding reproduzível do Hermes AI OS
+  title: README
   status: completed
-next_task: null
+next_sprint:
+  id: SPRINT-03
+  title: Reproducible Onboarding Baseline
+  status: {status}
+  epic:
+    id: EPIC-004
+    title: Foundation Reproducibility
+  objective: Tornar o onboarding reproduzível
+  implementation_started: {implementation}
+  first_task:
+    title: Versionar e validar um .env.example sanitizado
+next_task:
+  title: Versionar e validar um .env.example sanitizado
+  sprint: SPRINT-03
+  status: {status}
 quality:
   pytest:
     result: passed
-    passed_tests: 22
+    passed_tests: 32
     warnings: 1
   ruff:
     result: passed
 """
+
+
+def state_runner(text: str):
+    def runner(
+        args: tuple[str, ...], cwd: Path, env: dict[str, str] | None
+    ) -> CommandResult:
+        if args == ("git", "show", "HEAD:docs/01_PROJECT_STATE.yaml"):
+            return result(args, stdout=text)
+        return result(args, returncode=128)
+
+    return runner
+
+
+def test_planned_epic_and_sprint_are_parsed_from_exact_paths(tmp_path: Path) -> None:
+    state = required_state(tmp_path, state_runner(planned_state_text()))
+
+    assert state["next_epic"] == "EPIC-004 — Foundation Reproducibility"
+    assert state["next_sprint"] == "SPRINT-03 — Reproducible Onboarding Baseline"
+    assert state["next_sprint_status"] == "planned"
+    assert state["next_sprint_objective"] == "Tornar o onboarding reproduzível"
+    assert (
+        state["next_sprint_first_task"]
+        == "Versionar e validar um .env.example sanitizado"
+    )
+    assert state["next_sprint_implementation"] == "Nenhuma implementação foi iniciada."
+
+
+def test_milestone_in_progress_does_not_activate_planned_sprint(tmp_path: Path) -> None:
+    state = required_state(tmp_path, state_runner(planned_state_text()))
+
+    assert state["next_sprint_status"] == "planned"
+    assert "in_progress" not in state["next_sprint_status"]
+
+
+def test_partial_planned_sprint_fails_instead_of_inventing_data(tmp_path: Path) -> None:
+    text = """project:
+  name: Hermes AI OS
+next_sprint:
+  id: SPRINT-03
+  status: planned
+"""
+
+    with pytest.raises(SnapshotError, match="next_sprint incompleto"):
+        required_state(tmp_path, state_runner(text))
+
+
+def test_invalid_planned_status_fails_clearly(tmp_path: Path) -> None:
+    with pytest.raises(SnapshotError, match="status inválido"):
+        required_state(tmp_path, state_runner(planned_state_text(status="in_progress")))
+
+
+def test_ambiguous_next_task_fails_clearly(tmp_path: Path) -> None:
+    text = planned_state_text().replace(
+        "next_task:\n  title: Versionar e validar um .env.example sanitizado",
+        "next_task:\n  title: Outra Task",
+    )
+
+    with pytest.raises(SnapshotError, match="informação ambígua"):
+        required_state(tmp_path, state_runner(text))
+
+
+def test_snapshot_uses_committed_head_and_is_deterministic(tmp_path: Path) -> None:
+    committed_state = planned_state_text()
     committed_files = {
         "docs/01_PROJECT_STATE.yaml": committed_state,
         "pyproject.toml": """[project]
@@ -294,10 +374,19 @@ dependencies = ["fastapi>=0.139,<1.0"]
     second = render_snapshot(tmp_path, output, runner)
 
     assert first == second
+    assert SNAPSHOT_SCHEMA_VERSION == 3
+    assert "schema do snapshot: 3" in first
     assert "fingerprint SHA-256" in first
     assert "status: completed" in first
+    assert "## 3. Próxima Sprint Planejada" in first
+    assert "EPIC: EPIC-004 — Foundation Reproducibility" in first
+    assert "Sprint: SPRINT-03 — Reproducible Onboarding Baseline" in first
+    assert "Status: planned" in first
+    assert "Objetivo: Tornar o onboarding reproduzível" in first
+    assert "Primeira Task: Versionar e validar um .env.example sanitizado" in first
+    assert "Implementação: Nenhuma implementação foi iniciada." in first
     assert "WRONG WORKTREE VALUE" not in first
-    assert ".env.example" not in first
+    assert "\n├── .env.example" not in first
     assert str(tmp_path) not in first
     assert "working tree: limpa" not in first
     assert "último commit" not in first

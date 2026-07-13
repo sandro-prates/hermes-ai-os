@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 DEFAULT_OUTPUT = Path("docs/PROJECT_SNAPSHOT.md")
-SNAPSHOT_SCHEMA_VERSION = 2
+SNAPSHOT_SCHEMA_VERSION = 3
 CANONICAL_SNAPSHOT_PATH = "docs/PROJECT_SNAPSHOT.md"
 NOT_IDENTIFIED = "Não identificado"
 NONE = "Nenhum"
@@ -308,6 +308,12 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
             "task": NOT_IDENTIFIED,
             "status": NOT_IDENTIFIED,
             "next_task": NOT_IDENTIFIED,
+            "next_epic": NOT_IDENTIFIED,
+            "next_sprint": NOT_IDENTIFIED,
+            "next_sprint_status": NOT_IDENTIFIED,
+            "next_sprint_objective": NOT_IDENTIFIED,
+            "next_sprint_first_task": NOT_IDENTIFIED,
+            "next_sprint_implementation": NOT_IDENTIFIED,
         }
     values = parse_simple_yaml_mapping(text)
 
@@ -322,6 +328,83 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
         if NOT_IDENTIFIED not in {epic_id, epic_name}
         else NOT_IDENTIFIED
     )
+
+    planned_paths = {
+        "epic_id": ("next_sprint", "epic", "id"),
+        "epic_title": ("next_sprint", "epic", "title"),
+        "sprint_id": ("next_sprint", "id"),
+        "sprint_title": ("next_sprint", "title"),
+        "status": ("next_sprint", "status"),
+        "objective": ("next_sprint", "objective"),
+        "first_task": ("next_sprint", "first_task", "title"),
+        "implementation_started": ("next_sprint", "implementation_started"),
+    }
+    present_planned = {
+        name: values[path] for name, path in planned_paths.items() if path in values
+    }
+    planned: dict[str, str] = {
+        "next_epic": NOT_IDENTIFIED,
+        "next_sprint": NOT_IDENTIFIED,
+        "next_sprint_status": NOT_IDENTIFIED,
+        "next_sprint_objective": NOT_IDENTIFIED,
+        "next_sprint_first_task": NOT_IDENTIFIED,
+        "next_sprint_implementation": NOT_IDENTIFIED,
+    }
+    if present_planned:
+        missing = [name for name in planned_paths if name not in present_planned]
+        if missing:
+            raise SnapshotError(
+                "PROJECT_STATE possui next_sprint incompleto; campos ausentes: "
+                + ", ".join(missing)
+            )
+        strings = {
+            name: value
+            for name, value in present_planned.items()
+            if name != "implementation_started"
+        }
+        invalid_strings = [
+            name for name, value in strings.items() if not isinstance(value, str) or not value
+        ]
+        if invalid_strings:
+            raise SnapshotError(
+                "PROJECT_STATE possui campos textuais inválidos em next_sprint: "
+                + ", ".join(invalid_strings)
+            )
+        if strings["status"] != "planned":
+            raise SnapshotError(
+                "PROJECT_STATE possui status inválido para a próxima Sprint: "
+                f"{strings['status']!r}; esperado 'planned'."
+            )
+        implementation_started = present_planned["implementation_started"]
+        if implementation_started is not False:
+            raise SnapshotError(
+                "PROJECT_STATE não comprova que a próxima Sprint permanece sem "
+                "implementação iniciada."
+            )
+        consistency_paths = {
+            "title": ("next_task", "title"),
+            "sprint_id": ("next_task", "sprint"),
+            "status": ("next_task", "status"),
+        }
+        expected = {
+            "title": strings["first_task"],
+            "sprint_id": strings["sprint_id"],
+            "status": strings["status"],
+        }
+        for name, path in consistency_paths.items():
+            if path in values and values[path] != expected[name]:
+                raise SnapshotError(
+                    "PROJECT_STATE possui informação ambígua entre next_sprint e "
+                    f"next_task: {name}."
+                )
+        planned = {
+            "next_epic": f"{strings['epic_id']} — {strings['epic_title']}",
+            "next_sprint": f"{strings['sprint_id']} — {strings['sprint_title']}",
+            "next_sprint_status": strings["status"],
+            "next_sprint_objective": strings["objective"],
+            "next_sprint_first_task": strings["first_task"],
+            "next_sprint_implementation": "Nenhuma implementação foi iniciada.",
+        }
     return {
         "project": get(("project", "name")),
         "epic": epic,
@@ -336,6 +419,7 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
         "application_import": get(
             ("last_completed_work", "manual_runtime_validation", "result")
         ),
+        **planned,
     }
 
 
@@ -685,13 +769,22 @@ def render_snapshot(
 - status: {state['status']}
 - próxima Task: {state['next_task']}
 
-## 3. Estrutura Relevante
+## 3. Próxima Sprint Planejada
+
+- EPIC: {state['next_epic']}
+- Sprint: {state['next_sprint']}
+- Status: {state['next_sprint_status']}
+- Objetivo: {state['next_sprint_objective']}
+- Primeira Task: {state['next_sprint_first_task']}
+- Implementação: {state['next_sprint_implementation']}
+
+## 4. Estrutura Relevante
 
 ```text
 {tree}
 ```
 
-## 4. Arquitetura Implementada
+## 5. Arquitetura Implementada
 
 - Backend FastAPI em `apps/backend/app`.
 - Configuração central em `app.core.settings`.
@@ -700,56 +793,56 @@ def render_snapshot(
 - Módulos Python identificados:
 {module_text}
 
-## 5. Funcionalidades Verificadas
+## 6. Funcionalidades Verificadas
 
 - Aplicação FastAPI: validação commitada registrada como `{state['application_import']}`.
 - Endpoints identificados por inspeção AST do código Python.
 - Middleware ASGI e observabilidade presentes no pacote `app.core.observability`.
 
-## 6. Endpoints Identificados
+## 7. Endpoints Identificados
 
 {endpoint_text}
 
-## 7. Configuração e Dependências
+## 8. Configuração e Dependências
 
 - Python requerido: `{pyproject.get('requires-python', NOT_IDENTIFIED)}`.
 - Dependências diretas:
 {dependency_text}
 
-## 8. Observabilidade
+## 9. Observabilidade
 
 - Pacote: `app.core.observability`.
 - Formatos identificados no código: `console` e `json`.
 - Header padrão de correlação: `X-Request-ID`.
 - Contexto assíncrono: `ContextVar`.
 
-## 9. Qualidade
+## 10. Qualidade
 
 - Ruff: estado commitado `{state['ruff']}`.
 - Pytest: estado commitado `{committed_pytest}`.
 - importação da aplicação: estado commitado `{state['application_import']}`.
 
-## 10. Documentação e ADRs
+## 11. Documentação e ADRs
 
 {document_lines}
 
 {chr(10).join(adr_lines(root, paths, runner))}
 
-## 11. Alterações Locais
+## 12. Alterações Locais
 
 - O estado transitório não integra o snapshot canônico.
 - Staged, unstaged e untracked são exibidos no console antes da geração ou checagem.
 
-## 12. Problemas Conhecidos
+## 13. Problemas Conhecidos
 
 - Aviso de depreciação do `TestClient` relacionado ao `httpx`, não bloqueante.
 - {research_status}.
 
-## 13. Dívida Técnica
+## 14. Dívida Técnica
 
 {chr(10).join(debt_lines(root, runner))}
 
-## 14. Próximo Passo Documentado
+## 15. Próximo Passo Documentado
 
 {next_step}
 """
