@@ -13,9 +13,9 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - SPRINT-03 — Reproducible Onboarding Baseline concluída na EPIC-004.
 - DT-008 concluída no commit `2ebed11`, com `.env.example` sanitizado e dois testes
   contratuais.
-- Nenhuma nova Sprint está ativa; a adoção do snapshot final permanece no fluxo formal
-  de encerramento.
-- EPIC-004 permanece `in_progress` somente até essa adoção.
+- EPIC-004 concluída; seu único incremento formal foi atendido pela SPRINT-03 e DT-008.
+- Nenhuma nova Sprint está ativa. O snapshot oficial será atualizado pelo fluxo técnico
+  de continuidade.
 
 ## Funcionalidades implementadas
 

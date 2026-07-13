@@ -8,7 +8,7 @@
 >
 > **Fase atual:** M0 — Foundation
 >
-> **Último EPIC concluído:** EPIC-003 — Logging System
+> **Último EPIC concluído:** EPIC-004 — Foundation Reproducibility
 >
 > **Última Sprint concluída:** SPRINT-03 — Reproducible Onboarding Baseline
 >
@@ -126,9 +126,13 @@ teste contratual e documentação operacional alinhada.
 
 Documentação final da SPRINT-03 e handoff de 13/07/2026 preparados e commitados.
 
+### `313de97`
+
+Estado transitório de publicação removido da documentação permanente.
+
 ## Último trabalho concluído
 
-### EPIC-004 — Foundation Reproducibility (`in_progress`)
+### EPIC-004 — Foundation Reproducibility — Concluída
 
 ### SPRINT-03 — Reproducible Onboarding Baseline — Concluída
 
@@ -140,9 +144,9 @@ Documentação final da SPRINT-03 e handoff de 13/07/2026 preparados e commitado
 - endpoints, Request ID e formatos de logging preservados;
 - nenhuma dependência ou funcionalidade de produto adicionada.
 
-A implementação prevista na EPIC-004 foi atendida pela SPRINT-03 e pela DT-008. A EPIC
-permanece `in_progress` somente até a adoção do snapshot final. Nenhuma nova Sprint foi
-ativada.
+A EPIC-004 possuía somente a SPRINT-03 e a DT-008 como escopo formal; todos os critérios
+funcionais foram atendidos. O snapshot oficial será atualizado separadamente como
+artefato técnico de continuidade. Nenhuma nova Sprint foi ativada.
 
 ## Trabalho concluído anterior
 
@@ -246,9 +250,9 @@ Somente M0 está em andamento. Os demais permanecem pendentes como milestones fo
 - Task concluída: DT-008 — versionar e validar um `.env.example` sanitizado (`completed`).
 
 A baseline publicada em `51d3747` foi comprovada antes da ativação, e a implementação
-foi commitada em `2ebed11`. A SPRINT-03 está concluída, mas a EPIC-004 permanece
-`in_progress` somente até a adoção do snapshot final. A documentação e o handoff estão
-comprovados por `b1ab2ea`. Nenhuma nova Sprint foi ativada.
+foi commitada em `2ebed11`. EPIC-004, SPRINT-03 e DT-008 estão concluídas. A documentação
+e o handoff estão comprovados por `b1ab2ea` e `313de97`. O snapshot oficial será
+atualizado pelo fluxo técnico. Nenhuma nova Sprint foi ativada.
 
 ---
 

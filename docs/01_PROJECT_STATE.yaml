@@ -50,6 +50,9 @@ repository:
   - commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
     short_commit: b1ab2ea
     message: 'docs(project): close sprint 03 and prepare handoff'
+  - commit: 313de97249c4399deeec76b3dbe5464040bd084a
+    short_commit: 313de97
+    message: 'docs(project): remove transient publication state'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
@@ -111,7 +114,7 @@ last_completed_work:
   epic:
     id: EPIC-004
     name: Foundation Reproducibility
-    status: in_progress
+    status: completed
   sprint:
     id: SPRINT-03
     title: Reproducible Onboarding Baseline
@@ -136,12 +139,11 @@ last_completed_work:
     console_logging: passed
     json_logging: passed
     result: passed
-  pending_formal_closure:
-  - Adoção do snapshot final
   definition_of_done_met: true
   git_evidence:
     implementation_commit: 2ebed11018ec8b394c69a01e1fff4229561c3cfd
     documentation_commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
+    temporal_correction_commit: 313de97249c4399deeec76b3dbe5464040bd084a
 current_task:
   id: DT-008
   title: Versionar e validar um .env.example sanitizado

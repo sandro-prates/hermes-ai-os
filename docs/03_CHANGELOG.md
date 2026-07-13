@@ -19,7 +19,8 @@ Nenhuma nova Sprint foi ativada.
 
 **Status:** Concluída
 
-**EPIC-004:** permanece `in_progress` somente até a adoção do snapshot final.
+**EPIC-004:** concluída; o snapshot é um artefato técnico de continuidade e não
+condiciona seu status funcional.
 
 **Git:** implementação da DT-008 no commit `2ebed11`
 
@@ -62,6 +63,7 @@ Nenhuma nova Sprint foi ativada.
   `python tools/project_snapshot.py --check` após o próprio commit.
 - DT-008 implementada no commit `2ebed11`.
 - Documentação final e handoff da SPRINT-03 commitados em `b1ab2ea`.
+- Estado transitório de publicação removido em `313de97`.
 
 ### Adicionado
 
