@@ -8,7 +8,20 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-SPRINT-04 — Foundation Integrity Baseline encerrada localmente no M0, sem nova EPIC.
+SPRINT-05 — Technology Decision Baseline ativada no M0, sem nova EPIC.
+
+### Em andamento
+
+- DT-007 ativada explicitamente como pesquisa documental, sem adoção tecnológica.
+- Escopo decisório concentrado em lock de dependências, matriz Python e quality
+  gate/CI; temas posteriores limitados a matriz preparatória.
+- Baseline de ativação verificada em `1dfd3ee`, sincronizada com `origin/main`, com
+  snapshot aprovado, Ruff aprovado e 54 testes aprovados com 1 aviso conhecido.
+- Nenhuma dependência, lockfile, workflow de CI, código de produto ou ADR foi criado.
+
+## [SPRINT-04] — 2026-07-13
+
+SPRINT-04 — Foundation Integrity Baseline encerrada no M0, sem nova EPIC.
 
 ### Adicionado
 

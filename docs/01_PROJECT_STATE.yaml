@@ -190,9 +190,19 @@ current_task:
   git_evidence:
     commit: 2ebed11018ec8b394c69a01e1fff4229561c3cfd
 active_work:
-  sprint: none
+  sprint:
+    id: SPRINT-05
+    title: Technology Decision Baseline
+    status: in_progress
+  epic: none
+  task:
+    id: DT-007
+    title: Pesquisa tecnológica
+    status: in_progress
+  objective: Produzir baseline decisória para dependências, Python e quality gate sem adoção tecnológica
+  definition_of_done_met: false
   next_sprint: none
-  dt_007_activated: false
+  dt_007_activated: true
 last_completed_sprint:
   sprint:
     id: SPRINT-04
@@ -343,8 +353,23 @@ sprint_04_planning_baseline:
   pytest_warnings: 1
   application_import: passed
   verified_before_local_changes: true
+sprint_05_activation_baseline:
+  commit: 1dfd3ee33b6de2556a3b2293132242b6c9342c8f
+  short_commit: 1dfd3ee
+  branch: main
+  upstream: origin/main
+  origin_main: 1dfd3ee33b6de2556a3b2293132242b6c9342c8f
+  divergence_main_origin_main: 0 0
+  working_tree_before_activation: clean
+  snapshot_schema: 3
+  snapshot_check: passed
+  ruff: passed
+  pytest_passed_tests: 54
+  pytest_warnings: 1
+  application_import: passed
+  verified_before_local_changes: true
 continuity:
-  active_sprint: none
+  active_sprint: SPRINT-05
   next_sprint: none
   snapshot:
     source_of_truth: docs/PROJECT_SNAPSHOT.md

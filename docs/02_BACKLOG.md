@@ -1,6 +1,6 @@
 # Hermes AI OS — Backlog
 
-> Última verificação: 12/07/2026
+> Última verificação: 13/07/2026
 >
 > Fonte de verdade operacional: `docs/01_PROJECT_STATE.yaml`
 >
@@ -343,16 +343,50 @@ aviso do `TestClient`.
 
 ---
 
-## DT-007 — Pesquisa tecnológica vazia
+## DT-007 — Pesquisa tecnológica
 
-**Status:** ⚠️ Aberta
+**Status:** 🟡 Em andamento na SPRINT-05
 
 Arquivo:
 
 `docs/research/2026-07-12-stack-tecnologica.md`
 
 O item foi deliberadamente adiado em favor da inconsistência operacional DT-008.
-DT-007 não integra formalmente a EPIC-004 e não foi ativada automaticamente.
+DT-007 não integra formalmente a EPIC-004 e foi ativada explicitamente apenas como
+pesquisa documental da SPRINT-05.
+
+---
+
+# SPRINT-05 Ativa
+
+## SPRINT-05 — Technology Decision Baseline
+
+**Status:** 🟡 Em andamento
+
+**Milestone:** M0 — Foundation
+
+**EPIC:** nenhuma nova EPIC
+
+**Item formal:** DT-007 — Pesquisa tecnológica
+
+**Objetivo:** definir recomendações verificáveis para gerenciamento e lock de
+dependências, matriz oficial de versões do Python e quality gate/CI; preparar os
+demais temas sem implementação.
+
+**Critérios de aceite:**
+
+- [ ] preencher e revisar o documento de pesquisa com fontes oficiais atuais;
+- [ ] separar fatos, inferências, recomendações e decisões adiadas;
+- [ ] classificar alternativas como adotar, prototipar, adiar, rejeitar ou pendente
+  de aprovação humana;
+- [ ] recomendar a sequência técnica das duas próximas Sprints;
+- [ ] não adicionar dependências, lockfile, CI, código de produto ou ADR aceito;
+- [ ] aprovar Ruff, testes, importação, endpoints e Request ID;
+- [ ] atualizar documentação viva, handoff e snapshot no fluxo de fechamento.
+
+**Fora do escopo:** implementação de banco, migrations, filas, workers, agentes,
+modelos, memória, dashboard, integrações, cloud, lockfile, CI/CD, novas dependências,
+alteração de aplicação e aceitação automática de ADRs.
 
 ---
 

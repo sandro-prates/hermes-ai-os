@@ -12,7 +12,7 @@
 >
 > **Última Sprint concluída:** SPRINT-04 — Foundation Integrity Baseline
 >
-> **Sprint atual:** nenhuma
+> **Sprint atual:** SPRINT-05 — Technology Decision Baseline
 >
 > **Responsável:** Sandro Prates
 >
@@ -191,6 +191,20 @@ cuja validade deve ser verificada com `python tools/project_snapshot.py --check`
 - O snapshot oficial é mantido em commit exclusivo pelo fluxo de fechamento; seu
   estado deve ser consultado em `docs/PROJECT_SNAPSHOT.md`, validado com
   `python tools/project_snapshot.py --check` e confrontado com Git.
+
+## Sprint ativa
+
+### SPRINT-05 — Technology Decision Baseline — Em andamento
+
+- Milestone: M0 — Foundation.
+- EPIC: nenhuma nova EPIC.
+- Item formal: DT-007 — pesquisa tecnológica.
+- Objetivo: produzir uma baseline decisória para lock de dependências, matriz Python
+  e quality gate/CI, mantendo os demais temas em matriz preparatória compacta.
+- Resultado autorizado: recomendações e decisões adiadas, sem adoção automática,
+  ADR aceito, dependência, lockfile, CI ou código de produto.
+- Baseline de ativação: `1dfd3ee`, sincronizada com `origin/main`, snapshot schema 3,
+  Ruff aprovado e 54 testes aprovados com 1 aviso conhecido.
 
 ## Trabalho concluído anterior
 

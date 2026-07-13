@@ -15,8 +15,9 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
   contratuais.
 - EPIC-004 concluída; seu único incremento formal foi atendido pela SPRINT-03 e DT-008.
 - SPRINT-04 — Foundation Integrity Baseline concluída no M0, sem nova EPIC.
-- Nenhuma Sprint está ativa ou formalmente planejada.
-- DT-007 permanece aberta, separada e não ativada.
+- SPRINT-05 — Technology Decision Baseline ativa no M0, sem nova EPIC.
+- DT-007 está ativa exclusivamente como pesquisa documental; nenhuma recomendação
+  tecnológica está aceita ou implementada.
 - A Sprint protegeu diretamente os contratos públicos da API base e alinhou a
   continuidade documental, sem alterar funcionalidades da aplicação.
 
@@ -236,4 +237,4 @@ python tools/project_snapshot.py --check
 O projeto ainda está no M0. Banco de dados, runtime de agentes, memória, dashboard e
 integrações externas ainda não estão implementados. Também não há estratégia de lock
 de dependências nem validação comprovada em todos os sistemas operacionais e versões
-de Python suportadas. O documento de pesquisa tecnológica permanece vazio.
+de Python suportadas. A SPRINT-05 pesquisa essas decisões sem adotar tecnologia.
