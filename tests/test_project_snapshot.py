@@ -9,9 +9,14 @@ from tools.project_snapshot import (
     GitState,
     SnapshotError,
     apply_output,
+    collect_paths,
+    ensure_generation_allowed,
     find_git_root,
     inspect_git,
     parse_porcelain,
+    parse_simple_yaml_mapping,
+    render_snapshot,
+    required_state,
 )
 
 
@@ -79,7 +84,7 @@ def test_git_status_failure_is_unknown_not_clean(tmp_path: Path) -> None:
     assert state.untracked is None
 
 
-def test_git_state_excludes_own_output(tmp_path: Path) -> None:
+def test_git_state_reports_own_output_explicitly(tmp_path: Path) -> None:
     output = tmp_path / "docs" / "PROJECT_SNAPSHOT.md"
 
     def runner(args: tuple[str, ...], cwd: Path, env: dict[str, str] | None) -> CommandResult:
@@ -90,9 +95,186 @@ def test_git_state_excludes_own_output(tmp_path: Path) -> None:
 
     state = inspect_git(tmp_path, output, runner)
 
-    assert state.untracked == ("tools/project_snapshot.py",)
+    assert state.untracked == ("docs/PROJECT_SNAPSHOT.md", "tools/project_snapshot.py")
     assert state.clean is False
     assert state.observed_before_output_write is True
+
+
+def test_generation_allows_only_own_output() -> None:
+    state = GitState(
+        "main",
+        "origin/main",
+        "abc commit",
+        "2026-01-01T00:00:00+00:00",
+        (),
+        (),
+        ("docs/PROJECT_SNAPSHOT.md",),
+        False,
+    )
+
+    ensure_generation_allowed(
+        state,
+        "docs/PROJECT_SNAPSHOT.md",
+        audit_working_tree=False,
+    )
+
+
+def test_generation_refuses_relevant_changes() -> None:
+    state = GitState(
+        "main",
+        "origin/main",
+        "abc commit",
+        "2026-01-01T00:00:00+00:00",
+        (),
+        ("README.md",),
+        ("docs/PROJECT_SNAPSHOT.md",),
+        False,
+    )
+
+    with pytest.raises(SnapshotError, match="README.md"):
+        ensure_generation_allowed(
+            state,
+            "docs/PROJECT_SNAPSHOT.md",
+            audit_working_tree=False,
+        )
+
+
+def test_audit_option_allows_relevant_changes() -> None:
+    state = GitState(None, None, None, None, (), ("README.md",), (), False)
+
+    ensure_generation_allowed(state, None, audit_working_tree=True)
+
+
+def test_tree_uses_only_tracked_head_files(tmp_path: Path) -> None:
+    ignored = tmp_path / ".env.example"
+    ignored.write_text("SECRET=local", encoding="utf-8")
+
+    def runner(args: tuple[str, ...], cwd: Path, env: dict[str, str] | None) -> CommandResult:
+        assert args == ("git", "ls-tree", "-r", "--name-only", "-z", "HEAD")
+        return result(args, stdout="README.md\0apps/backend/app/main.py\0")
+
+    paths = collect_paths(tmp_path, runner)
+
+    assert paths == ["README.md", "apps/backend/app/main.py"]
+    assert ".env.example" not in paths
+
+
+def test_completed_readme_task_is_parsed_by_exact_path(tmp_path: Path) -> None:
+    state_text = """project:
+  name: Hermes AI OS
+last_completed_work:
+  epic:
+    id: EPIC-003
+    name: Logging System
+  sprint:
+    id: SPRINT-02
+  manual_runtime_validation:
+    result: passed
+current_task:
+  title: README e onboarding reproduzível do Hermes AI OS
+  status: completed
+next_task: null
+quality:
+  pytest:
+    result: passed
+    passed_tests: 22
+    warnings: 1
+  ruff:
+    result: passed
+"""
+
+    def runner(args: tuple[str, ...], cwd: Path, env: dict[str, str] | None) -> CommandResult:
+        if args == ("git", "show", "HEAD:docs/01_PROJECT_STATE.yaml"):
+            return result(args, stdout=state_text)
+        return result(args, returncode=128)
+
+    state = required_state(tmp_path, runner)
+
+    assert state["task"] == "README e onboarding reproduzível do Hermes AI OS"
+    assert state["status"] == "completed"
+    assert state["next_task"] == "Não identificado"
+
+
+def test_snapshot_uses_committed_head_and_is_deterministic(tmp_path: Path) -> None:
+    committed_state = """project:
+  name: Hermes AI OS
+last_completed_work:
+  epic:
+    id: EPIC-003
+    name: Logging System
+  sprint:
+    id: SPRINT-02
+  manual_runtime_validation:
+    result: passed
+current_task:
+  title: README e onboarding reproduzível do Hermes AI OS
+  status: completed
+next_task: null
+quality:
+  pytest:
+    result: passed
+    passed_tests: 22
+    warnings: 1
+  ruff:
+    result: passed
+"""
+    committed_files = {
+        "docs/01_PROJECT_STATE.yaml": committed_state,
+        "pyproject.toml": """[project]
+name = "hermes-ai-os"
+version = "0.0.1"
+requires-python = ">=3.12,<3.15"
+dependencies = ["fastapi>=0.139,<1.0"]
+""",
+        "apps/backend/app/main.py": '@app.get("/")\ndef root(): ...\n',
+        "docs/02_BACKLOG.md": "# Backlog\n",
+        "docs/00_PROJECT_MASTER.md": "# Master\n",
+        "docs/03_CHANGELOG.md": "# Changelog\n",
+    }
+    tracked = "\0".join(sorted(committed_files)) + "\0"
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs/01_PROJECT_STATE.yaml").write_text(
+        "project:\n  name: WRONG WORKTREE VALUE\n",
+        encoding="utf-8",
+    )
+    (tmp_path / ".env.example").write_text("SECRET=ignored", encoding="utf-8")
+
+    def runner(args: tuple[str, ...], cwd: Path, env: dict[str, str] | None) -> CommandResult:
+        if args == ("git", "branch", "--show-current"):
+            return result(args, stdout="main\n")
+        if args == ("git", "rev-parse", "--abbrev-ref", "@{upstream}"):
+            return result(args, stdout="origin/main\n")
+        if args == ("git", "log", "-1", "--format=%h %s"):
+            return result(args, stdout="abc123 committed state\n")
+        if args == ("git", "show", "-s", "--format=%cI", "HEAD"):
+            return result(args, stdout="2026-01-01T00:00:00+00:00\n")
+        if args[:2] == ("git", "status"):
+            return result(args, stdout="?? docs/PROJECT_SNAPSHOT.md\0")
+        if args == ("git", "ls-tree", "-r", "--name-only", "-z", "HEAD"):
+            return result(args, stdout=tracked)
+        if len(args) == 3 and args[:2] == ("git", "show") and args[2].startswith("HEAD:"):
+            relative = args[2][len("HEAD:") :]
+            if relative in committed_files:
+                return result(args, stdout=committed_files[relative])
+            return result(args, returncode=128, stderr="not tracked")
+        return result(args, returncode=128, stderr="unexpected command")
+
+    output = tmp_path / "docs/PROJECT_SNAPSHOT.md"
+    first = render_snapshot(tmp_path, output, runner)
+    second = render_snapshot(tmp_path, output, runner)
+
+    assert first == second
+    assert "abc123 committed state" in first
+    assert "status: completed" in first
+    assert "WRONG WORKTREE VALUE" not in first
+    assert ".env.example" not in first
+    assert str(tmp_path) not in first
+    assert "working tree: limpa" not in first
+
+
+def test_simple_yaml_rejects_unsupported_content() -> None:
+    with pytest.raises(SnapshotError, match="não suportad"):
+        parse_simple_yaml_mapping("project: {name: unsafe-inline-map}\n")
 
 
 def test_generation_is_deterministic_for_same_state(tmp_path: Path) -> None:

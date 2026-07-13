@@ -68,9 +68,9 @@ Evoluir desde uma instalação local até uma plataforma comercial gerenciada, c
 
 - Branch: `main`
 - Upstream: `origin/main`
-- Base Git verificada: `ded359d`.
-- `main` e `origin/main`: sincronizados em `ded359d` no início desta Task.
-- Working tree: possui somente alterações documentais desta Task, ainda não commitadas.
+- HEAD verificado: `1c02fb0`.
+- `main` contém dois commits locais ainda não publicados em `origin/main`.
+- O estado transitório da working tree deve ser consultado diretamente com Git.
 
 ## Entregas commitadas
 
@@ -89,6 +89,14 @@ Sistema de observabilidade, logging JSON, correlação de requisições e testes
 ### `ded359d`
 
 Fechamento documental da EPIC-003 / SPRINT-02.
+
+### `2fcbd17`
+
+README operacional e alinhamento factual dos ADRs 0001–0003.
+
+### `1c02fb0`
+
+Gerador determinístico e testes do snapshot técnico do projeto.
 
 ## Último trabalho concluído
 
@@ -162,6 +170,9 @@ ADRs aceitos:
 - ADR-0004 — documentação como continuidade.
 
 O `README.md` é a entrada operacional para instalação, execução e validação local.
+
+O gerador de snapshot está commitado, mas `docs/PROJECT_SNAPSHOT.md` ainda não foi
+adotado oficialmente no Git.
 
 ---
 

@@ -10,6 +10,13 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 Nenhuma próxima Sprint está definida.
 
+### Estado dos incrementos recentes
+
+- README e onboarding concluídos no commit `2fcbd17`.
+- Estados factuais dos ADRs 0001–0003 alinhados em `2fcbd17`.
+- Gerador determinístico de snapshot e testes adicionados em `1c02fb0`.
+- `docs/PROJECT_SNAPSHOT.md` ainda não foi adotado oficialmente no Git.
+
 ### Adicionado
 
 - README operacional com instalação, execução, endpoints, configuração, qualidade,
@@ -18,6 +25,10 @@ Nenhuma próxima Sprint está definida.
 
 ### Corrigido
 
+- Semântica do snapshot canônico definida sobre HEAD e sua árvore rastreada.
+- Estado transitório da working tree removido do conteúdo canônico e mantido como
+  precondição e saída de console do gerador.
+- Arquivos ignorados e apenas existentes no filesystem removidos da árvore do snapshot.
 - Estados de implementação dos ADRs 0001, 0002 e 0003, que ainda declaravam trabalho
   parcial ou não commitado apesar das evidências em `a1d0d21`.
 - Estado Git dos documentos de continuidade após `ded359d`.

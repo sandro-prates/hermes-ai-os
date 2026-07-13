@@ -101,7 +101,7 @@ Nenhuma próxima Sprint está definida.
 
 ## README e onboarding reproduzível do Hermes AI OS
 
-**Status:** 🟡 Implementada e validada, pendente de commit documental
+**Status:** ✅ Concluída no commit `2fcbd17`
 
 - [x] Criar README operacional e factual.
 - [x] Documentar instalação para Windows PowerShell, Linux e macOS.
@@ -110,7 +110,7 @@ Nenhuma próxima Sprint está definida.
 - [x] Documentar endpoints, configurações, qualidade e limitações.
 - [x] Corrigir estados factuais dos ADRs 0001, 0002 e 0003.
 - [x] Reexecutar validações de código, testes e runtime.
-- [ ] Criar commit exclusivamente documental.
+- [x] Criar commit exclusivamente documental (`2fcbd17`).
 
 Nenhuma Sprint foi criada para esta Task.
 
@@ -208,9 +208,17 @@ O módulo redundante `apps/backend/app/core/logging.py` foi removido.
 
 ## DT-006 — README vazio
 
-**Status:** 🟡 Resolvida no working tree, pendente de commit documental
+**Status:** ✅ Resolvida no commit `2fcbd17`
 
 O README operacional foi criado e seus comandos principais foram validados.
+
+---
+
+## Ferramenta de snapshot técnico
+
+**Status:** ✅ Gerador e testes commitados em `1c02fb0`
+
+O relatório `docs/PROJECT_SNAPSHOT.md` ainda não foi adotado oficialmente no Git.
 
 ---
 

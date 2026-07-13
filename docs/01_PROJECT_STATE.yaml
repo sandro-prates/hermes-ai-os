@@ -26,16 +26,23 @@ repository:
   - commit: ded359dff574a39a6654101ccc8e3ee93ea9f71e
     short_commit: ded359d
     message: 'docs(project): close EPIC-003 sprint 02'
+  - commit: 2fcbd17e673eab69bbdd2238346dfa63e14a8a64
+    short_commit: 2fcbd17
+    message: 'docs(project): add onboarding and align architecture records'
+  - commit: 1c02fb04251fa860b60a45c8fad7e3f2a3b42507
+    short_commit: 1c02fb0
+    message: 'feat(tooling): add deterministic project snapshot generator'
   working_tree:
-    status: dirty_documentation_only
-    staged_changes: false
-    unstaged_changes: true
-    untracked: []
-    synchronized_with_upstream: true
+    status: not_recorded_as_canonical_project_state
+    reason: Estado transitório deve ser consultado diretamente com Git
+  upstream_relation_at_last_verified:
+    local_head: 1c02fb04251fa860b60a45c8fad7e3f2a3b42507
+    upstream_head: ded359dff574a39a6654101ccc8e3ee93ea9f71e
+    commits_ahead: 2
   verified_base_commit:
-    commit: ded359dff574a39a6654101ccc8e3ee93ea9f71e
-    short_commit: ded359d
-    message: 'docs(project): close EPIC-003 sprint 02'
+    commit: 1c02fb04251fa860b60a45c8fad7e3f2a3b42507
+    short_commit: 1c02fb0
+    message: 'feat(tooling): add deterministic project snapshot generator'
 last_completed_work:
   epic:
     id: EPIC-003
@@ -86,7 +93,7 @@ next_sprint: null
 current_task:
   title: README e onboarding reproduzível do Hermes AI OS
   sprint: null
-  status: implemented_and_validated_pending_commit
+  status: completed
   scope: documentation_only
   completed_and_validated:
   - README operacional criado
@@ -95,16 +102,19 @@ current_task:
   - Endpoints raiz e health validados
   - Geração e preservação de X-Request-ID validadas
   - Estados de implementação dos ADRs 0001, 0002 e 0003 corrigidos
-  pending:
-  - Commit documental
+  pending: []
+  git_evidence:
+    commit: 2fcbd17e673eab69bbdd2238346dfa63e14a8a64
+    message: 'docs(project): add onboarding and align architecture records'
+next_task: null
 quality:
   pytest:
     command: python -m pytest
     result: passed
-    collected_tests: 8
-    passed_tests: 8
+    collected_tests: 29
+    passed_tests: 29
     warnings: 1
-    reported_duration_seconds: 0.21
+    reported_duration_seconds: 0.26
   ruff:
     command: python -m ruff check .
     result: passed
@@ -118,7 +128,7 @@ quality:
       status: fixed
   automated_test_coverage:
     status: present
-    collected_tests: 8
+    collected_tests: 29
 architecture:
   active_logging_package: app.core.observability
   legacy_logging_module_removed: true
@@ -129,22 +139,26 @@ architecture:
 documentation:
   readme:
     path: README.md
-    status: updated_pending_documentation_commit
+    status: committed
   project_master:
     path: docs/00_PROJECT_MASTER.md
-    status: updated_pending_documentation_commit
+    status: committed_at_2fcbd17_then_updated_locally
   project_state:
     path: docs/01_PROJECT_STATE.yaml
-    status: updated_pending_documentation_commit
+    status: committed_at_2fcbd17_then_updated_locally
   backlog:
     path: docs/02_BACKLOG.md
-    status: updated_pending_documentation_commit
+    status: committed_at_2fcbd17_then_updated_locally
   changelog:
     path: docs/03_CHANGELOG.md
-    status: updated_pending_documentation_commit
+    status: committed_at_2fcbd17_then_updated_locally
   adr_directory:
     path: docs/adr/
-    status: updated_pending_documentation_commit
+    status: committed
+  project_snapshot:
+    generator_commit: 1c02fb0
+    report_path: docs/PROJECT_SNAPSHOT.md
+    report_officially_adopted: false
 continuity:
   restart_instruction:
   - Ler docs/00_PROJECT_MASTER.md
