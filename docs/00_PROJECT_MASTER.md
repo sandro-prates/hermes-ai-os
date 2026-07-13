@@ -12,7 +12,7 @@
 >
 > **Última Sprint concluída:** SPRINT-03 — Reproducible Onboarding Baseline
 >
-> **Sprint atual:** nenhuma
+> **Sprint atual:** SPRINT-04 — Foundation Integrity Baseline (`in_progress`)
 >
 > **Responsável:** Sandro Prates
 >
@@ -166,7 +166,23 @@ Contrato determinístico entre `Settings` e `.env.example` explicitado, incluind
 A EPIC-004 possuía somente a SPRINT-03 e a DT-008 como escopo formal; todos os critérios
 funcionais foram atendidos. O snapshot oficial é um artefato técnico de continuidade,
 cuja validade deve ser verificada com `python tools/project_snapshot.py --check`.
-Nenhuma nova Sprint foi ativada.
+
+## Trabalho atual
+
+### SPRINT-04 — Foundation Integrity Baseline — Em andamento
+
+- Milestone: M0 — Foundation.
+- EPIC: nenhuma nova EPIC criada; EPIC-004 permanece concluída.
+- Item funcional: pendência retrospectiva de testes automatizados da API base.
+- Objetivo: proteger diretamente os contratos públicos de `GET /` e
+  `GET /api/v1/health` e alinhar o estado documental corrente.
+- Escopo funcional restrito a testes; nenhuma mudança de comportamento da aplicação.
+- Três testes diretos da API base implementados e validados localmente.
+- Suíte atual: 51 testes aprovados e 1 aviso conhecido e não bloqueante.
+- Ruff aprovado sem violações.
+- DT-007 permanece aberta, separada e não ativada.
+- Definition of Done ainda não atendida.
+- Snapshot e handoff serão tratados no fluxo oficial de fechamento.
 
 ## Trabalho concluído anterior
 
@@ -208,8 +224,8 @@ Evidência Git:
 
 Resultado verificado:
 
-- 48 testes coletados;
-- 48 testes aprovados;
+- 51 testes coletados;
+- 51 testes aprovados;
 - 1 aviso de depreciação do `TestClient`.
 
 O aviso de depreciação é uma observação conhecida e não bloqueia o fechamento.

@@ -68,6 +68,15 @@ repository:
   - commit: 4f4e2bb7eb3031a5c753f20b91c4598010d32690
     short_commit: 4f4e2bb
     message: 'fix(snapshot): document settings contract'
+  - commit: 14ad9b7c03c4acaf2753b87aa8cc4f4a521a4690
+    short_commit: 14ad9b7
+    message: 'docs(project): record final snapshot contracts'
+  - commit: 371b7fe8fadcc64a025695148721d16722d89366
+    short_commit: 371b7fe
+    message: 'fix(snapshot): finalize canonical report contract'
+  - commit: 685b053ed43ad28510e3bcb16271c4bfe2e19ea5
+    short_commit: 685b053
+    message: 'docs(project): refresh final project snapshot'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
@@ -174,14 +183,32 @@ current_task:
   definition_of_done_met: true
   git_evidence:
     commit: 2ebed11018ec8b394c69a01e1fff4229561c3cfd
+active_work:
+  sprint:
+    id: SPRINT-04
+    title: Foundation Integrity Baseline
+    status: in_progress
+  epic: none
+  milestone: M0
+  objective: Proteger diretamente os contratos públicos da API base e alinhar o estado documental corrente
+  functional_item: Criar testes automatizados da API base
+  implementation_scope: tests_and_continuity_documentation
+  direct_api_contract_tests: 3
+  locally_validated: true
+  current_pytest_passed_tests: 51
+  current_pytest_warnings: 1
+  current_ruff: passed
+  product_behavior_changed: false
+  definition_of_done_met: false
+  dt_007_activated: false
 quality:
   pytest:
     command: python -m pytest
     result: passed
-    collected_tests: 48
-    passed_tests: 48
+    collected_tests: 51
+    passed_tests: 51
     warnings: 1
-    reported_duration_seconds: 6.39
+    reported_duration_seconds: 7.45
   ruff:
     command: python -m ruff check .
     result: passed
@@ -195,7 +222,7 @@ quality:
       status: fixed
   automated_test_coverage:
     status: present
-    collected_tests: 48
+    collected_tests: 51
 architecture:
   active_logging_package: app.core.observability
   legacy_logging_module_removed: true
@@ -261,7 +288,7 @@ documentation:
     validity_source: python tools/project_snapshot.py --check
     fingerprint_source: docs/PROJECT_SNAPSHOT.md
     check_after_initial_adoption: passed
-active_baseline:
+sprint_03_activation_baseline:
   commit: 51d3747
   branch: main
   local_origin_main: 51d3747
@@ -272,6 +299,21 @@ active_baseline:
   ruff: passed
   pytest_passed_tests: 42
   pytest_warnings: 1
+  verified_before_local_changes: true
+sprint_04_planning_baseline:
+  commit: 685b053ed43ad28510e3bcb16271c4bfe2e19ea5
+  short_commit: 685b053
+  branch: main
+  upstream: origin/main
+  origin_main: 685b053ed43ad28510e3bcb16271c4bfe2e19ea5
+  divergence_main_origin_main: 0 0
+  working_tree_before_activation: clean
+  snapshot_schema: 3
+  snapshot_check: passed
+  ruff: passed
+  pytest_passed_tests: 48
+  pytest_warnings: 1
+  application_import: passed
   verified_before_local_changes: true
 continuity:
   restart_instruction:

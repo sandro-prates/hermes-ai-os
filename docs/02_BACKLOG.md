@@ -157,7 +157,8 @@ Entregas verificadas:
 
 Pendências retrospectivas verificadas:
 
-- [ ] Criar testes automatizados da API base.
+- [x] Criar testes automatizados da API base — implementados e validados localmente
+  na SPRINT-04; o fechamento formal da Sprint permanece pendente.
 - [x] Preencher `README.md` com onboarding reproduzível.
 - [ ] Confirmar documentação histórica da Sprint correspondente.
 - [ ] Validar Definition of Done retrospectiva.
@@ -170,7 +171,9 @@ Pendências retrospectivas verificadas:
 
 **Status:** ✅ Resolvida
 
-O Pytest atualmente coleta e aprova 32 testes automatizados.
+Na resolução original desta dívida, o Pytest coletava e aprovava 32 testes. A
+quantidade atual deve ser obtida pela suíte completa e é registrada na seção da Sprint
+ativa.
 
 ---
 
@@ -285,6 +288,48 @@ fechamento formal. ADR novo somente se surgir decisão arquitetural realmente no
 A EPIC-004, a SPRINT-03 e a DT-008 estão concluídas. SPRINT-03 e DT-008 eram o único
 escopo formal documentado da EPIC. A documentação e o handoff estão comprovados por
 `b1ab2ea` e `313de97`. Nenhuma nova Sprint foi ativada.
+
+---
+
+# Sprint Atual
+
+## SPRINT-04 — Foundation Integrity Baseline
+
+**Status:** 🟡 Em andamento
+
+**Milestone:** M0 — Foundation
+
+**EPIC:** nenhuma nova EPIC criada; EPIC-004 permanece concluída.
+
+**Item funcional:** pendência retrospectiva “Criar testes automatizados da API base”.
+
+**Objetivo:** proteger diretamente os contratos públicos existentes de `GET /` e
+`GET /api/v1/health`, incluindo o header configurado de Request ID, e alinhar os
+documentos vivos à baseline Git atual.
+
+**Escopo permitido:**
+
+- criar testes diretos contra a aplicação FastAPI real;
+- validar status HTTP, JSON público e Request ID;
+- corrigir contagens atuais e separar baselines históricas do estado corrente;
+- manter código da aplicação e comportamento público inalterados.
+
+**Critérios de aceitação:**
+
+- [x] contratos de `GET /` protegidos diretamente;
+- [x] contratos de `GET /api/v1/health` protegidos diretamente;
+- [x] header configurado de Request ID validado na aplicação real;
+- [x] nenhuma alteração funcional em `apps/`;
+- [x] suíte completa com 51 testes e Ruff aprovados;
+- [x] documentação viva alinhada localmente com Git e testes;
+- [ ] snapshot e handoff atualizados no fechamento formal;
+- [ ] commit e publicação realizados mediante autorização.
+
+**Definition of Done:** ainda não atendida.
+
+**Fora do escopo:** DT-007, nova EPIC, dependências, lockfile, CI/CD, banco de dados,
+agentes, memória, dashboard, integrações, política nova de Request ID e correção do
+aviso do `TestClient`.
 
 ---
 

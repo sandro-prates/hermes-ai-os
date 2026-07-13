@@ -14,7 +14,9 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - DT-008 concluída no commit `2ebed11`, com `.env.example` sanitizado e dois testes
   contratuais.
 - EPIC-004 concluída; seu único incremento formal foi atendido pela SPRINT-03 e DT-008.
-- Nenhuma nova Sprint está ativa.
+- SPRINT-04 — Foundation Integrity Baseline está ativa no M0, sem nova EPIC.
+- A Sprint protege diretamente os contratos públicos da API base e alinha a
+  continuidade documental, sem alterar funcionalidades da aplicação.
 
 ## Funcionalidades implementadas
 
@@ -25,6 +27,7 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - Middleware ASGI para logs de requisições HTTP.
 - Geração e preservação de `X-Request-ID`.
 - Correlação de Request ID por `ContextVar`.
+- Testes diretos dos contratos públicos de `GET /` e `GET /api/v1/health`.
 - Testes automatizados de formatters, contexto e middleware.
 - Análise estática com Ruff.
 
@@ -194,11 +197,12 @@ Executar os testes:
 python -m pytest
 ```
 
-Estado verificado em 13/07/2026 após a correção do contrato do snapshot: 48 testes
-aprovados e 1 aviso de depreciação não bloqueante do `TestClient` relacionado ao
-`httpx`. Quatro desses testes protegem a representação explícita do estado final no
-snapshot. Execute sempre o comando acima para obter o resultado atual; a quantidade de
-testes pode evoluir.
+Estado verificado em 13/07/2026 durante a SPRINT-04: 51 testes aprovados e 1 aviso de
+depreciação não bloqueante do `TestClient` relacionado ao `httpx`. Quatro testes
+protegem a representação explícita do estado final no snapshot, e três protegem
+diretamente os contratos públicos da API base. A baseline anterior à Sprint possuía
+48 testes. Execute sempre o comando acima para obter o resultado atual; a quantidade
+de testes pode evoluir.
 
 ## Snapshot do Projeto
 
