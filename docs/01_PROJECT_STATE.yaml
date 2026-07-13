@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 last_verified:
   date: '2026-07-13'
   method: Auditoria automática contra Git, imports do código, pytest, Ruff e documentos
@@ -95,6 +95,12 @@ repository:
   - commit: 126aff84af9832ebf577e1d06e61953754af13d4
     short_commit: 126aff8
     message: 'docs(research): complete technology decision baseline'
+  - commit: 0f20d2d54befd78488c91e8af1e2212bbcdfdb41
+    short_commit: 0f20d2d
+    message: 'docs(project): close sprint 05 and prepare handoff'
+  - commit: da7a583b0c57eef26499881a60dbab6ed281ddb9
+    short_commit: da7a583
+    message: 'docs(project): refresh sprint 05 snapshot'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
@@ -106,143 +112,30 @@ repository:
     commit: ed233ff00e132f128ce624a5b64e4df5cc2e7cea
     short_commit: ed233ff
     message: 'docs(project): close sprint and prepare handoff'
-previous_completed_work:
-  epic:
-    id: EPIC-003
-    name: Logging System
-    status: completed
-  sprint:
-    id: SPRINT-02
-    status: completed
-    objective: Implementar um sistema profissional de logging e correlação de requisições
-  completed_and_validated:
-  - Configurações LOG_LEVEL, LOG_FORMAT e REQUEST_ID_HEADER declaradas
-  - Pacote app.core.observability criado
-  - Logging central configurado com logging.config.dictConfig
-  - Logger com namespace hermes
-  - ConsoleFormatter com campos HTTP estruturados
-  - RequestContextFilter com request_id
-  - ContextVar com definição e restauração por Token
-  - Middleware ASGI puro para logging HTTP
-  - Geração automática de X-Request-ID
-  - Preservação de X-Request-ID enviado pelo cliente
-  - X-Request-ID adicionado à resposta
-  - Logs de início, conclusão e falha de requisição
-  - Registro de método, caminho, status HTTP e duração
-  - Integração do middleware no FastAPI
-  - JsonFormatter implementado com orjson
-  - LOG_FORMAT seleciona console ou json
-  - settings.REQUEST_ID_HEADER definido como fonte única
-  - Módulo legado apps/backend/app/core/logging.py removido
-  - Testes unitários de contexto e formatters
-  - Testes de integração do middleware
-  - Ruff aprovado sem violações
-  manual_runtime_validation:
-    root_endpoint: /
-    root_http_status: 200
-    health_endpoint: /api/v1/health
-    health_http_status: 200
-    generated_request_id: true
-    propagated_request_id: hermes-final-001
-    console_logging: passed
-    json_logging: passed
-    result: passed
-  pending: []
-  definition_of_done_met: true
-  git_evidence:
-    commit: a1d0d21e89fdb0092313e590cfdc1a5eda2e29a3
-    pushed_to: origin/main
-last_completed_work:
-  epic:
-    id: EPIC-004
-    name: Foundation Reproducibility
-    status: completed
-  sprint:
-    id: SPRINT-03
-    title: Reproducible Onboarding Baseline
-    status: completed
-  objective: Tornar o onboarding documentado reproduzível a partir de um clone limpo
-  completed_and_validated:
-  - DT-008 implementada e validada
-  - .env.example sanitizado e rastreado
-  - .env e variantes reais permanecem ignorados
-  - Contrato de configuração protegido por dois testes automatizados
-  - 44 testes aprovados com 1 aviso conhecido e não bloqueante
-  - Ruff aprovado sem violações
-  - Endpoints, Request ID e formatos de logging preservados
-  - Nenhuma dependência ou funcionalidade de produto adicionada
-  manual_runtime_validation:
-    root_endpoint: /
-    root_http_status: 200
-    health_endpoint: /api/v1/health
-    health_http_status: 200
-    generated_request_id: true
-    propagated_request_id: hermes-sprint-03-closing
-    console_logging: passed
-    json_logging: passed
-    result: passed
-  definition_of_done_met: true
-  git_evidence:
-    implementation_commit: 2ebed11018ec8b394c69a01e1fff4229561c3cfd
-    documentation_commit: b1ab2ea8c1c2a48993fe5ba6a0765c7a8233e172
-    temporal_correction_commit: 313de97249c4399deeec76b3dbe5464040bd084a
-current_task:
-  id: DT-008
-  title: Versionar e validar um .env.example sanitizado
-  sprint: SPRINT-03
-  status: completed
-  scope: configuration_template_and_documentation
-  implementation:
-    env_example_tracked: true
-    env_example_ignored: false
-    env_example_sanitized: true
-    contract_tests: 2
-    validated: true
-  definition_of_done_met: true
-  git_evidence:
-    commit: 2ebed11018ec8b394c69a01e1fff4229561c3cfd
-active_work:
-  sprint: none
-  next_sprint: none
-  dt_007_activated: false
-last_completed_sprint:
-  sprint:
-    id: SPRINT-05
-    title: Technology Decision Baseline
-    status: completed
-  epic: none
-  milestone: M0
-  objective: Produzir baseline decisória para dependências, Python e quality gate sem adoção tecnológica
-  task:
-    id: DT-007
-    title: Pesquisa tecnológica
-    status: completed
-  functional_item: Preencher e revisar a pesquisa tecnológica com fontes primárias
-  functional_item_status: completed
-  implementation_scope: research_and_continuity_documentation
-  research_commit: 126aff84af9832ebf577e1d06e61953754af13d4
-  decisions_automatically_accepted: false
-  dependencies_added: false
-  lockfile_added: false
-  ci_added: false
-  application_files_changed: false
-  pytest_passed_tests: 54
-  pytest_warnings: 1
-  ruff: passed
-  application_import: passed
-  root_endpoint: passed
-  health_endpoint: passed
-  request_id_generation: passed
-  request_id_preservation: passed
-  definition_of_done_met: true
-  dt_007_activated: false
-  recommendations:
-  - Prototipar uv em Sprint própria antes de adoção
-  - Manter Python 3.12 a 3.14 como matriz candidata
-  - Prototipar GitHub Actions somente após decisão de lock
-  next_sprint_candidates:
-  - SPRINT-06 — Dependency Reproducibility Proof
-  - SPRINT-07 — Automated Quality Gate
+work:
+  active:
+    sprint:
+      id: SPRINT-06
+      title: Continuity State Integrity
+      status: in_progress
+    task:
+      id: DT-009
+      title: Integridade do estado de continuidade
+      status: in_progress
+      sprint: SPRINT-06
+  last_completed:
+    sprint:
+      id: SPRINT-05
+      title: Technology Decision Baseline
+      status: completed
+    task:
+      id: DT-007
+      title: Pesquisa tecnológica
+      status: completed
+      activated_in_sprint: SPRINT-05
+  planned:
+    sprint: null
+    task: null
 quality:
   pytest:
     command: python -m pytest
@@ -370,9 +263,22 @@ sprint_05_activation_baseline:
   pytest_warnings: 1
   application_import: passed
   verified_before_local_changes: true
+sprint_06_activation_baseline:
+  commit: da7a583b0c57eef26499881a60dbab6ed281ddb9
+  short_commit: da7a583
+  branch: main
+  upstream: origin/main
+  origin_main: da7a583b0c57eef26499881a60dbab6ed281ddb9
+  fetch_head: da7a583b0c57eef26499881a60dbab6ed281ddb9
+  divergence_main_origin_main: 0 0
+  working_tree_before_activation: clean
+  snapshot_schema: 3
+  snapshot_check: passed
+  ruff: passed
+  pytest_passed_tests: 54
+  pytest_warnings: 1
+  verified_before_local_changes: true
 continuity:
-  active_sprint: none
-  next_sprint: none
   snapshot:
     source_of_truth: docs/PROJECT_SNAPSHOT.md
     update_mode: dedicated_commit

@@ -8,6 +8,27 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
+SPRINT-06 — Continuity State Integrity ativada no M0, sem nova EPIC.
+
+### Adicionado
+
+- DT-009 — Integridade do estado de continuidade registrada como item formal da
+  SPRINT-06.
+- Schema 2 do Project State ativado com `work.active`, `work.last_completed` e
+  `work.planned` como estrutura operacional única.
+
+### Alterado
+
+- SPRINT-05 e DT-007 preservadas como última entrega concluída.
+- Candidatas provisórias SPRINT-06 e SPRINT-07 da pesquisa da SPRINT-05 passam a ser
+  referenciadas operacionalmente como SPRINT-07 e SPRINT-08, sem adoção, planejamento
+  ou ativação.
+- Baseline de ativação da SPRINT-06 comprovada em `da7a583`, sincronizada com
+  `origin/main`, com snapshot, Ruff e 54 testes aprovados e 1 aviso conhecido.
+- Documentos históricos da SPRINT-05 permanecem inalterados.
+
+## [SPRINT-05] — 2026-07-13
+
 SPRINT-05 — Technology Decision Baseline concluída no M0, sem nova EPIC.
 
 ### Adicionado

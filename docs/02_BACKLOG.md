@@ -391,8 +391,53 @@ alteração de aplicação e aceitação automática de ADRs.
 
 **Evidência:** ativação `2f79d8c`; pesquisa `126aff8`.
 
-**Continuidade:** nenhuma Sprint está ativa ou aprovada. SPRINT-06 e SPRINT-07 são
-somente candidatas. O snapshot segue o fluxo oficial em commit exclusivo.
+**Continuidade histórica:** as identificações SPRINT-06 e SPRINT-07 eram candidatas
+provisórias, não ativadas ou planejadas durante a SPRINT-05. Com a ativação da
+Continuity State Integrity como SPRINT-06, elas passam a ser referenciadas
+operacionalmente como SPRINT-07 — Dependency Reproducibility Proof e SPRINT-08 —
+Automated Quality Gate, sem adoção ou ativação. O snapshot segue o fluxo oficial em
+commit exclusivo.
+
+---
+
+# SPRINT-06 Ativa
+
+## SPRINT-06 — Continuity State Integrity
+
+**Status:** 🚧 Em andamento
+
+**Milestone:** M0 — Foundation
+
+**EPIC:** nenhuma nova EPIC
+
+**Item formal:** DT-009 — Integridade do estado de continuidade
+
+**Objetivo:** tornar o Project State operacional inequívoco, migrando-o para o schema 2
+com uma única fonte para trabalho ativo, última entrega concluída e planejamento.
+
+**Critérios de aceite:**
+
+- [ ] `work.active`, `work.last_completed` e `work.planned` são a única fonte
+  operacional;
+- [ ] campos legados não permanecem como fontes paralelas no schema 2;
+- [ ] leitura isolada do schema 1 permanece retrocompatível;
+- [ ] ambiguidades e estados incompatíveis falham de forma fechada;
+- [ ] `--check` valida sem sugerir escrita nem modificar o snapshot;
+- [ ] ADR-0004 e ADR-0005 permanecem `Accepted` e factualmente alinhados;
+- [ ] testes direcionados, Ruff, suíte completa, YAML e runtime são aprovados;
+- [ ] documentação, handoff e snapshot são encerrados no fluxo oficial.
+
+**Fora do escopo:** aplicação, dependências, lockfiles, CI, matriz Python, banco,
+agentes, memória, dashboard, integrações, cloud e warning do `TestClient`.
+
+---
+
+## DT-009 — Integridade do estado de continuidade
+
+**Status:** 🚧 Em andamento na SPRINT-06
+
+Eliminar fontes operacionais paralelas no Project State, preservar leitura legada
+isolada no gerador e proteger a migração com validações fail-closed e testes.
 
 ---
 

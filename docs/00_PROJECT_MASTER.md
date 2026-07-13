@@ -12,7 +12,7 @@
 >
 > **Última Sprint concluída:** SPRINT-05 — Technology Decision Baseline
 >
-> **Sprint atual:** nenhuma
+> **Sprint atual:** SPRINT-06 — Continuity State Integrity
 >
 > **Responsável:** Sandro Prates
 >
@@ -206,7 +206,26 @@ cuja validade deve ser verificada com `python tools/project_snapshot.py --check`
 - Baseline de ativação: `1dfd3ee`, sincronizada com `origin/main`, snapshot schema 3,
   Ruff aprovado e 54 testes aprovados com 1 aviso conhecido.
 - Recomendação imediata: prova de reprodutibilidade de dependências antes de CI.
-- SPRINT-06 e SPRINT-07 são apenas candidatas; nenhuma Sprint seguinte foi ativada.
+- As identificações SPRINT-06 e SPRINT-07 registradas na pesquisa da SPRINT-05 eram
+  candidatas provisórias, não ativadas ou planejadas. Com a ativação da Continuity
+  State Integrity como SPRINT-06, elas passam a ser referenciadas operacionalmente
+  como SPRINT-07 — Dependency Reproducibility Proof e SPRINT-08 — Automated Quality
+  Gate, sem adoção ou ativação.
+
+## Sprint ativa
+
+### SPRINT-06 — Continuity State Integrity — Em andamento
+
+- Milestone: M0 — Foundation.
+- EPIC: nenhuma nova EPIC.
+- Item formal: DT-009 — Integridade do estado de continuidade.
+- Objetivo: separar inequivocamente trabalho ativo, última entrega concluída e trabalho
+  planejado no estado operacional.
+- Estado operacional: schema 2 com `work.active`, `work.last_completed` e
+  `work.planned` como fonte única.
+- Última entrega concluída preservada: SPRINT-05 e DT-007.
+- Próxima Sprint formalmente planejada: nenhuma.
+- Não inclui adoção tecnológica, dependências, CI ou código de aplicação.
 
 ## Trabalho concluído anterior
 
