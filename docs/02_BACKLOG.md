@@ -93,7 +93,7 @@
 
 **Resultado:** Definition of Done atendida.
 
-Nenhuma próxima Sprint está definida.
+Na conclusão da SPRINT-02, nenhuma Sprint subsequente havia sido definida.
 
 ---
 
@@ -170,7 +170,7 @@ Pendências retrospectivas verificadas:
 
 **Status:** ✅ Resolvida
 
-O Pytest coletou e aprovou 8 testes automatizados.
+O Pytest atualmente coleta e aprova 32 testes automatizados.
 
 ---
 
@@ -216,16 +216,66 @@ O README operacional foi criado e seus comandos principais foram validados.
 
 ## Ferramenta de snapshot técnico
 
-**Status:** 🟡 Semântica implementada e validada; relatório oficial ainda não adotado
+**Status:** ✅ Concluída
 
 - [x] Comprovar a autorreferência em clone temporário.
 - [x] Definir projeção estável da árvore Git no ADR-0005.
 - [x] Excluir o próprio snapshot da projeção e do fingerprint.
 - [x] Remover metadados de commit do conteúdo canônico.
 - [x] Adicionar prova automatizada do fluxo de commit do snapshot.
-- [ ] Gerar, validar e adotar oficialmente `docs/PROJECT_SNAPSHOT.md`.
+- [x] Gerar, validar e adotar oficialmente `docs/PROJECT_SNAPSHOT.md` (`e1c3587`).
 
-Nenhuma próxima Sprint está definida.
+---
+
+# Próxima Sprint Planejada
+
+## EPIC-004 — Foundation Reproducibility
+
+### SPRINT-03 — Reproducible Onboarding Baseline
+
+**Status:** `planned`
+
+**Objetivo único:** tornar o onboarding documentado reproduzível a partir de um clone
+limpo, sem adicionar dependências nem implementar funcionalidades de produto.
+
+**Primeira Task:** versionar e validar um `.env.example` sanitizado.
+
+**Justificativa:** o README instrui copiar `.env.example`, mas o arquivo está ignorado
+e não rastreado. O comando falha em um clone limpo, quebrando o onboarding oficial.
+Essa inconsistência operacional tem prioridade maior que DT-007.
+
+**Escopo permitido:**
+
+- ajustar `.gitignore` somente para permitir o template sanitizado;
+- versionar `.env.example` sem segredos ou dados locais;
+- cobrir as configurações declaradas em `Settings`;
+- validar os comandos de onboarding a partir de uma cópia limpa;
+- alinhar README e documentação viva aos resultados comprovados;
+- atualizar documentação viva e snapshot pelo fluxo oficial.
+
+**Critérios de aceitação:**
+
+- `.env.example` rastreado, sanitizado e disponível em clone limpo;
+- nenhum segredo, credencial ou valor específico da máquina incluído;
+- template consistente com os campos de `Settings`;
+- comandos PowerShell e Linux/macOS do README novamente validados;
+- nenhuma dependência, arquitetura ou funcionalidade adicionada;
+- Ruff e Pytest aprovados;
+- documentação consistente, snapshot regenerado e `--check` aprovado;
+- parada antes de commit e push para aprovação.
+
+**Fora de escopo:** implementação de produto, novas dependências, lockfile, CI/CD,
+banco de dados, runtime de agentes, memória, dashboard, integrações e preenchimento
+da pesquisa tecnológica DT-007.
+
+**Riscos:** versionar segredo acidentalmente; expor valores locais; deixar o template
+divergente de `Settings`; ou ampliar o escopo para configuração de produto.
+
+**Arquivos provavelmente envolvidos:** `.gitignore`, `.env.example`, `README.md`,
+testes documentais aplicáveis, quatro documentos de continuidade e snapshot após o
+futuro commit. ADR novo somente se surgir decisão arquitetural realmente nova.
+
+**Ativação:** somente na próxima conversa. Nenhuma implementação foi iniciada.
 
 ---
 
@@ -236,6 +286,19 @@ Nenhuma próxima Sprint está definida.
 Arquivo:
 
 `docs/research/2026-07-12-stack-tecnologica.md`
+
+O item foi deliberadamente adiado em favor da inconsistência operacional DT-008.
+
+---
+
+## DT-008 — `.env.example` ignorado e ausente do Git
+
+**Status:** ⚠️ Aberta
+
+O README instrui copiar `.env.example`, mas `.gitignore` ignora `.env.*` e o template
+não está rastreado. O onboarding documentado não funciona integralmente em clone limpo.
+
+**Planejamento:** primeira Task da SPRINT-03 (`planned`), ainda não iniciada.
 
 ---
 

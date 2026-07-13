@@ -32,17 +32,26 @@ repository:
   - commit: 1c02fb04251fa860b60a45c8fad7e3f2a3b42507
     short_commit: 1c02fb0
     message: 'feat(tooling): add deterministic project snapshot generator'
+  - commit: 19b61d791171270bf84530388ae3f6aad5746a1d
+    short_commit: 19b61d7
+    message: 'fix(tooling): base project snapshot on committed state'
+  - commit: 0866657a07db046098f6c7619ab79c251c72032c
+    short_commit: 0866657
+    message: 'fix(tooling): remove snapshot self-reference'
+  - commit: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
+    short_commit: e1c3587
+    message: 'docs(project): add official project snapshot'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
   upstream_relation_at_last_verified:
-    local_head: 1c02fb04251fa860b60a45c8fad7e3f2a3b42507
-    upstream_head: ded359dff574a39a6654101ccc8e3ee93ea9f71e
-    commits_ahead: 2
+    local_head: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
+    upstream_head: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
+    commits_ahead: 0
   verified_base_commit:
-    commit: 1c02fb04251fa860b60a45c8fad7e3f2a3b42507
-    short_commit: 1c02fb0
-    message: 'feat(tooling): add deterministic project snapshot generator'
+    commit: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
+    short_commit: e1c3587
+    message: 'docs(project): add official project snapshot'
 last_completed_work:
   epic:
     id: EPIC-003
@@ -89,7 +98,20 @@ last_completed_work:
   git_evidence:
     commit: a1d0d21e89fdb0092313e590cfdc1a5eda2e29a3
     pushed_to: origin/main
-next_sprint: null
+next_sprint:
+  id: SPRINT-03
+  title: Reproducible Onboarding Baseline
+  status: planned
+  epic:
+    id: EPIC-004
+    title: Foundation Reproducibility
+  objective: Tornar o onboarding documentado reproduzível a partir de um clone limpo
+  activation: Somente na próxima conversa
+  implementation_started: false
+  first_task:
+    title: Versionar e validar um .env.example sanitizado
+    objective: Garantir que os comandos de configuração documentados funcionem sem dados locais
+    primary_file: .env.example
 current_task:
   title: README e onboarding reproduzível do Hermes AI OS
   sprint: null
@@ -106,7 +128,10 @@ current_task:
   git_evidence:
     commit: 2fcbd17e673eab69bbdd2238346dfa63e14a8a64
     message: 'docs(project): add onboarding and align architecture records'
-next_task: null
+next_task:
+  title: Versionar e validar um .env.example sanitizado
+  sprint: SPRINT-03
+  status: planned
 quality:
   pytest:
     command: python -m pytest
@@ -114,7 +139,7 @@ quality:
     collected_tests: 32
     passed_tests: 32
     warnings: 1
-    reported_duration_seconds: 5.66
+    reported_duration_seconds: 6.09
   ruff:
     command: python -m ruff check .
     result: passed
@@ -149,23 +174,25 @@ documentation:
     status: committed
   project_master:
     path: docs/00_PROJECT_MASTER.md
-    status: committed_at_2fcbd17_then_updated_locally
+    status: updated_for_handoff_pending_commit
   project_state:
     path: docs/01_PROJECT_STATE.yaml
-    status: committed_at_2fcbd17_then_updated_locally
+    status: updated_for_handoff_pending_commit
   backlog:
     path: docs/02_BACKLOG.md
-    status: committed_at_2fcbd17_then_updated_locally
+    status: updated_for_handoff_pending_commit
   changelog:
     path: docs/03_CHANGELOG.md
-    status: committed_at_2fcbd17_then_updated_locally
+    status: updated_for_handoff_pending_commit
   adr_directory:
     path: docs/adr/
-    status: updated_pending_corrective_commit
+    status: committed
   project_snapshot:
     generator_commit: 1c02fb0
     report_path: docs/PROJECT_SNAPSHOT.md
-    report_officially_adopted: false
+    report_commit: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
+    report_officially_adopted: true
+    check_after_report_commit: passed
 continuity:
   restart_instruction:
   - Ler docs/00_PROJECT_MASTER.md

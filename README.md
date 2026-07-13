@@ -10,7 +10,7 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - Fase atual: `M0 — Foundation`.
 - API FastAPI executável localmente.
 - EPIC-003 / SPRINT-02 (Logging System) concluída.
-- Nenhuma próxima Sprint está definida.
+- SPRINT-03 — Reproducible Onboarding Baseline está planejada, ainda não iniciada.
 
 ## Funcionalidades implementadas
 
@@ -41,13 +41,17 @@ apps/backend/app/
 └── main.py
 tests/
 ├── test_middleware.py
-└── test_observability.py
+├── test_observability.py
+└── test_project_snapshot.py
+tools/
+└── project_snapshot.py
 docs/
 ├── adr/
 ├── 00_PROJECT_MASTER.md
 ├── 01_PROJECT_STATE.yaml
 ├── 02_BACKLOG.md
-└── 03_CHANGELOG.md
+├── 03_CHANGELOG.md
+└── PROJECT_SNAPSHOT.md
 ```
 
 ## Requisitos
@@ -78,6 +82,9 @@ cp .env.example .env
 O extra `dev` instala as ferramentas declaradas no `pyproject.toml` para testes e
 análise estática. A cópia de `.env.example` é opcional; sem `.env`, os defaults de
 `Settings` são utilizados.
+
+Limitação conhecida: `.env.example` ainda não está rastreado no Git. Sua versão
+sanitizada e reproduzível é a primeira Task planejada da SPRINT-03.
 
 ## Executar a API
 
@@ -176,8 +183,9 @@ Executar os testes:
 python -m pytest
 ```
 
-O estado verificado atual possui 8 testes aprovados. Há um aviso de depreciação do
-`TestClient` relacionado ao `httpx`; ele é conhecido e não bloqueante.
+Baseline verificada no fechamento de 12/07/2026: 32 testes aprovados e 1 aviso de
+depreciação não bloqueante do `TestClient` relacionado ao `httpx`. Execute sempre o
+comando acima para obter o resultado atual; a quantidade de testes pode evoluir.
 
 ## Snapshot do Projeto
 

@@ -12,6 +12,8 @@
 >
 > **Última Sprint concluída:** SPRINT-02 — Logging System
 >
+> **Próxima Sprint planejada:** SPRINT-03 — Reproducible Onboarding Baseline
+>
 > **Responsável:** Sandro Prates
 >
 > **Última verificação:** 12/07/2026
@@ -68,9 +70,9 @@ Evoluir desde uma instalação local até uma plataforma comercial gerenciada, c
 
 - Branch: `main`
 - Upstream: `origin/main`
-- HEAD verificado: `1c02fb0`.
-- `main` contém dois commits locais ainda não publicados em `origin/main`.
-- O estado transitório da working tree deve ser consultado diretamente com Git.
+- HEAD publicado: `e1c3587`.
+- `main` e `origin/main`: sincronizados em `e1c3587`.
+- Working tree: limpa antes das alterações documentais deste encerramento.
 
 ## Entregas commitadas
 
@@ -98,6 +100,18 @@ README operacional e alinhamento factual dos ADRs 0001–0003.
 
 Gerador determinístico e testes do snapshot técnico do projeto.
 
+### `19b61d7`
+
+Snapshot baseado exclusivamente no estado commitado.
+
+### `0866657`
+
+Autorreferência removida por projeção determinística da árvore Git.
+
+### `e1c3587`
+
+Snapshot oficial adotado e validado após o próprio commit.
+
 ## Último trabalho concluído
 
 ### EPIC-003 — Logging System
@@ -118,7 +132,7 @@ Implementado e validado manualmente:
 - `settings.REQUEST_ID_HEADER` como fonte única do header;
 - logs HTTP com método, caminho, status e duração;
 - integração ao FastAPI;
-- oito testes automatizados aprovados;
+- testes automatizados de observabilidade aprovados;
 - `/` e `/api/v1/health` respondendo HTTP 200.
 
 A Sprint atende à Definition of Done.
@@ -138,8 +152,8 @@ Evidência Git:
 
 Resultado verificado:
 
-- 8 testes coletados;
-- 8 testes aprovados em `0.21s`;
+- 32 testes coletados;
+- 32 testes aprovados;
 - 1 aviso de depreciação do `TestClient`.
 
 O aviso de depreciação é uma observação conhecida e não bloqueia o fechamento.
@@ -172,8 +186,8 @@ ADRs aceitos:
 
 O `README.md` é a entrada operacional para instalação, execução e validação local.
 
-O gerador de snapshot está commitado, mas `docs/PROJECT_SNAPSHOT.md` ainda não foi
-adotado oficialmente no Git.
+O gerador e `docs/PROJECT_SNAPSHOT.md` estão commitados. O modo `--check` foi aprovado
+após o commit do próprio relatório.
 
 ---
 
@@ -191,7 +205,16 @@ adotado oficialmente no Git.
 
 Somente M0 está em andamento. Os demais permanecem pendentes como milestones formais.
 
-Nenhuma próxima Sprint está definida.
+## Próxima Sprint planejada
+
+- EPIC-004 — Foundation Reproducibility.
+- SPRINT-03 — Reproducible Onboarding Baseline.
+- Status: `planned`.
+- Objetivo: tornar o onboarding documentado reproduzível a partir de um clone limpo.
+- Primeira Task: versionar e validar um `.env.example` sanitizado.
+
+A Sprint somente poderá ser ativada na próxima conversa. Nenhuma implementação foi
+iniciada neste encerramento.
 
 ---
 

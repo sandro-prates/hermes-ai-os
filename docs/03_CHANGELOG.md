@@ -8,14 +8,32 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-Nenhuma próxima Sprint está definida.
+SPRINT-03 — Reproducible Onboarding Baseline está planejada para a próxima conversa, sem
+implementação iniciada.
+
+### Encerramento publicado
+
+- `2fcbd17`: README e onboarding concluídos.
+- `1c02fb0`, `19b61d7` e `0866657`: ferramenta de snapshot implementada, corrigida e
+  protegida contra autorreferência.
+- `e1c3587`: snapshot oficial adotado e validado após o próprio commit.
+- `main` e `origin/main` verificados e sincronizados em `e1c3587` antes deste
+  fechamento documental.
+
+### Planejado
+
+- EPIC-004 — Foundation Reproducibility.
+- SPRINT-03 — Reproducible Onboarding Baseline (`planned`).
+- Primeira Task: versionar e validar um `.env.example` sanitizado.
+- DT-007 permanece aberta e foi adiada por prioridade inferior à DT-008.
 
 ### Estado dos incrementos recentes
 
 - README e onboarding concluídos no commit `2fcbd17`.
 - Estados factuais dos ADRs 0001–0003 alinhados em `2fcbd17`.
 - Gerador determinístico de snapshot e testes adicionados em `1c02fb0`.
-- `docs/PROJECT_SNAPSHOT.md` ainda não foi adotado oficialmente no Git.
+- `docs/PROJECT_SNAPSHOT.md` adotado oficialmente em `e1c3587` e validado com
+  `python tools/project_snapshot.py --check` após o próprio commit.
 
 ### Adicionado
 
