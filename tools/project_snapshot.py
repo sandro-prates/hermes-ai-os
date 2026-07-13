@@ -1,0 +1,751 @@
+"""Generate a deterministic, factual technical snapshot for Hermes AI OS."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import os
+import re
+import subprocess
+import sys
+import tomllib
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass
+from pathlib import Path
+
+DEFAULT_OUTPUT = Path("docs/PROJECT_SNAPSHOT.md")
+NOT_IDENTIFIED = "Não identificado"
+NONE = "Nenhum"
+EXCLUDED_PARTS = {
+    ".git",
+    ".venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".ruff_cache",
+    "node_modules",
+    "logs",
+}
+MAIN_DOCUMENTS = (
+    "docs/00_PROJECT_MASTER.md",
+    "docs/01_PROJECT_STATE.yaml",
+    "docs/02_BACKLOG.md",
+    "docs/03_CHANGELOG.md",
+)
+
+
+class SnapshotError(RuntimeError):
+    """An internal error that prevents a trustworthy snapshot."""
+
+
+@dataclass(frozen=True)
+class CommandResult:
+    """Result of a subprocess, including unavailable commands."""
+
+    args: tuple[str, ...]
+    returncode: int | None
+    stdout: str = ""
+    stderr: str = ""
+    unavailable: bool = False
+
+    @property
+    def succeeded(self) -> bool:
+        return not self.unavailable and self.returncode == 0
+
+    @property
+    def failed(self) -> bool:
+        return not self.unavailable and self.returncode not in {None, 0}
+
+
+Runner = Callable[[Sequence[str], Path, dict[str, str] | None], CommandResult]
+
+
+@dataclass(frozen=True)
+class GitState:
+    """Observed Git state. None means that Git information was unavailable."""
+
+    branch: str | None
+    upstream: str | None
+    commit: str | None
+    commit_date: str | None
+    staged: tuple[str, ...] | None
+    unstaged: tuple[str, ...] | None
+    untracked: tuple[str, ...] | None
+    clean: bool | None
+    observed_before_output_write: bool = True
+
+
+@dataclass(frozen=True)
+class QualityState:
+    ruff: str
+    pytest: str
+    application_import: str
+
+
+def run_command(
+    args: Sequence[str],
+    root: Path,
+    env: dict[str, str] | None = None,
+) -> CommandResult:
+    """Run a subprocess and preserve success, failure, or unavailability."""
+    command = tuple(str(arg) for arg in args)
+    try:
+        result = subprocess.run(
+            command,
+            cwd=root,
+            env=env,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+    except OSError as error:
+        return CommandResult(
+            args=command,
+            returncode=None,
+            stderr=str(error),
+            unavailable=True,
+        )
+    return CommandResult(
+        args=command,
+        returncode=result.returncode,
+        stdout=result.stdout,
+        stderr=result.stderr,
+    )
+
+
+def find_git_root(start: Path | None = None, runner: Runner = run_command) -> Path:
+    """Locate the Git root from any path inside the worktree."""
+    location = (start or Path.cwd()).resolve()
+    result = runner(("git", "rev-parse", "--show-toplevel"), location, None)
+    if result.unavailable:
+        raise SnapshotError(f"Git indisponível: {result.stderr.strip() or NOT_IDENTIFIED}")
+    if result.failed or not result.stdout.strip():
+        detail = result.stderr.strip() or f"código {result.returncode}"
+        raise SnapshotError(f"Não foi possível localizar a raiz Git: {detail}")
+    return Path(result.stdout.strip()).resolve()
+
+
+def is_relevant(path: str) -> bool:
+    """Return whether a repository-relative path may enter the snapshot."""
+    normalized = path.replace("\\", "/")
+    excluded = any(part in EXCLUDED_PARTS for part in Path(normalized).parts)
+    return not excluded and not normalized.endswith((".pyc", ".pyo"))
+
+
+def parse_porcelain(data: str, excluded_path: str | None = None) -> tuple[tuple[str, ...], ...]:
+    """Parse Git porcelain v1 -z into staged, unstaged, and untracked paths."""
+    staged: set[str] = set()
+    unstaged: set[str] = set()
+    untracked: set[str] = set()
+    entries = data.split("\0")
+    index = 0
+    while index < len(entries):
+        entry = entries[index]
+        index += 1
+        if not entry:
+            continue
+        if len(entry) < 4:
+            raise SnapshotError("Saída inválida de git status --porcelain.")
+        code = entry[:2]
+        path = entry[3:].replace("\\", "/")
+        if code[0] in {"R", "C"}:
+            if index >= len(entries) or not entries[index]:
+                raise SnapshotError("Rename/copy incompleto em git status --porcelain.")
+            path = entries[index].replace("\\", "/")
+            index += 1
+        if path == excluded_path or not is_relevant(path):
+            continue
+        if code == "??":
+            untracked.add(path)
+            continue
+        if code[0] not in {" ", "?"}:
+            staged.add(path)
+        if code[1] not in {" ", "?"}:
+            unstaged.add(path)
+    return tuple(sorted(staged)), tuple(sorted(unstaged)), tuple(sorted(untracked))
+
+
+def git_value(root: Path, runner: Runner, *args: str) -> str | None:
+    result = runner(("git", *args), root, None)
+    return result.stdout.strip() if result.succeeded and result.stdout.strip() else None
+
+
+def relative_output(root: Path, output: Path) -> str | None:
+    try:
+        return output.resolve().relative_to(root.resolve()).as_posix()
+    except ValueError:
+        return None
+
+
+def inspect_git(root: Path, output: Path, runner: Runner = run_command) -> GitState:
+    """Inspect Git before writing output, without treating failures as clean."""
+    branch = git_value(root, runner, "branch", "--show-current")
+    upstream = git_value(root, runner, "rev-parse", "--abbrev-ref", "@{upstream}")
+    commit = git_value(root, runner, "log", "-1", "--format=%h %s")
+    commit_date = git_value(root, runner, "show", "-s", "--format=%cI", "HEAD")
+    status = runner(
+        ("git", "status", "--porcelain=v1", "-z", "--untracked-files=all"),
+        root,
+        None,
+    )
+    if not status.succeeded:
+        return GitState(
+            branch=branch,
+            upstream=upstream,
+            commit=commit,
+            commit_date=commit_date,
+            staged=None,
+            unstaged=None,
+            untracked=None,
+            clean=None,
+        )
+    staged, unstaged, untracked = parse_porcelain(
+        status.stdout,
+        excluded_path=relative_output(root, output),
+    )
+    return GitState(
+        branch=branch,
+        upstream=upstream,
+        commit=commit,
+        commit_date=commit_date,
+        staged=staged,
+        unstaged=unstaged,
+        untracked=untracked,
+        clean=not (staged or unstaged or untracked),
+    )
+
+
+def parse_scalar(value: str) -> str | bool | int | float | None:
+    value = value.strip()
+    if not value or value in {"null", "Null", "NULL", "~"}:
+        return None
+    if value in {"true", "True", "TRUE"}:
+        return True
+    if value in {"false", "False", "FALSE"}:
+        return False
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+        return value[1:-1]
+    if re.fullmatch(r"-?\d+", value):
+        return int(value)
+    if re.fullmatch(r"-?\d+\.\d+", value):
+        return float(value)
+    return value
+
+
+def parse_simple_yaml_mapping(text: str) -> dict[tuple[str, ...], object]:
+    """Parse strict mapping scalars needed from PROJECT_STATE without PyYAML."""
+    values: dict[tuple[str, ...], object] = {}
+    stack: list[tuple[int, tuple[str, ...]]] = [(-1, ())]
+    ignored_list_indent: int | None = None
+    for number, raw_line in enumerate(text.splitlines(), 1):
+        if "\t" in raw_line:
+            raise SnapshotError(f"PROJECT_STATE contém tab na linha {number}.")
+        stripped = raw_line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        indent = len(raw_line) - len(raw_line.lstrip(" "))
+        if ignored_list_indent is not None:
+            if indent > ignored_list_indent or (
+                indent == ignored_list_indent and stripped.startswith("-")
+            ):
+                continue
+            ignored_list_indent = None
+        if stripped.startswith("-"):
+            ignored_list_indent = indent
+            continue
+        match = re.fullmatch(r"([A-Za-z_][A-Za-z0-9_]*):(?:\s+(.*))?", stripped)
+        if not match:
+            raise SnapshotError(f"PROJECT_STATE não suportado na linha {number}.")
+        key, raw_value = match.groups()
+        while stack[-1][0] >= indent:
+            stack.pop()
+        path = (*stack[-1][1], key)
+        if raw_value is None:
+            stack.append((indent, path))
+            continue
+        if path in values:
+            raise SnapshotError(f"Campo duplicado em PROJECT_STATE: {'.'.join(path)}")
+        values[path] = parse_scalar(raw_value)
+    return values
+
+
+def required_state(root: Path) -> dict[str, str]:
+    path = root / "docs" / "01_PROJECT_STATE.yaml"
+    if not path.is_file():
+        return {
+            "project": NOT_IDENTIFIED,
+            "epic": NOT_IDENTIFIED,
+            "sprint": NOT_IDENTIFIED,
+            "task": NOT_IDENTIFIED,
+            "status": NOT_IDENTIFIED,
+            "next_task": NOT_IDENTIFIED,
+        }
+    values = parse_simple_yaml_mapping(path.read_text(encoding="utf-8"))
+
+    def get(path_key: tuple[str, ...]) -> str:
+        value = values.get(path_key)
+        return NOT_IDENTIFIED if value is None else str(value)
+
+    epic_id = get(("last_completed_work", "epic", "id"))
+    epic_name = get(("last_completed_work", "epic", "name"))
+    epic = (
+        f"{epic_id} — {epic_name}"
+        if NOT_IDENTIFIED not in {epic_id, epic_name}
+        else NOT_IDENTIFIED
+    )
+    return {
+        "project": get(("project", "name")),
+        "epic": epic,
+        "sprint": get(("last_completed_work", "sprint", "id")),
+        "task": get(("current_task", "title")),
+        "status": get(("current_task", "status")),
+        "next_task": get(("next_task", "title")),
+    }
+
+
+def load_pyproject(root: Path) -> dict:
+    path = root / "pyproject.toml"
+    if not path.is_file():
+        return {}
+    try:
+        with path.open("rb") as stream:
+            return tomllib.load(stream)
+    except (OSError, tomllib.TOMLDecodeError) as error:
+        raise SnapshotError(f"pyproject.toml inválido: {error}") from error
+
+
+def collect_paths(root: Path, runner: Runner) -> list[str] | None:
+    result = runner(("git", "ls-files", "-z"), root, None)
+    if not result.succeeded:
+        return None
+    paths = {path for path in result.stdout.split("\0") if path and is_relevant(path)}
+    for candidate in (".env.example", "tools/project_snapshot.py"):
+        if (root / candidate).is_file() and is_relevant(candidate):
+            paths.add(candidate)
+    return sorted(paths)
+
+
+def tree_lines(paths: list[str]) -> list[str]:
+    tree: dict[str, dict] = {}
+    for path in paths:
+        node = tree
+        for part in path.replace("\\", "/").split("/"):
+            node = node.setdefault(part, {})
+    lines: list[str] = []
+
+    def visit(node: dict[str, dict], prefix: str = "") -> None:
+        items = sorted(node.items(), key=lambda item: (bool(item[1]), item[0].lower()))
+        for position, (name, children) in enumerate(items):
+            last = position == len(items) - 1
+            lines.append(f"{prefix}{'└── ' if last else '├── '}{name}")
+            if children:
+                visit(children, prefix + ("    " if last else "│   "))
+
+    visit(tree)
+    return lines
+
+
+def read_repository_text(root: Path, relative: str) -> str:
+    path = root / relative
+    if not path.is_file() or not is_relevant(relative):
+        return ""
+    return path.read_text(encoding="utf-8", errors="strict")
+
+
+def python_modules(paths: list[str] | None) -> list[str]:
+    if paths is None:
+        return []
+    modules: set[str] = set()
+    prefix = "apps/backend/"
+    for path in paths:
+        if not path.startswith(prefix) or not path.endswith(".py"):
+            continue
+        module = path[len(prefix) : -3].replace("/", ".")
+        if module.endswith(".__init__"):
+            module = module[: -len(".__init__")]
+        modules.add(module)
+    return sorted(modules)
+
+
+def literal_string(node: ast.AST | None) -> str | None:
+    return node.value if isinstance(node, ast.Constant) and isinstance(node.value, str) else None
+
+
+def fastapi_endpoints(root: Path, paths: list[str] | None) -> list[tuple[str, str, str]]:
+    if paths is None:
+        return []
+    prefixes: dict[tuple[str, str], str] = {}
+    includes: list[tuple[tuple[str, str], tuple[str, str]]] = []
+    routes: list[tuple[tuple[str, str], str, str, str]] = []
+    for relative in paths:
+        if not relative.startswith("apps/backend/app/") or not relative.endswith(".py"):
+            continue
+        module_name = relative[len("apps/backend/") : -3].replace("/", ".")
+        if module_name.endswith(".__init__"):
+            module_name = module_name[: -len(".__init__")]
+        try:
+            tree = ast.parse(read_repository_text(root, relative), filename=relative)
+        except SyntaxError:
+            continue
+        aliases: dict[str, tuple[str, str]] = {}
+        for node in tree.body:
+            if isinstance(node, ast.ImportFrom) and node.module:
+                for alias in node.names:
+                    aliases[alias.asname or alias.name] = (node.module, alias.name)
+            if not isinstance(node, ast.Assign) or len(node.targets) != 1:
+                continue
+            target = node.targets[0]
+            if not isinstance(target, ast.Name) or not isinstance(node.value, ast.Call):
+                continue
+            if not isinstance(node.value.func, ast.Name) or node.value.func.id != "APIRouter":
+                continue
+            prefix = ""
+            for keyword in node.value.keywords:
+                if keyword.arg == "prefix":
+                    prefix = literal_string(keyword.value) or ""
+            prefixes[(module_name, target.id)] = prefix
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                for decorator in node.decorator_list:
+                    if not isinstance(decorator, ast.Call) or not isinstance(
+                        decorator.func, ast.Attribute
+                    ):
+                        continue
+                    method = decorator.func.attr.upper()
+                    if method not in {
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "PATCH",
+                        "DELETE",
+                        "OPTIONS",
+                        "HEAD",
+                    }:
+                        continue
+                    if not isinstance(decorator.func.value, ast.Name):
+                        continue
+                    path = literal_string(decorator.args[0]) if decorator.args else None
+                    if path is not None:
+                        key = (module_name, decorator.func.value.id)
+                        routes.append((key, method, path, relative))
+            if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute):
+                continue
+            if node.func.attr != "include_router" or not node.args:
+                continue
+            if not isinstance(node.func.value, ast.Name) or not isinstance(node.args[0], ast.Name):
+                continue
+            caller = (module_name, node.func.value.id)
+            target_alias = node.args[0].id
+            includes.append((caller, aliases.get(target_alias, (module_name, target_alias))))
+    mounts: dict[tuple[str, str], str] = {}
+    for caller, target in includes:
+        if caller not in prefixes:
+            mounts.setdefault(target, "")
+    for _ in range(len(includes) + 1):
+        changed = False
+        for caller, target in includes:
+            if caller not in mounts:
+                continue
+            mount = f"{mounts[caller]}{prefixes.get(caller, '')}"
+            if mounts.get(target) != mount:
+                mounts[target] = mount
+                changed = True
+        if not changed:
+            break
+    result = []
+    for key, method, path, source in routes:
+        full_path = f"{mounts.get(key, '')}{prefixes.get(key, '')}{path}" or "/"
+        result.append((method, full_path, source))
+    return sorted(set(result))
+
+
+def summarize_quality(result: CommandResult, tool: str) -> str:
+    if result.unavailable:
+        return f"Indisponível — {result.stderr.strip() or NOT_IDENTIFIED}"
+    combined = f"{result.stdout}\n{result.stderr}"
+    if tool == "ruff":
+        return (
+            "Aprovado — All checks passed!"
+            if result.succeeded
+            else f"Reprovado — código {result.returncode}"
+        )
+    passed = re.search(r"(\d+) passed", combined)
+    failed = re.search(r"(\d+) failed", combined)
+    warnings = re.search(r"(\d+) warning", combined)
+    details = []
+    if passed:
+        details.append(f"{passed.group(1)} aprovado(s)")
+    if failed:
+        details.append(f"{failed.group(1)} reprovado(s)")
+    if warnings:
+        details.append(f"{warnings.group(1)} aviso(s)")
+    status = "Aprovado" if result.succeeded else "Reprovado"
+    return f"{status} — {', '.join(details) or f'código {result.returncode}'}"
+
+
+def inspect_quality(root: Path, runner: Runner) -> QualityState:
+    ruff = runner((sys.executable, "-m", "ruff", "check", "."), root, None)
+    pytest = runner((sys.executable, "-m", "pytest"), root, None)
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(root / "apps" / "backend") + os.pathsep + env.get(
+        "PYTHONPATH", ""
+    )
+    application = runner(
+        (
+            sys.executable,
+            "-c",
+            "from app.main import app; print(type(app).__name__, app.title, app.version)",
+        ),
+        root,
+        env,
+    )
+    if application.unavailable:
+        import_status = f"Indisponível — {application.stderr.strip() or NOT_IDENTIFIED}"
+    elif application.succeeded:
+        import_status = f"Aprovada — {application.stdout.strip() or 'FastAPI'}"
+    else:
+        import_status = f"Reprovada — código {application.returncode}"
+    return QualityState(
+        ruff=summarize_quality(ruff, "ruff"),
+        pytest=summarize_quality(pytest, "pytest"),
+        application_import=import_status,
+    )
+
+
+def adr_lines(root: Path) -> list[str]:
+    directory = root / "docs" / "adr"
+    if not directory.is_dir():
+        return [f"- {NOT_IDENTIFIED}"]
+    result = []
+    for path in sorted(directory.glob("ADR-*.md")):
+        text = path.read_text(encoding="utf-8", errors="strict")
+        title = next(
+            (line[2:].strip() for line in text.splitlines() if line.startswith("# ")),
+            path.stem,
+        )
+        status = re.search(r"(?m)^- \*\*Status:\*\*\s*(.+)$", text)
+        result.append(f"- {title} — {status.group(1).strip() if status else NOT_IDENTIFIED}")
+    return result or [f"- {NOT_IDENTIFIED}"]
+
+
+def debt_lines(root: Path) -> list[str]:
+    backlog = read_repository_text(root, "docs/02_BACKLOG.md")
+    results = []
+    matches = list(re.finditer(r"(?m)^## (DT-\d+ — .+)$", backlog))
+    for position, match in enumerate(matches):
+        end = matches[position + 1].start() if position + 1 < len(matches) else len(backlog)
+        section = backlog[match.end() : end]
+        status = re.search(r"\*\*Status:\*\*\s*(.+)", section)
+        value = status.group(1).strip() if status else NOT_IDENTIFIED
+        if "Resolvida" not in value or "pendente" in value.lower():
+            results.append(f"- {match.group(1)} — {value}")
+    return results or [f"- {NOT_IDENTIFIED}"]
+
+
+def path_bullets(paths: tuple[str, ...] | None) -> str:
+    if paths is None:
+        return f"- {NOT_IDENTIFIED}"
+    if not paths:
+        return f"- {NONE}"
+    return "\n".join(f"- `{path}`" for path in paths)
+
+
+def render_snapshot(
+    root: Path,
+    output: Path,
+    runner: Runner = run_command,
+) -> str:
+    """Build snapshot text from state observed before any output write."""
+    git = inspect_git(root, output, runner)
+    state = required_state(root)
+    pyproject = load_pyproject(root).get("project", {})
+    quality = inspect_quality(root, runner)
+    paths = collect_paths(root, runner)
+    modules = python_modules(paths)
+    endpoints = fastapi_endpoints(root, paths)
+    tree = "\n".join(tree_lines(paths or [])) if paths is not None else NOT_IDENTIFIED
+    endpoint_text = (
+        "\n".join(f"- `{method} {path}` — `{source}`" for method, path, source in endpoints)
+        if endpoints
+        else f"- {NOT_IDENTIFIED}"
+    )
+    dependencies = pyproject.get("dependencies", [])
+    dependency_text = (
+        "\n".join(f"- `{dependency}`" for dependency in dependencies)
+        if isinstance(dependencies, list) and dependencies
+        else f"- {NOT_IDENTIFIED}"
+    )
+    module_text = "\n".join(f"- `{module}`" for module in modules) or f"- {NOT_IDENTIFIED}"
+    clean = (
+        NOT_IDENTIFIED
+        if git.clean is None
+        else ("limpa" if git.clean else "com alterações locais relevantes")
+    )
+    research = root / "docs" / "research" / "2026-07-12-stack-tecnologica.md"
+    research_status = (
+        "documento de pesquisa tecnológica vazio"
+        if research.is_file() and research.stat().st_size == 0
+        else NOT_IDENTIFIED
+    )
+    document_lines = "\n".join(
+        f"- `{document}` — {'presente' if (root / document).is_file() else NOT_IDENTIFIED}"
+        for document in MAIN_DOCUMENTS
+    )
+    next_step = NOT_IDENTIFIED
+    if "pending_commit" in state["status"]:
+        next_step = "Criar o commit da Task documentada, mediante aprovação."
+    observation = (
+        "estado Git coletado antes da escrita do próprio arquivo de saída; "
+        "o caminho de saída foi excluído da classificação de alterações locais."
+    )
+    return f"""# Hermes AI OS  Project Snapshot
+
+## 1. Identificação
+
+- data do commit: {git.commit_date or NOT_IDENTIFIED}
+- projeto: {state['project']}
+- versão: {pyproject.get('version', NOT_IDENTIFIED)}
+- branch: {git.branch or NOT_IDENTIFIED}
+- upstream: {git.upstream or NOT_IDENTIFIED}
+- último commit: {git.commit or NOT_IDENTIFIED}
+- working tree: {clean}
+- observação: {observation}
+
+## 2. Estado Atual
+
+- EPIC: {state['epic']}
+- Sprint: {state['sprint']}
+- Task: {state['task']}
+- status: {state['status']}
+- próxima Task: {state['next_task']}
+
+## 3. Estrutura Relevante
+
+```text
+{tree}
+```
+
+## 4. Arquitetura Implementada
+
+- Backend FastAPI em `apps/backend/app`.
+- Configuração central em `app.core.settings`.
+- API versionada em `app.api.v1`.
+- Observabilidade central em `app.core.observability`.
+- Módulos Python identificados:
+{module_text}
+
+## 5. Funcionalidades Verificadas
+
+- Aplicação FastAPI importável: {quality.application_import}.
+- Endpoints identificados por inspeção AST do código Python.
+- Middleware ASGI e observabilidade presentes no pacote `app.core.observability`.
+
+## 6. Endpoints Identificados
+
+{endpoint_text}
+
+## 7. Configuração e Dependências
+
+- Python requerido: `{pyproject.get('requires-python', NOT_IDENTIFIED)}`.
+- Dependências diretas:
+{dependency_text}
+
+## 8. Observabilidade
+
+- Pacote: `app.core.observability`.
+- Formatos identificados no código: `console` e `json`.
+- Header padrão de correlação: `X-Request-ID`.
+- Contexto assíncrono: `ContextVar`.
+
+## 9. Qualidade
+
+- Ruff: {quality.ruff}
+- Pytest: {quality.pytest}
+- importação da aplicação: {quality.application_import}
+
+## 10. Documentação e ADRs
+
+{document_lines}
+
+{chr(10).join(adr_lines(root))}
+
+## 11. Alterações Locais
+
+- Staged:
+{path_bullets(git.staged)}
+- Unstaged:
+{path_bullets(git.unstaged)}
+- Não rastreados:
+{path_bullets(git.untracked)}
+
+## 12. Problemas Conhecidos
+
+- Aviso de depreciação do `TestClient` relacionado ao `httpx`, não bloqueante.
+- {research_status}.
+
+## 13. Dívida Técnica
+
+{chr(10).join(debt_lines(root))}
+
+## 14. Próximo Passo Documentado
+
+{next_step}
+"""
+
+
+def normalize_output(root: Path, value: Path) -> Path:
+    return value if value.is_absolute() else root / value
+
+
+def apply_output(output: Path, expected: str, *, check: bool) -> int:
+    """Write only output, or compare it without writing in check mode."""
+    expected_bytes = expected.encode("utf-8")
+    if check:
+        if not output.is_file():
+            print(f"Snapshot ausente: {output}", file=sys.stderr)
+            return 1
+        if output.read_bytes() != expected_bytes:
+            print(f"Snapshot desatualizado: {output}", file=sys.stderr)
+            return 1
+        print(f"Snapshot atualizado: {output}")
+        return 0
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_bytes(expected_bytes)
+    print(f"Snapshot gerado: {output}")
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_OUTPUT,
+        help="Caminho de saída, relativo à raiz Git ou absoluto.",
+    )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Compara o snapshot sem escrever arquivos.",
+    )
+    return parser
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    try:
+        root = find_git_root()
+        output = normalize_output(root, args.output)
+        expected = render_snapshot(root, output)
+        return apply_output(output, expected, check=args.check)
+    except SnapshotError as error:
+        print(f"Falha interna: {error}", file=sys.stderr)
+        return 2
+    except (OSError, UnicodeError) as error:
+        print(f"Falha interna de I/O: {error}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
