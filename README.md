@@ -10,7 +10,9 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - Fase atual: `M0 — Foundation`.
 - API FastAPI executável localmente.
 - EPIC-003 / SPRINT-02 (Logging System) concluída.
-- SPRINT-03 — Reproducible Onboarding Baseline está planejada, ainda não iniciada.
+- EPIC-004 / SPRINT-03 — Reproducible Onboarding Baseline está em andamento.
+- DT-008 foi implementada e validada; o fechamento formal da Sprint e a publicação
+  permanecem pendentes.
 
 ## Funcionalidades implementadas
 
@@ -83,8 +85,8 @@ O extra `dev` instala as ferramentas declaradas no `pyproject.toml` para testes 
 análise estática. A cópia de `.env.example` é opcional; sem `.env`, os defaults de
 `Settings` são utilizados.
 
-Limitação conhecida: `.env.example` ainda não está rastreado no Git. Sua versão
-sanitizada e reproduzível é a primeira Task planejada da SPRINT-03.
+O `.env.example` é um template sanitizado com os defaults suportados por `Settings`.
+A cópia para `.env` continua opcional quando os defaults forem adequados.
 
 ## Executar a API
 
@@ -152,6 +154,12 @@ As variáveis podem ser definidas no ambiente ou em um arquivo `.env` na raiz.
 
 | Variável | Valores aceitos | Default | Finalidade |
 |---|---|---|---|
+| `APP_NAME` | Texto | `Hermes AI OS` | Nome exposto pela aplicação |
+| `APP_VERSION` | Texto | `0.0.1` | Versão exposta pela aplicação |
+| `ENVIRONMENT` | Texto | `development` | Identificação do ambiente |
+| `DEBUG` | Booleano | `true` | Flag de desenvolvimento declarada em `Settings` |
+| `HOST` | Endereço de bind | `127.0.0.1` | Host declarado para o servidor |
+| `PORT` | Porta TCP | `8000` | Porta declarada para o servidor |
 | `LOG_LEVEL` | `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL` | `INFO` | Nível mínimo de logging |
 | `LOG_FORMAT` | `console`, `json` | `console` | Formatter dos logs |
 | `REQUEST_ID_HEADER` | Nome de header HTTP | `X-Request-ID` | Header de correlação |

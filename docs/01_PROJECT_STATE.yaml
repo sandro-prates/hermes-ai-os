@@ -101,50 +101,49 @@ last_completed_work:
   git_evidence:
     commit: a1d0d21e89fdb0092313e590cfdc1a5eda2e29a3
     pushed_to: origin/main
-next_sprint:
+current_sprint:
   id: SPRINT-03
   title: Reproducible Onboarding Baseline
-  status: planned
+  status: in_progress
   epic:
     id: EPIC-004
     title: Foundation Reproducibility
   objective: Tornar o onboarding documentado reproduzível a partir de um clone limpo
-  activation: Somente na próxima conversa
-  implementation_started: false
+  activation: Baseline comprovada em 51d3747 antes das alterações locais
+  implementation_started: true
   first_task:
     id: DT-008
     title: Versionar e validar um .env.example sanitizado
     objective: Garantir que os comandos de configuração documentados funcionem sem dados locais
     primary_file: .env.example
 current_task:
-  title: README e onboarding reproduzível do Hermes AI OS
-  sprint: null
-  status: completed
-  scope: documentation_only
-  completed_and_validated:
-  - README operacional criado
-  - Instalação editável com extras de desenvolvimento validada em modo dry-run
-  - Execução da API com Uvicorn validada
-  - Endpoints raiz e health validados
-  - Geração e preservação de X-Request-ID validadas
-  - Estados de implementação dos ADRs 0001, 0002 e 0003 corrigidos
-  pending: []
-  git_evidence:
-    commit: 2fcbd17e673eab69bbdd2238346dfa63e14a8a64
-    message: 'docs(project): add onboarding and align architecture records'
-next_task:
   id: DT-008
   title: Versionar e validar um .env.example sanitizado
   sprint: SPRINT-03
-  status: planned
+  status: in_progress
+  scope: configuration_template_and_documentation
+  local_implementation:
+    env_example_prepared: true
+    env_example_ignored: false
+    env_example_sanitized: true
+    contract_test_added: true
+    validated: true
+    pushed: false
+  definition_of_done_met: false
+  pending:
+  - Revisão e aprovação do usuário
+  - Regeneração e auditoria do snapshot oficial
+  - Atualização do handoff
+  - Validação final de fechamento
+  - Publicação
 quality:
   pytest:
     command: python -m pytest
     result: passed
-    collected_tests: 32
-    passed_tests: 32
+    collected_tests: 44
+    passed_tests: 44
     warnings: 1
-    reported_duration_seconds: 6.09
+    reported_duration_seconds: 6.06
   ruff:
     command: python -m ruff check .
     result: passed
@@ -158,7 +157,7 @@ quality:
       status: fixed
   automated_test_coverage:
     status: present
-    collected_tests: 32
+    collected_tests: 44
 architecture:
   active_logging_package: app.core.observability
   legacy_logging_module_removed: true
@@ -167,7 +166,7 @@ architecture:
   - console
   - json
   project_snapshot:
-    schema_version: 2
+    schema_version: 3
     canonical_source: projected_git_tree
     excluded_path: docs/PROJECT_SNAPSHOT.md
     fingerprint: sha256_of_normalized_git_tree_entries
@@ -208,6 +207,19 @@ documentation:
     validity_source: python tools/project_snapshot.py --check
     fingerprint_source: docs/PROJECT_SNAPSHOT.md
     check_after_initial_adoption: passed
+    final_refresh_status: pending_formal_closure
+active_baseline:
+  commit: 51d3747
+  branch: main
+  local_origin_main: 51d3747
+  divergence_main_origin_main: 0 0
+  working_tree_before_activation: clean
+  snapshot_schema: 3
+  snapshot_check: passed
+  ruff: passed
+  pytest_passed_tests: 42
+  pytest_warnings: 1
+  verified_before_local_changes: true
 continuity:
   restart_instruction:
   - Ler docs/00_PROJECT_MASTER.md

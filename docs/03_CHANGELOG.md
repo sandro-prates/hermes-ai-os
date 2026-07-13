@@ -8,8 +8,18 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-SPRINT-03 — Reproducible Onboarding Baseline está planejada para a próxima conversa, sem
-implementação iniciada.
+EPIC-004 / SPRINT-03 — Reproducible Onboarding Baseline está em andamento. DT-008 foi
+implementada e validada; snapshot final, handoff, validação de fechamento e publicação
+permanecem pendentes.
+
+### Alterações locais da DT-008
+
+- Exceção específica de `.env.example` adicionada após as regras protetivas de `.env`.
+- Template sanitizado alinhado a todos os campos atuais de `Settings`.
+- Teste de contrato adicionado para chaves, validação Pydantic e marcadores objetivos
+  de segredo ou caminho pessoal.
+- README alinhado ao template disponível e à cópia opcional.
+- Baseline `51d3747`, Ruff, Pytest, endpoints, Request ID e formatos de logging validados.
 
 ### Encerramento publicado
 

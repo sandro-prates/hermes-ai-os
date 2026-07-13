@@ -12,7 +12,7 @@
 >
 > **Última Sprint concluída:** SPRINT-02 — Logging System
 >
-> **Próxima Sprint planejada:** SPRINT-03 — Reproducible Onboarding Baseline
+> **Sprint atual:** SPRINT-03 — Reproducible Onboarding Baseline (`in_progress`)
 >
 > **Responsável:** Sandro Prates
 >
@@ -210,16 +210,17 @@ após o commit do próprio relatório.
 
 Somente M0 está em andamento. Os demais permanecem pendentes como milestones formais.
 
-## Próxima Sprint planejada
+## Sprint atual
 
 - EPIC-004 — Foundation Reproducibility.
 - SPRINT-03 — Reproducible Onboarding Baseline.
-- Status: `planned`.
+- Status: `in_progress`.
 - Objetivo: tornar o onboarding documentado reproduzível a partir de um clone limpo.
-- Primeira Task: versionar e validar um `.env.example` sanitizado.
+- Task atual: DT-008 — versionar e validar um `.env.example` sanitizado (`in_progress`).
 
-A Sprint somente poderá ser ativada na próxima conversa. Nenhuma implementação foi
-iniciada neste encerramento.
+A baseline publicada em `51d3747` foi comprovada antes da ativação. A implementação
+foi validada, mas Definition of Done, snapshot final, handoff, validação de fechamento
+e publicação permanecem pendentes.
 
 ---
 
