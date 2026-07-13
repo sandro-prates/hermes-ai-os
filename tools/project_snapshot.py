@@ -313,6 +313,7 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
             "next_sprint_status": NOT_IDENTIFIED,
             "next_sprint_objective": NOT_IDENTIFIED,
             "next_sprint_first_task": NOT_IDENTIFIED,
+            "next_task_status": NOT_IDENTIFIED,
             "next_sprint_implementation": NOT_IDENTIFIED,
         }
     values = parse_simple_yaml_mapping(text)
@@ -337,6 +338,7 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
         "status": ("next_sprint", "status"),
         "objective": ("next_sprint", "objective"),
         "first_task": ("next_sprint", "first_task", "title"),
+        "first_task_id": ("next_sprint", "first_task", "id"),
         "implementation_started": ("next_sprint", "implementation_started"),
     }
     present_planned = {
@@ -348,6 +350,7 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
         "next_sprint_status": NOT_IDENTIFIED,
         "next_sprint_objective": NOT_IDENTIFIED,
         "next_sprint_first_task": NOT_IDENTIFIED,
+        "next_task_status": NOT_IDENTIFIED,
         "next_sprint_implementation": NOT_IDENTIFIED,
     }
     if present_planned:
@@ -381,18 +384,40 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
                 "PROJECT_STATE não comprova que a próxima Sprint permanece sem "
                 "implementação iniciada."
             )
-        consistency_paths = {
+        task_paths = {
+            "id": ("next_task", "id"),
             "title": ("next_task", "title"),
             "sprint_id": ("next_task", "sprint"),
             "status": ("next_task", "status"),
         }
+        missing_task = [name for name, path in task_paths.items() if path not in values]
+        if missing_task:
+            raise SnapshotError(
+                "PROJECT_STATE possui next_task incompleto; campos ausentes: "
+                + ", ".join(missing_task)
+            )
+        task = {name: values[path] for name, path in task_paths.items()}
+        invalid_task = [
+            name for name, value in task.items() if not isinstance(value, str) or not value
+        ]
+        if invalid_task:
+            raise SnapshotError(
+                "PROJECT_STATE possui campos textuais inválidos em next_task: "
+                + ", ".join(invalid_task)
+            )
+        if task["status"] != "planned":
+            raise SnapshotError(
+                "PROJECT_STATE possui status inválido para a próxima Task: "
+                f"{task['status']!r}; esperado 'planned'."
+            )
         expected = {
+            "id": strings["first_task_id"],
             "title": strings["first_task"],
             "sprint_id": strings["sprint_id"],
             "status": strings["status"],
         }
-        for name, path in consistency_paths.items():
-            if path in values and values[path] != expected[name]:
+        for name, value in task.items():
+            if value != expected[name]:
                 raise SnapshotError(
                     "PROJECT_STATE possui informação ambígua entre next_sprint e "
                     f"next_task: {name}."
@@ -402,8 +427,11 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
             "next_sprint": f"{strings['sprint_id']} — {strings['sprint_title']}",
             "next_sprint_status": strings["status"],
             "next_sprint_objective": strings["objective"],
-            "next_sprint_first_task": strings["first_task"],
-            "next_sprint_implementation": "Nenhuma implementação foi iniciada.",
+            "next_sprint_first_task": (
+                f"{strings['first_task_id']} — {strings['first_task']}"
+            ),
+            "next_task_status": task["status"],
+            "next_sprint_implementation": "não",
         }
     return {
         "project": get(("project", "name")),
@@ -773,10 +801,11 @@ def render_snapshot(
 
 - EPIC: {state['next_epic']}
 - Sprint: {state['next_sprint']}
-- Status: {state['next_sprint_status']}
+- Status da Sprint: {state['next_sprint_status']}
 - Objetivo: {state['next_sprint_objective']}
 - Primeira Task: {state['next_sprint_first_task']}
-- Implementação: {state['next_sprint_implementation']}
+- Status da Task: {state['next_task_status']}
+- Implementação iniciada: {state['next_sprint_implementation']}
 
 ## 4. Estrutura Relevante
 

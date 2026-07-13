@@ -233,7 +233,14 @@ quality:
     assert state["next_task"] == "Não identificado"
 
 
-def planned_state_text(*, status: str = "planned", implementation: str = "false") -> str:
+def planned_state_text(
+    *,
+    sprint_status: str = "planned",
+    task_status: str = "planned",
+    first_task_id: str = "DT-008",
+    next_task_id: str = "DT-008",
+    implementation: str = "false",
+) -> str:
     return f"""project:
   name: Hermes AI OS
   phase:
@@ -252,18 +259,20 @@ current_task:
 next_sprint:
   id: SPRINT-03
   title: Reproducible Onboarding Baseline
-  status: {status}
+  status: {sprint_status}
   epic:
     id: EPIC-004
     title: Foundation Reproducibility
   objective: Tornar o onboarding reproduzível
   implementation_started: {implementation}
   first_task:
+    id: {first_task_id}
     title: Versionar e validar um .env.example sanitizado
 next_task:
+  id: {next_task_id}
   title: Versionar e validar um .env.example sanitizado
   sprint: SPRINT-03
-  status: {status}
+  status: {task_status}
 quality:
   pytest:
     result: passed
@@ -294,9 +303,10 @@ def test_planned_epic_and_sprint_are_parsed_from_exact_paths(tmp_path: Path) -> 
     assert state["next_sprint_objective"] == "Tornar o onboarding reproduzível"
     assert (
         state["next_sprint_first_task"]
-        == "Versionar e validar um .env.example sanitizado"
+        == "DT-008 — Versionar e validar um .env.example sanitizado"
     )
-    assert state["next_sprint_implementation"] == "Nenhuma implementação foi iniciada."
+    assert state["next_task_status"] == "planned"
+    assert state["next_sprint_implementation"] == "não"
 
 
 def test_milestone_in_progress_does_not_activate_planned_sprint(tmp_path: Path) -> None:
@@ -320,13 +330,50 @@ next_sprint:
 
 def test_invalid_planned_status_fails_clearly(tmp_path: Path) -> None:
     with pytest.raises(SnapshotError, match="status inválido"):
-        required_state(tmp_path, state_runner(planned_state_text(status="in_progress")))
+        required_state(
+            tmp_path,
+            state_runner(planned_state_text(sprint_status="in_progress")),
+        )
+
+
+def test_invalid_planned_task_status_fails_clearly(tmp_path: Path) -> None:
+    with pytest.raises(SnapshotError, match="próxima Task"):
+        required_state(
+            tmp_path,
+            state_runner(planned_state_text(task_status="in_progress")),
+        )
+
+
+def test_started_implementation_fails_instead_of_reporting_planned(tmp_path: Path) -> None:
+    with pytest.raises(SnapshotError, match="sem implementação iniciada"):
+        required_state(
+            tmp_path,
+            state_runner(planned_state_text(implementation="true")),
+        )
+
+
+@pytest.mark.parametrize("missing", ["first", "next"])
+def test_missing_structured_task_id_fails_clearly(tmp_path: Path, missing: str) -> None:
+    text = planned_state_text()
+    marker = "    id: DT-008\n" if missing == "first" else "  id: DT-008\n"
+    text = text.replace(marker, "", 1)
+
+    with pytest.raises(SnapshotError, match="incompleto"):
+        required_state(tmp_path, state_runner(text))
+
+
+def test_divergent_structured_task_ids_fail_clearly(tmp_path: Path) -> None:
+    with pytest.raises(SnapshotError, match="informação ambígua.*id"):
+        required_state(
+            tmp_path,
+            state_runner(planned_state_text(next_task_id="DT-999")),
+        )
 
 
 def test_ambiguous_next_task_fails_clearly(tmp_path: Path) -> None:
     text = planned_state_text().replace(
-        "next_task:\n  title: Versionar e validar um .env.example sanitizado",
-        "next_task:\n  title: Outra Task",
+        "  title: Versionar e validar um .env.example sanitizado\n  sprint:",
+        "  title: Outra Task\n  sprint:",
     )
 
     with pytest.raises(SnapshotError, match="informação ambígua"):
@@ -344,7 +391,12 @@ requires-python = ">=3.12,<3.15"
 dependencies = ["fastapi>=0.139,<1.0"]
 """,
         "apps/backend/app/main.py": '@app.get("/")\ndef root(): ...\n',
-        "docs/02_BACKLOG.md": "# Backlog\n",
+        "docs/02_BACKLOG.md": """# Backlog
+
+## DT-008 — `.env.example` ignorado e ausente do Git
+
+**Status:** ⚠️ Aberta
+""",
         "docs/00_PROJECT_MASTER.md": "# Master\n",
         "docs/03_CHANGELOG.md": "# Changelog\n",
     }
@@ -381,10 +433,12 @@ dependencies = ["fastapi>=0.139,<1.0"]
     assert "## 3. Próxima Sprint Planejada" in first
     assert "EPIC: EPIC-004 — Foundation Reproducibility" in first
     assert "Sprint: SPRINT-03 — Reproducible Onboarding Baseline" in first
-    assert "Status: planned" in first
+    assert "Status da Sprint: planned" in first
     assert "Objetivo: Tornar o onboarding reproduzível" in first
-    assert "Primeira Task: Versionar e validar um .env.example sanitizado" in first
-    assert "Implementação: Nenhuma implementação foi iniciada." in first
+    assert "Primeira Task: DT-008 — Versionar e validar um .env.example sanitizado" in first
+    assert "Status da Task: planned" in first
+    assert "Implementação iniciada: não" in first
+    assert "DT-008 — `.env.example` ignorado e ausente do Git — ⚠️ Aberta" in first
     assert "WRONG WORKTREE VALUE" not in first
     assert "\n├── .env.example" not in first
     assert str(tmp_path) not in first

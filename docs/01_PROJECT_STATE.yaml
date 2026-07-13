@@ -112,6 +112,7 @@ next_sprint:
   activation: Somente na próxima conversa
   implementation_started: false
   first_task:
+    id: DT-008
     title: Versionar e validar um .env.example sanitizado
     objective: Garantir que os comandos de configuração documentados funcionem sem dados locais
     primary_file: .env.example
@@ -132,6 +133,7 @@ current_task:
     commit: 2fcbd17e673eab69bbdd2238346dfa63e14a8a64
     message: 'docs(project): add onboarding and align architecture records'
 next_task:
+  id: DT-008
   title: Versionar e validar um .env.example sanitizado
   sprint: SPRINT-03
   status: planned
