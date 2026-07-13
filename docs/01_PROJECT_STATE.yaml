@@ -163,10 +163,10 @@ quality:
   pytest:
     command: python -m pytest
     result: passed
-    collected_tests: 44
-    passed_tests: 44
+    collected_tests: 48
+    passed_tests: 48
     warnings: 1
-    reported_duration_seconds: 5.99
+    reported_duration_seconds: 6.39
   ruff:
     command: python -m ruff check .
     result: passed
@@ -180,7 +180,7 @@ quality:
       status: fixed
   automated_test_coverage:
     status: present
-    collected_tests: 44
+    collected_tests: 48
 architecture:
   active_logging_package: app.core.observability
   legacy_logging_module_removed: true
@@ -225,6 +225,8 @@ documentation:
     status: committed
   project_snapshot:
     generator_commit: 1c02fb0
+    explicit_final_state_contract_commit: 686a630f38edd434890ca5ee72e255174dd34ee7
+    explicit_final_state_regression_tests: 4
     report_path: docs/PROJECT_SNAPSHOT.md
     initial_adoption_commit: e1c35872bbd61509edcf6a30b4e744c0067a8b4c
     report_officially_adopted: true

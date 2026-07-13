@@ -130,6 +130,11 @@ Documentação final da SPRINT-03 e handoff de 13/07/2026 preparados e commitado
 
 Estado transitório de publicação removido da documentação permanente.
 
+### `686a630`
+
+Contrato do snapshot corrigido para representar explicitamente o estado final, com
+quatro testes de regressão adicionais.
+
 ## Último trabalho concluído
 
 ### EPIC-004 — Foundation Reproducibility — Concluída
@@ -188,8 +193,8 @@ Evidência Git:
 
 Resultado verificado:
 
-- 44 testes coletados;
-- 44 testes aprovados;
+- 48 testes coletados;
+- 48 testes aprovados;
 - 1 aviso de depreciação do `TestClient`.
 
 O aviso de depreciação é uma observação conhecida e não bloqueia o fechamento.

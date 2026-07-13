@@ -11,6 +11,17 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 O snapshot final ainda não foi adotado.
 Nenhuma nova Sprint foi ativada.
 
+### Corrigido
+
+- O commit `686a630` tornou explícitos no snapshot os status da EPIC, Sprint e Task,
+  a ausência de Sprint ativa ou planejada e as limitações atuais.
+- Quatro testes de regressão foram adicionados ao contrato do snapshot.
+
+### Validado
+
+- 48 testes aprovados e 1 aviso conhecido e não bloqueante.
+- Ruff aprovado sem violações.
+
 ---
 
 ## [EPIC-004-SPRINT-03] — 2026-07-13

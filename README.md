@@ -195,9 +195,11 @@ Executar os testes:
 python -m pytest
 ```
 
-Baseline verificada no fechamento de 13/07/2026: 44 testes aprovados e 1 aviso de
-depreciação não bloqueante do `TestClient` relacionado ao `httpx`. Execute sempre o
-comando acima para obter o resultado atual; a quantidade de testes pode evoluir.
+Estado verificado em 13/07/2026 após a correção do contrato do snapshot: 48 testes
+aprovados e 1 aviso de depreciação não bloqueante do `TestClient` relacionado ao
+`httpx`. Quatro desses testes protegem a representação explícita do estado final no
+snapshot. Execute sempre o comando acima para obter o resultado atual; a quantidade de
+testes pode evoluir.
 
 ## Snapshot do Projeto
 
