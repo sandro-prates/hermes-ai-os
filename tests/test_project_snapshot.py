@@ -15,6 +15,7 @@ from tools.project_snapshot import (
     apply_output,
     collect_paths,
     collect_projection,
+    current_limitations,
     ensure_generation_allowed,
     find_git_root,
     inspect_git,
@@ -204,11 +205,15 @@ last_completed_work:
   epic:
     id: EPIC-003
     name: Logging System
+    status: completed
   sprint:
     id: SPRINT-02
+    title: Logging System
+    status: completed
   manual_runtime_validation:
     result: passed
 current_task:
+  id: TASK-README
   title: README e onboarding reproduzível do Hermes AI OS
   status: completed
 next_task: null
@@ -228,8 +233,13 @@ quality:
 
     state = required_state(tmp_path, runner)
 
-    assert state["task"] == "README e onboarding reproduzível do Hermes AI OS"
-    assert state["status"] == "completed"
+    assert (
+        state["task"]
+        == "TASK-README — README e onboarding reproduzível do Hermes AI OS"
+    )
+    assert state["epic_status"] == "completed"
+    assert state["sprint_status"] == "completed"
+    assert state["task_status"] == "completed"
     assert state["next_task"] == "Não identificado"
 
 
@@ -249,11 +259,15 @@ last_completed_work:
   epic:
     id: EPIC-003
     name: Logging System
+    status: completed
   sprint:
     id: SPRINT-02
+    title: Logging System
+    status: completed
   manual_runtime_validation:
     result: passed
 current_task:
+  id: TASK-README
   title: README
   status: completed
 next_sprint:
@@ -292,6 +306,96 @@ def state_runner(text: str):
         return result(args, returncode=128)
 
     return runner
+
+
+def final_state_runner(text: str):
+    committed = {
+        "docs/01_PROJECT_STATE.yaml": text,
+        "docs/00_PROJECT_MASTER.md": "> **Sprint atual:** nenhuma\n",
+        "docs/02_BACKLOG.md": (
+            "Os itens abaixo vêm do `PROJECT_MASTER` e ainda não representam Sprints "
+            "planejadas ou aprovadas.\n"
+        ),
+        "README.md": (
+            "Banco de dados, runtime de agentes, memória, dashboard e\n"
+            "integrações externas ainda não estão implementados.\n"
+        ),
+    }
+
+    def runner(
+        args: tuple[str, ...], cwd: Path, env: dict[str, str] | None
+    ) -> CommandResult:
+        if len(args) == 3 and args[:2] == ("git", "show") and args[2].startswith("HEAD:"):
+            path = args[2][len("HEAD:") :]
+            if path in committed:
+                return result(args, stdout=committed[path])
+        return result(args, returncode=128)
+
+    return runner
+
+
+def completed_state_text() -> str:
+    return """project:
+  name: Hermes AI OS
+last_completed_work:
+  epic:
+    id: EPIC-004
+    name: Foundation Reproducibility
+    status: completed
+  sprint:
+    id: SPRINT-03
+    title: Reproducible Onboarding Baseline
+    status: completed
+  manual_runtime_validation:
+    result: passed
+current_task:
+  id: DT-008
+  title: Versionar e validar um .env.example sanitizado
+  status: completed
+quality:
+  pytest:
+    result: passed
+    passed_tests: 44
+    warnings: 1
+  ruff:
+    result: passed
+"""
+
+
+def test_final_state_is_explicit_and_has_no_active_or_planned_sprint(
+    tmp_path: Path,
+) -> None:
+    runner = final_state_runner(completed_state_text())
+
+    state = required_state(tmp_path, runner)
+
+    assert state["epic"] == "EPIC-004 — Foundation Reproducibility"
+    assert state["epic_status"] == "completed"
+    assert state["sprint"] == "SPRINT-03 — Reproducible Onboarding Baseline"
+    assert state["sprint_status"] == "completed"
+    assert state["task"] == "DT-008 — Versionar e validar um .env.example sanitizado"
+    assert state["task_status"] == "completed"
+    assert state["active_sprint"] == "nenhuma"
+    assert state["planned_sprint"] == "nenhuma"
+
+
+def test_limitations_require_exact_committed_evidence(tmp_path: Path) -> None:
+    limitations = current_limitations(tmp_path, final_state_runner(completed_state_text()))
+
+    assert limitations == [
+        "Banco de dados ainda não implementado.",
+        "Runtime de agentes ainda não implementado.",
+        "Memória ainda não implementada.",
+        "Dashboard ainda não implementado.",
+        "Integrações externas ainda não implementadas.",
+    ]
+
+
+def test_missing_sprint_absence_evidence_is_not_invented(tmp_path: Path) -> None:
+    state = required_state(tmp_path, state_runner(completed_state_text()))
+
+    assert state["active_sprint"] == "Não identificado"
+    assert state["planned_sprint"] == "Não identificado"
 
 
 def test_planned_epic_and_sprint_are_parsed_from_exact_paths(tmp_path: Path) -> None:
@@ -399,6 +503,10 @@ dependencies = ["fastapi>=0.139,<1.0"]
 """,
         "docs/00_PROJECT_MASTER.md": "# Master\n",
         "docs/03_CHANGELOG.md": "# Changelog\n",
+        "README.md": (
+            "Banco de dados, runtime de agentes, memória, dashboard e\n"
+            "integrações externas ainda não estão implementados.\n"
+        ),
     }
     tracked = "".join(
         f"100644 blob {index:040x}\t{path}\0"
@@ -429,15 +537,18 @@ dependencies = ["fastapi>=0.139,<1.0"]
     assert SNAPSHOT_SCHEMA_VERSION == 3
     assert "schema do snapshot: 3" in first
     assert "fingerprint SHA-256" in first
-    assert "status: completed" in first
-    assert "## 3. Próxima Sprint Planejada" in first
-    assert "EPIC: EPIC-004 — Foundation Reproducibility" in first
-    assert "Sprint: SPRINT-03 — Reproducible Onboarding Baseline" in first
-    assert "Status da Sprint: planned" in first
-    assert "Objetivo: Tornar o onboarding reproduzível" in first
-    assert "Primeira Task: DT-008 — Versionar e validar um .env.example sanitizado" in first
-    assert "Status da Task: planned" in first
-    assert "Implementação iniciada: não" in first
+    assert "- Status da EPIC: completed" in first
+    assert "- Status da Sprint: completed" in first
+    assert "- Status da Task: completed" in first
+    assert "\n- status:" not in first
+    assert "## 3. Continuidade de Sprint" in first
+    assert "- Próxima Sprint planejada: SPRINT-03 — Reproducible Onboarding Baseline" in first
+    assert "## 16. Limitações Atuais" in first
+    assert "- Banco de dados ainda não implementado." in first
+    assert "- Runtime de agentes ainda não implementado." in first
+    assert "- Memória ainda não implementada." in first
+    assert "- Dashboard ainda não implementado." in first
+    assert "- Integrações externas ainda não implementadas." in first
     assert "DT-008 — `.env.example` ignorado e ausente do Git — ⚠️ Aberta" in first
     assert "WRONG WORKTREE VALUE" not in first
     assert "\n├── .env.example" not in first
@@ -445,6 +556,71 @@ dependencies = ["fastapi>=0.139,<1.0"]
     assert "working tree: limpa" not in first
     assert "último commit" not in first
     assert "data do commit" not in first
+
+
+def test_final_markdown_keeps_dt007_as_debt_and_reports_limitations(
+    tmp_path: Path,
+) -> None:
+    committed_files = {
+        "docs/01_PROJECT_STATE.yaml": completed_state_text(),
+        "docs/00_PROJECT_MASTER.md": "> **Sprint atual:** nenhuma\n",
+        "docs/02_BACKLOG.md": """# Backlog
+
+## DT-007 — Pesquisa tecnológica vazia
+
+**Status:** ⚠️ Aberta
+
+# Roadmap de Alto Nível
+
+Os itens abaixo vêm do `PROJECT_MASTER` e ainda não representam Sprints planejadas ou aprovadas.
+""",
+        "docs/03_CHANGELOG.md": "# Changelog\n",
+        "README.md": (
+            "Banco de dados, runtime de agentes, memória, dashboard e\n"
+            "integrações externas ainda não estão implementados.\n"
+        ),
+        "pyproject.toml": """[project]
+name = "hermes-ai-os"
+version = "0.0.1"
+requires-python = ">=3.12,<3.15"
+dependencies = []
+""",
+    }
+    tracked = "".join(
+        f"100644 blob {index:040x}\t{path}\0"
+        for index, path in enumerate(sorted(committed_files), 1)
+    )
+
+    def runner(
+        args: tuple[str, ...], cwd: Path, env: dict[str, str] | None
+    ) -> CommandResult:
+        if args == ("git", "ls-tree", "-r", "-z", "--full-tree", "HEAD"):
+            return result(args, stdout=tracked)
+        if len(args) == 3 and args[:2] == ("git", "show") and args[2].startswith("HEAD:"):
+            path = args[2][len("HEAD:") :]
+            if path in committed_files:
+                return result(args, stdout=committed_files[path])
+        return result(args, returncode=128, stderr="not tracked")
+
+    rendered = render_snapshot(tmp_path, tmp_path / "snapshot.md", runner)
+    continuity = rendered[
+        rendered.index("## 3. Continuidade de Sprint") :
+        rendered.index("## 4. Estrutura Relevante")
+    ]
+
+    assert "- Status da EPIC: completed" in rendered
+    assert "- Status da Sprint: completed" in rendered
+    assert "- Status da Task: completed" in rendered
+    assert "\n- status:" not in rendered
+    assert "- Sprint ativa: nenhuma" in continuity
+    assert "- Próxima Sprint planejada: nenhuma" in continuity
+    assert "DT-007" not in continuity
+    assert "DT-007 — Pesquisa tecnológica vazia — ⚠️ Aberta" in rendered
+    assert "- Banco de dados ainda não implementado." in rendered
+    assert "- Runtime de agentes ainda não implementado." in rendered
+    assert "- Memória ainda não implementada." in rendered
+    assert "- Dashboard ainda não implementado." in rendered
+    assert "- Integrações externas ainda não implementadas." in rendered
 
 
 def test_simple_yaml_rejects_unsupported_content() -> None:

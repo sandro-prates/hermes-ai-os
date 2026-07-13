@@ -304,9 +304,13 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
         return {
             "project": NOT_IDENTIFIED,
             "epic": NOT_IDENTIFIED,
+            "epic_status": NOT_IDENTIFIED,
             "sprint": NOT_IDENTIFIED,
+            "sprint_status": NOT_IDENTIFIED,
             "task": NOT_IDENTIFIED,
-            "status": NOT_IDENTIFIED,
+            "task_status": NOT_IDENTIFIED,
+            "active_sprint": NOT_IDENTIFIED,
+            "planned_sprint": NOT_IDENTIFIED,
             "next_task": NOT_IDENTIFIED,
             "next_epic": NOT_IDENTIFIED,
             "next_sprint": NOT_IDENTIFIED,
@@ -328,6 +332,20 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
         f"{epic_id} — {epic_name}"
         if NOT_IDENTIFIED not in {epic_id, epic_name}
         else NOT_IDENTIFIED
+    )
+    sprint_id = get(("last_completed_work", "sprint", "id"))
+    sprint_title = get(("last_completed_work", "sprint", "title"))
+    sprint = (
+        f"{sprint_id} — {sprint_title}"
+        if NOT_IDENTIFIED not in {sprint_id, sprint_title}
+        else sprint_id
+    )
+    task_id = get(("current_task", "id"))
+    task_title = get(("current_task", "title"))
+    task = (
+        f"{task_id} — {task_title}"
+        if NOT_IDENTIFIED not in {task_id, task_title}
+        else task_title
     )
 
     planned_paths = {
@@ -433,12 +451,34 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
             "next_task_status": task["status"],
             "next_sprint_implementation": "não",
         }
+    master = head_text(root, "docs/00_PROJECT_MASTER.md", runner) or ""
+    backlog = head_text(root, "docs/02_BACKLOG.md", runner) or ""
+    active_sprint = (
+        "nenhuma"
+        if "> **Sprint atual:** nenhuma" in master
+        else NOT_IDENTIFIED
+    )
+    no_formal_plan = (
+        "Os itens abaixo vêm do `PROJECT_MASTER` e ainda não representam Sprints "
+        "planejadas ou aprovadas."
+    )
+    planned_sprint = (
+        "nenhuma"
+        if active_sprint == "nenhuma"
+        and not present_planned
+        and no_formal_plan in backlog
+        else planned["next_sprint"]
+    )
     return {
         "project": get(("project", "name")),
         "epic": epic,
-        "sprint": get(("last_completed_work", "sprint", "id")),
-        "task": get(("current_task", "title")),
-        "status": get(("current_task", "status")),
+        "epic_status": get(("last_completed_work", "epic", "status")),
+        "sprint": sprint,
+        "sprint_status": get(("last_completed_work", "sprint", "status")),
+        "task": task,
+        "task_status": get(("current_task", "status")),
+        "active_sprint": active_sprint,
+        "planned_sprint": planned_sprint,
         "next_task": get(("next_task", "title")),
         "ruff": get(("quality", "ruff", "result")),
         "pytest": get(("quality", "pytest", "result")),
@@ -449,6 +489,24 @@ def required_state(root: Path, runner: Runner) -> dict[str, str]:
         ),
         **planned,
     }
+
+
+def current_limitations(root: Path, runner: Runner) -> list[str]:
+    """Return normalized limitations only when the committed README proves them."""
+    readme = head_text(root, "README.md", runner) or ""
+    evidence = (
+        "Banco de dados, runtime de agentes, memória, dashboard e\n"
+        "integrações externas ainda não estão implementados."
+    )
+    if evidence not in readme:
+        return [NOT_IDENTIFIED]
+    return [
+        "Banco de dados ainda não implementado.",
+        "Runtime de agentes ainda não implementado.",
+        "Memória ainda não implementada.",
+        "Dashboard ainda não implementado.",
+        "Integrações externas ainda não implementadas.",
+    ]
 
 
 def load_pyproject(root: Path, runner: Runner) -> dict:
@@ -777,6 +835,17 @@ def render_snapshot(
         "`docs/PROJECT_SNAPSHOT.md` é excluído da projeção para evitar "
         "autorreferência; o estado transitório é exibido somente no console."
     )
+    limitation_text = "\n".join(f"- {item}" for item in current_limitations(root, runner))
+    planned_details = ""
+    if state["planned_sprint"] != "nenhuma" and state["planned_sprint"] != NOT_IDENTIFIED:
+        planned_details = (
+            f"\n- EPIC planejada: {state['next_epic']}"
+            f"\n- Status da Sprint planejada: {state['next_sprint_status']}"
+            f"\n- Objetivo: {state['next_sprint_objective']}"
+            f"\n- Primeira Task: {state['next_sprint_first_task']}"
+            f"\n- Status da Task planejada: {state['next_task_status']}"
+            f"\n- Implementação iniciada: {state['next_sprint_implementation']}"
+        )
     return f"""# Hermes AI OS  Project Snapshot
 
 ## 1. Identificação
@@ -792,20 +861,16 @@ def render_snapshot(
 ## 2. Estado Atual
 
 - EPIC: {state['epic']}
+- Status da EPIC: {state['epic_status']}
 - Sprint: {state['sprint']}
+- Status da Sprint: {state['sprint_status']}
 - Task: {state['task']}
-- status: {state['status']}
-- próxima Task: {state['next_task']}
+- Status da Task: {state['task_status']}
 
-## 3. Próxima Sprint Planejada
+## 3. Continuidade de Sprint
 
-- EPIC: {state['next_epic']}
-- Sprint: {state['next_sprint']}
-- Status da Sprint: {state['next_sprint_status']}
-- Objetivo: {state['next_sprint_objective']}
-- Primeira Task: {state['next_sprint_first_task']}
-- Status da Task: {state['next_task_status']}
-- Implementação iniciada: {state['next_sprint_implementation']}
+- Sprint ativa: {state['active_sprint']}
+- Próxima Sprint planejada: {state['planned_sprint']}{planned_details}
 
 ## 4. Estrutura Relevante
 
@@ -874,6 +939,10 @@ def render_snapshot(
 ## 15. Próximo Passo Documentado
 
 {next_step}
+
+## 16. Limitações Atuais
+
+{limitation_text}
 """
 
 
