@@ -101,6 +101,12 @@ repository:
   - commit: da7a583b0c57eef26499881a60dbab6ed281ddb9
     short_commit: da7a583
     message: 'docs(project): refresh sprint 05 snapshot'
+  - commit: 4e2619cdb67f838e50b47a00c7d909199dd039b9
+    short_commit: 4e2619c
+    message: 'docs(project): activate sprint 06 continuity integrity'
+  - commit: 30416fee1a81b53fe57bf7d16d32c9f60120f989
+    short_commit: 30416fe
+    message: 'fix(project): normalize continuity state schema'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
@@ -114,25 +120,18 @@ repository:
     message: 'docs(project): close sprint and prepare handoff'
 work:
   active:
+    sprint: null
+    task: null
+  last_completed:
     sprint:
       id: SPRINT-06
       title: Continuity State Integrity
-      status: in_progress
+      status: completed
     task:
       id: DT-009
       title: Integridade do estado de continuidade
-      status: in_progress
-      sprint: SPRINT-06
-  last_completed:
-    sprint:
-      id: SPRINT-05
-      title: Technology Decision Baseline
       status: completed
-    task:
-      id: DT-007
-      title: Pesquisa tecnológica
-      status: completed
-      activated_in_sprint: SPRINT-05
+      activated_in_sprint: SPRINT-06
   planned:
     sprint: null
     task: null
@@ -190,9 +189,9 @@ documentation:
     path: docs/03_CHANGELOG.md
     status: maintained
   handoff:
-    path: docs/HANDOFF_2026-07-13-SPRINT-05.md
+    path: docs/HANDOFF_2026-07-13-SPRINT-06.md
     status: current
-    previous_path: docs/HANDOFF_2026-07-13-SPRINT-04.md
+    previous_path: docs/HANDOFF_2026-07-13-SPRINT-05.md
     historical_path: docs/HANDOFF_2026-07-12.md
   adr_directory:
     path: docs/adr/

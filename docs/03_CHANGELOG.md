@@ -8,7 +8,7 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-SPRINT-06 — Continuity State Integrity ativada no M0, sem nova EPIC.
+SPRINT-06 — Continuity State Integrity concluída localmente no M0, sem nova EPIC.
 
 ### Adicionado
 
@@ -40,6 +40,10 @@ SPRINT-06 — Continuity State Integrity ativada no M0, sem nova EPIC.
 - Ruff, YAML, importação Hermes AI OS 0.0.1, endpoints, Request ID, logging console e
   JSON e contrato `.env.example`/`Settings` aprovados.
 - Nenhuma alteração em `apps/`, dependências, pesquisa ou handoffs históricos.
+- Ativação documental registrada em `4e2619c`; implementação, migração e testes
+  registrados em `30416fe`.
+- SPRINT-06 e DT-009 concluídas; nenhuma Sprint está ativa ou formalmente planejada.
+- O snapshot oficial permanece regido pelo fluxo de commit exclusivo, `--check` e Git.
 
 ## [SPRINT-05] — 2026-07-13
 

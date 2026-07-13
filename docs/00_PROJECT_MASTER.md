@@ -10,9 +10,9 @@
 >
 > **Último EPIC concluído:** EPIC-004 — Foundation Reproducibility
 >
-> **Última Sprint concluída:** SPRINT-05 — Technology Decision Baseline
+> **Última Sprint concluída:** SPRINT-06 — Continuity State Integrity
 >
-> **Sprint atual:** SPRINT-06 — Continuity State Integrity
+> **Sprint atual:** nenhuma
 >
 > **Responsável:** Sandro Prates
 >
@@ -192,7 +192,7 @@ cuja validade deve ser verificada com `python tools/project_snapshot.py --check`
   estado deve ser consultado em `docs/PROJECT_SNAPSHOT.md`, validado com
   `python tools/project_snapshot.py --check` e confrontado com Git.
 
-## Última Sprint concluída
+## Sprint concluída anterior
 
 ### SPRINT-05 — Technology Decision Baseline — Concluída
 
@@ -212,9 +212,9 @@ cuja validade deve ser verificada com `python tools/project_snapshot.py --check`
   como SPRINT-07 — Dependency Reproducibility Proof e SPRINT-08 — Automated Quality
   Gate, sem adoção ou ativação.
 
-## Sprint ativa
+## Última Sprint concluída
 
-### SPRINT-06 — Continuity State Integrity — Em andamento
+### SPRINT-06 — Continuity State Integrity — Concluída
 
 - Milestone: M0 — Foundation.
 - EPIC: nenhuma nova EPIC.
@@ -222,13 +222,14 @@ cuja validade deve ser verificada com `python tools/project_snapshot.py --check`
 - Objetivo: separar inequivocamente trabalho ativo, última entrega concluída e trabalho
   planejado no estado operacional.
 - Estado operacional: schema 2 com `work.active`, `work.last_completed` e
-  `work.planned` como fonte única.
-- Última entrega concluída preservada: SPRINT-05 e DT-007.
+  `work.planned` como fonte única; SPRINT-06 e DT-009 formam a última entrega.
+- Ativação documental: `4e2619c`.
+- Implementação, migração e testes: `30416fe`.
 - Próxima Sprint formalmente planejada: nenhuma.
 - Não inclui adoção tecnológica, dependências, CI ou código de aplicação.
 - Implementação local validada com 76 testes aprovados, 1 aviso conhecido, Ruff,
-  YAML, importação, endpoints, Request ID e logging aprovados; a Sprint permanece em
-  andamento até seu encerramento documental.
+  YAML, importação, endpoints, Request ID e logging aprovados.
+- Nenhuma Sprint está ativa.
 
 ## Trabalho concluído anterior
 

@@ -400,11 +400,11 @@ commit exclusivo.
 
 ---
 
-# SPRINT-06 Ativa
+# SPRINT-06 Encerrada
 
 ## SPRINT-06 — Continuity State Integrity
 
-**Status:** 🚧 Em andamento
+**Status:** ✅ Concluída
 
 **Milestone:** M0 — Foundation
 
@@ -425,7 +425,11 @@ com uma única fonte para trabalho ativo, última entrega concluída e planejame
 - [x] `--check` valida sem sugerir escrita nem modificar o snapshot;
 - [x] ADR-0004 e ADR-0005 permanecem `Accepted` e factualmente alinhados;
 - [x] testes direcionados, Ruff, suíte completa, YAML e runtime são aprovados;
-- [ ] documentação, handoff e snapshot são encerrados no fluxo oficial.
+- [x] documentação viva e handoff são encerrados no fluxo oficial.
+
+O snapshot oficial é mantido em commit exclusivo e sua situação deve ser consultada
+em `docs/PROJECT_SNAPSHOT.md`, validada por `python tools/project_snapshot.py --check`
+e confrontada com Git.
 
 **Fora do escopo:** aplicação, dependências, lockfiles, CI, matriz Python, banco,
 agentes, memória, dashboard, integrações, cloud e warning do `TestClient`.
@@ -434,11 +438,12 @@ agentes, memória, dashboard, integrações, cloud e warning do `TestClient`.
 
 ## DT-009 — Integridade do estado de continuidade
 
-**Status:** 🚧 Implementada e validada; encerramento documental pendente
+**Status:** ✅ Concluída na SPRINT-06
 
 Eliminar fontes operacionais paralelas no Project State, preservar leitura legada
 isolada no gerador e proteger a migração com validações fail-closed e testes. A
-implementação permanece associada à SPRINT-06 em andamento até o encerramento formal.
+implementação foi validada com 76 testes e permanece associada exclusivamente à
+SPRINT-06.
 
 ---
 

@@ -16,8 +16,9 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - EPIC-004 concluída; seu único incremento formal foi atendido pela SPRINT-03 e DT-008.
 - SPRINT-04 — Foundation Integrity Baseline concluída no M0, sem nova EPIC.
 - SPRINT-05 — Technology Decision Baseline concluída no M0, sem nova EPIC.
-- SPRINT-06 — Continuity State Integrity ativa no M0, sem nova EPIC.
-- DT-009 — Integridade do estado de continuidade em andamento na SPRINT-06.
+- SPRINT-06 — Continuity State Integrity concluída no M0, sem nova EPIC.
+- DT-009 — Integridade do estado de continuidade concluída na SPRINT-06.
+- Nenhuma Sprint está ativa.
 - Nenhuma próxima Sprint está formalmente planejada.
 - DT-007 concluída como pesquisa no commit `126aff8`; nenhuma recomendação tecnológica
   foi automaticamente aceita ou implementada.
