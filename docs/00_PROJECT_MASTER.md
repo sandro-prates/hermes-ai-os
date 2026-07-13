@@ -8,9 +8,9 @@
 >
 > **Fase atual:** M0 — Foundation
 >
-> **EPIC atual:** EPIC-003 — Logging System
+> **Último EPIC concluído:** EPIC-003 — Logging System
 >
-> **Sprint atual:** SPRINT-02 — Em andamento
+> **Última Sprint concluída:** SPRINT-02 — Logging System
 >
 > **Responsável:** Sandro Prates
 >
@@ -68,9 +68,9 @@ Evoluir desde uma instalação local até uma plataforma comercial gerenciada, c
 
 - Branch: `main`
 - Upstream: `origin/main`
-- Base Git verificada: 2a30fa4
-- Commit anterior: `feec40a`
-- Working tree: possui alterações locais não commitadas.
+- HEAD verificado: `a1d0d21`
+- `main` e `origin/main`: sincronizados em `a1d0d21`.
+- Working tree: possui somente alterações documentais deste fechamento, ainda não commitadas.
 
 ## Entregas commitadas
 
@@ -82,11 +82,15 @@ Bootstrap inicial do Hermes AI OS.
 
 API v1, settings centralizados e health endpoint.
 
-## Trabalho atual
+### `a1d0d21`
+
+Sistema de observabilidade, logging JSON, correlação de requisições e testes automatizados.
+
+## Último trabalho concluído
 
 ### EPIC-003 — Logging System
 
-### SPRINT-02 — Em andamento
+### SPRINT-02 — Concluída
 
 Implementado e validado manualmente:
 
@@ -105,12 +109,14 @@ Implementado e validado manualmente:
 - oito testes automatizados aprovados;
 - `/` e `/api/v1/health` respondendo HTTP 200.
 
-A Sprint ainda não atende à Definition of Done porque não foi commitada nem publicada.
+A Sprint atende à Definition of Done.
 
-Pendências principais:
+Evidência Git:
 
-- criar o commit da Sprint;
-- publicar no repositório remoto.
+- commit `a1d0d21` — `feat(observability): complete logging system sprint`;
+- publicado em `origin/main`;
+- `main` e a referência remota local `origin/main` sincronizadas nesse commit.
+- após o push da Sprint, a working tree foi registrada como limpa; as alterações atuais são exclusivamente deste fechamento documental.
 
 ---
 
@@ -123,6 +129,8 @@ Resultado verificado:
 - 8 testes coletados;
 - 8 testes aprovados em `0.21s`;
 - 1 aviso de depreciação do `TestClient`.
+
+O aviso de depreciação é uma observação conhecida e não bloqueia o fechamento.
 
 ## Ruff
 
@@ -164,6 +172,8 @@ ADRs aceitos:
 - M8 — Enterprise
 
 Somente M0 está em andamento. Os demais permanecem pendentes como milestones formais.
+
+Nenhuma próxima Sprint está definida.
 
 ---
 

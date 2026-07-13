@@ -20,11 +20,11 @@
 
 ---
 
-# Foco Atual
+# Último trabalho concluído
 
 ## EPIC-003 — Logging System
 
-**Status:** 🟡 Em andamento
+**Status:** ✅ Concluído
 
 **Sprint:** SPRINT-02
 
@@ -56,7 +56,7 @@
 - [x] Validar propagação de Request ID.
 - [x] Validar formatter estruturado no console.
 
-## Pendências para concluir a Sprint
+## Fechamento da Sprint
 
 - [x] Implementar `JsonFormatter`.
 - [x] Fazer `LOG_FORMAT` selecionar entre `console` e `json`.
@@ -76,8 +76,9 @@
 - [x] Atualizar documentação final da Sprint.
 - [x] Atualizar `docs/01_PROJECT_STATE.yaml`.
 - [x] Atualizar `docs/03_CHANGELOG.md`.
-- [ ] Criar commit da Sprint.
-- [ ] Confirmar working tree limpa após o commit.
+- [x] Criar commit da Sprint (`a1d0d21`).
+- [x] Confirmar publicação em `origin/main`.
+- [x] Confirmar `pyproject.toml` rastreado e incluído no commit.
 
 ## Definition of Done da Sprint
 
@@ -87,8 +88,12 @@
 - [x] Documentação atualizada.
 - [x] `PROJECT_STATE` atualizado.
 - [x] ADRs relevantes registrados.
-- [ ] Commit realizado.
-- [ ] Alterações publicadas no repositório remoto.
+- [x] Commit realizado.
+- [x] Alterações publicadas no repositório remoto.
+
+**Resultado:** Definition of Done atendida.
+
+Nenhuma próxima Sprint está definida.
 
 ---
 

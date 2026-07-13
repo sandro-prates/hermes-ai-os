@@ -8,10 +8,17 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
+Nenhuma próxima Sprint está definida.
+
+---
+
+## [EPIC-003-SPRINT-02] — 2026-07-12
+
 ### EPIC-003 / SPRINT-02 — Logging System
 
-**Status:** Em andamento
-**Git:** alterações locais ainda não commitadas
+**Status:** Concluída — Definition of Done atendida
+
+**Git:** commit `a1d0d21` (`feat(observability): complete logging system sprint`), publicado em `origin/main`
 
 ### Adicionado
 
@@ -74,8 +81,7 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 ### Pendências conhecidas
 
 - Staging, whitespace e finais de linha validados sem erros.
-- Existe um aviso de depreciação do `TestClient` relacionado ao `httpx`.
-- Commit e publicação final da Sprint ainda pendentes.
+- Existe um aviso de depreciação do `TestClient` relacionado ao `httpx`; é uma observação não bloqueante.
 
 ---
 

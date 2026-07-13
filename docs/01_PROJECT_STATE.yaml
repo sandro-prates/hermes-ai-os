@@ -20,23 +20,27 @@ repository:
   - commit: 2a30fa443977b8687da9574538f2f554bfe18008
     short_commit: 2a30fa4
     message: 'feat(core): add API v1, settings and health endpoint'
+  - commit: a1d0d21e89fdb0092313e590cfdc1a5eda2e29a3
+    short_commit: a1d0d21
+    message: 'feat(observability): complete logging system sprint'
   working_tree:
-    status: dirty
-    staged_changes: true
-    unstaged_changes: false
+    status: dirty_documentation_only
+    staged_changes: false
+    unstaged_changes: true
     untracked: []
-    documentation_changes_not_yet_rechecked: false
+    synchronized_with_upstream: true
   verified_base_commit:
-    commit: 2a30fa443977b8687da9574538f2f554bfe18008
-    short_commit: 2a30fa4
-    message: 'feat(core): add API v1, settings and health endpoint'
-current_work:
+    commit: a1d0d21e89fdb0092313e590cfdc1a5eda2e29a3
+    short_commit: a1d0d21
+    message: 'feat(observability): complete logging system sprint'
+last_completed_work:
   epic:
     id: EPIC-003
     name: Logging System
+    status: completed
   sprint:
     id: SPRINT-02
-    status: in_progress
+    status: completed
     objective: Implementar um sistema profissional de logging e correlação de requisições
   completed_and_validated:
   - Configurações LOG_LEVEL, LOG_FORMAT e REQUEST_ID_HEADER declaradas
@@ -70,10 +74,12 @@ current_work:
     console_logging: passed
     json_logging: passed
     result: passed
-  pending:
-  - Criar commit da Sprint
-  - Publicar alterações no repositório remoto
-  definition_of_done_met: false
+  pending: []
+  definition_of_done_met: true
+  git_evidence:
+    commit: a1d0d21e89fdb0092313e590cfdc1a5eda2e29a3
+    pushed_to: origin/main
+next_sprint: null
 quality:
   pytest:
     command: python -m pytest
@@ -89,7 +95,7 @@ quality:
   pyproject:
     exists: true
     tracked_in_index: true
-    committed: false
+    committed: true
     toml_parse_blocker_fixed:
       issue: UTF-8 BOM na primeira linha
       status: fixed
@@ -106,16 +112,16 @@ architecture:
 documentation:
   project_master:
     path: docs/00_PROJECT_MASTER.md
-    status: validated
+    status: updated_pending_documentation_commit
   project_state:
     path: docs/01_PROJECT_STATE.yaml
-    status: validated
+    status: updated_pending_documentation_commit
   backlog:
     path: docs/02_BACKLOG.md
-    status: validated
+    status: updated_pending_documentation_commit
   changelog:
     path: docs/03_CHANGELOG.md
-    status: validated
+    status: updated_pending_documentation_commit
   adr_directory:
     path: docs/adr/
     status: validated
@@ -127,9 +133,9 @@ continuity:
   - Ler docs/03_CHANGELOG.md
   - Ler os ADRs aceitos em docs/adr/
   - Executar git status --short --branch
-  - Não marcar a Sprint como concluída sem testes, documentação e commit
+  - Não iniciar uma nova Sprint sem definição explícita
   audit:
-    status: in_progress
+    status: completed_pending_documentation_commit
     checks_passed:
     - code_import
     - http_endpoints
@@ -137,8 +143,9 @@ continuity:
     - json_logging
     - pytest_result_confirmed
     - ruff_result_confirmed
-    checks_pending:
     - final_git_state
     - git_diff_check
-    - commit
-    - push
+    - sprint_commit_confirmed
+    - sprint_push_confirmed_via_origin_main
+    checks_pending:
+    - documentation_commit
