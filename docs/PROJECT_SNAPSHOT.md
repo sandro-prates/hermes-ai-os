@@ -3,8 +3,8 @@
 ## 1. Identificação
 
 - schema do snapshot: 3
-- fingerprint SHA-256 da árvore projetada: `b86780fb133ce8dac5a477d47612921e7bc90cc9e5161d5c72e4e6cff5e19163`
-- arquivos na projeção: 41
+- fingerprint SHA-256 da árvore projetada: `a99a97baa54c6cdf9e801a31847e3c9ea404569831a7865c062f2a8e061f1bcc`
+- arquivos na projeção: 42
 - projeto: Hermes AI OS
 - versão: 0.0.1
 - estado analisado: projeção determinística da árvore commitada
@@ -17,11 +17,11 @@
 
 - EPIC: nenhuma EPIC associada
 - Status da EPIC: não aplicável
-- Sprint: SPRINT-04 — Foundation Integrity Baseline
+- Sprint: SPRINT-05 — Technology Decision Baseline
 - Status da Sprint: completed
-- Task: nenhuma Task ou DT formal
-- Status da Task: não aplicável
-- Item funcional: Criar testes automatizados da API base
+- Task: DT-007 — Pesquisa tecnológica
+- Status da Task: completed
+- Item funcional: Preencher e revisar a pesquisa tecnológica com fontes primárias
 - Status do item funcional: completed
 
 ## 3. Continuidade de Sprint
@@ -67,6 +67,7 @@
 │   ├── 03_CHANGELOG.md
 │   ├── HANDOFF_2026-07-12.md
 │   ├── HANDOFF_2026-07-13-SPRINT-04.md
+│   ├── HANDOFF_2026-07-13-SPRINT-05.md
 │   ├── HANDOFF_2026-07-13.md
 │   ├── adr
 │   │   ├── ADR-0001-pyproject-como-fonte-de-dependencias.md
@@ -172,11 +173,11 @@
 ## 12. Problemas Conhecidos
 
 - Aviso de depreciação do `TestClient` relacionado ao `httpx`, não bloqueante.
-- documento de pesquisa tecnológica vazio.
+- Não identificado.
 
 ## 13. Dívida Técnica
 
-- DT-007 — Pesquisa tecnológica vazia — ⚠️ Aberta — separada do escopo encerrado e não ativada
+- DT-007 — Pesquisa tecnológica — ✅ Concluída como pesquisa na SPRINT-05
 
 ## 14. Próximo Passo Documentado
 
