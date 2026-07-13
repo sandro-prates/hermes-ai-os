@@ -1,0 +1,144 @@
+schema_version: 1
+last_verified:
+  date: '2026-07-12'
+  method: Auditoria automática contra Git, imports do código, pytest, Ruff e documentos
+project:
+  name: Hermes AI OS
+  version: 0.0.1
+  business_model: Open Core
+  phase:
+    id: M0
+    name: Foundation
+    status: in_progress
+repository:
+  branch: main
+  upstream: origin/main
+  commits:
+  - commit: feec40af0d43e26510fd626ff9260e317ccbf0ec
+    short_commit: feec40a
+    message: 'chore: bootstrap Hermes AI OS foundation'
+  - commit: 2a30fa443977b8687da9574538f2f554bfe18008
+    short_commit: 2a30fa4
+    message: 'feat(core): add API v1, settings and health endpoint'
+  working_tree:
+    status: dirty
+    staged_changes: true
+    unstaged_changes: false
+    untracked: []
+    documentation_changes_not_yet_rechecked: false
+  verified_base_commit:
+    commit: 2a30fa443977b8687da9574538f2f554bfe18008
+    short_commit: 2a30fa4
+    message: 'feat(core): add API v1, settings and health endpoint'
+current_work:
+  epic:
+    id: EPIC-003
+    name: Logging System
+  sprint:
+    id: SPRINT-02
+    status: in_progress
+    objective: Implementar um sistema profissional de logging e correlação de requisições
+  completed_and_validated:
+  - Configurações LOG_LEVEL, LOG_FORMAT e REQUEST_ID_HEADER declaradas
+  - Pacote app.core.observability criado
+  - Logging central configurado com logging.config.dictConfig
+  - Logger com namespace hermes
+  - ConsoleFormatter com campos HTTP estruturados
+  - RequestContextFilter com request_id
+  - ContextVar com definição e restauração por Token
+  - Middleware ASGI puro para logging HTTP
+  - Geração automática de X-Request-ID
+  - Preservação de X-Request-ID enviado pelo cliente
+  - X-Request-ID adicionado à resposta
+  - Logs de início, conclusão e falha de requisição
+  - Registro de método, caminho, status HTTP e duração
+  - Integração do middleware no FastAPI
+  - JsonFormatter implementado com orjson
+  - LOG_FORMAT seleciona console ou json
+  - settings.REQUEST_ID_HEADER definido como fonte única
+  - Módulo legado apps/backend/app/core/logging.py removido
+  - Testes unitários de contexto e formatters
+  - Testes de integração do middleware
+  - Ruff aprovado sem violações
+  manual_runtime_validation:
+    root_endpoint: /
+    root_http_status: 200
+    health_endpoint: /api/v1/health
+    health_http_status: 200
+    generated_request_id: true
+    propagated_request_id: hermes-final-001
+    console_logging: passed
+    json_logging: passed
+    result: passed
+  pending:
+  - Criar commit da Sprint
+  - Publicar alterações no repositório remoto
+  definition_of_done_met: false
+quality:
+  pytest:
+    command: python -m pytest
+    result: passed
+    collected_tests: 8
+    passed_tests: 8
+    warnings: 1
+    reported_duration_seconds: 0.21
+  ruff:
+    command: python -m ruff check .
+    result: passed
+    violations_total: 0
+  pyproject:
+    exists: true
+    tracked_in_index: true
+    committed: false
+    toml_parse_blocker_fixed:
+      issue: UTF-8 BOM na primeira linha
+      status: fixed
+  automated_test_coverage:
+    status: present
+    collected_tests: 8
+architecture:
+  active_logging_package: app.core.observability
+  legacy_logging_module_removed: true
+  request_id_header_source: app.core.settings.Settings.REQUEST_ID_HEADER
+  log_formats:
+  - console
+  - json
+documentation:
+  project_master:
+    path: docs/00_PROJECT_MASTER.md
+    status: validated
+  project_state:
+    path: docs/01_PROJECT_STATE.yaml
+    status: validated
+  backlog:
+    path: docs/02_BACKLOG.md
+    status: validated
+  changelog:
+    path: docs/03_CHANGELOG.md
+    status: validated
+  adr_directory:
+    path: docs/adr/
+    status: validated
+continuity:
+  restart_instruction:
+  - Ler docs/00_PROJECT_MASTER.md
+  - Ler docs/01_PROJECT_STATE.yaml
+  - Ler docs/02_BACKLOG.md
+  - Ler docs/03_CHANGELOG.md
+  - Ler os ADRs aceitos em docs/adr/
+  - Executar git status --short --branch
+  - Não marcar a Sprint como concluída sem testes, documentação e commit
+  audit:
+    status: in_progress
+    checks_passed:
+    - code_import
+    - http_endpoints
+    - console_logging
+    - json_logging
+    - pytest_result_confirmed
+    - ruff_result_confirmed
+    checks_pending:
+    - final_git_state
+    - git_diff_check
+    - commit
+    - push

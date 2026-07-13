@@ -1,340 +1,189 @@
 # Hermes AI OS
 
-> **Status:** 🟢 Em Desenvolvimento
->
-> **Projeto:** Hermes AI OS
->
-> **Modelo de Negócio:** Open Core
+> **Status:** Em desenvolvimento
 >
 > **Versão:** 0.0.1
 >
-> **Fase Atual:** M0 — Foundation
+> **Modelo de negócio:** Open Core
 >
-> **Milestone Atual:** Foundation
+> **Fase atual:** M0 — Foundation
 >
-> **Task Atual:** TASK-0009
+> **EPIC atual:** EPIC-003 — Logging System
+>
+> **Sprint atual:** SPRINT-02 — Em andamento
 >
 > **Responsável:** Sandro Prates
 >
-> **Arquiteto Técnico:** ChatGPT (OpenAI)
->
-> **Última Atualização:** 12/07/2026
+> **Última verificação:** 12/07/2026
 
 ---
 
-# Sobre o Projeto
+# Retomada obrigatória
 
-O Hermes AI OS é uma plataforma profissional para criação, orquestração e execução de agentes de Inteligência Artificial.
+Toda nova conversa, pessoa ou assistente de IA deve:
 
-O projeto está sendo desenvolvido seguindo princípios de engenharia de software, arquitetura modular e documentação viva, permitindo que humanos e diferentes assistentes de IA possam colaborar de forma organizada e consistente.
+1. Ler `docs/00_PROJECT_MASTER.md`.
+2. Ler `docs/01_PROJECT_STATE.yaml`.
+3. Ler `docs/02_BACKLOG.md`.
+4. Ler `docs/03_CHANGELOG.md`.
+5. Ler os ADRs aceitos em `docs/adr/`.
+6. Executar `git status --short --branch`.
+7. Validar a documentação contra Git, código e testes.
 
-O objetivo é construir um produto comercial de alto nível, preparado para execução local (Local First) e integração com serviços em nuvem (Cloud Ready).
+Quando houver divergência:
+
+1. Git e código determinam o que existe.
+2. Testes determinam o que foi validado.
+3. A documentação deve ser corrigida.
+4. Nenhum status deve ser inventado.
 
 ---
 
-# Missão
+# Produto
 
-Construir a melhor plataforma para desenvolvimento e execução de agentes inteligentes, permitindo que empresas e profissionais automatizem tarefas complexas utilizando IA de forma segura, escalável e modular.
+O Hermes AI OS é uma plataforma Local First e Cloud Ready para criação, orquestração e execução de agentes de Inteligência Artificial.
 
----
+## Missão
 
-# Visão
+Permitir que pessoas e empresas automatizem tarefas complexas com IA de forma segura, modular e escalável.
 
-Ser uma plataforma de referência para desenvolvimento de agentes inteligentes, oferecendo uma arquitetura moderna, altamente documentada e preparada para crescer desde projetos pessoais até soluções Enterprise.
+## Visão
 
----
+Evoluir desde uma instalação local até uma plataforma comercial gerenciada, com plugins, marketplace e recursos Enterprise.
 
-# Objetivos
+## Princípios
 
-## Técnicos
-
-- Arquitetura modular.
-- Código limpo.
+- Simplicidade.
+- Modularidade.
+- Reprodutibilidade.
 - Documentação viva.
-- Baixo acoplamento.
-- Alta coesão.
-- Infraestrutura reproduzível.
-- Observabilidade desde o início.
-
-## Produto
-
-- Criar um SaaS comercial.
-- Permitir execução local.
-- Permitir execução em nuvem.
-- Possuir Marketplace de Agentes.
-- Possuir versão Enterprise.
+- Produto primeiro.
+- Evidência antes de status.
 
 ---
 
-# Filosofia
+# Estado verificado
 
-O Hermes AI OS seguirá cinco princípios fundamentais.
+## Git
 
-## 1. Simplicidade
+- Branch: `main`
+- Upstream: `origin/main`
+- Base Git verificada: 2a30fa4
+- Commit anterior: `feec40a`
+- Working tree: possui alterações locais não commitadas.
 
-Sempre escolher a solução mais simples que resolva corretamente o problema.
+## Entregas commitadas
 
----
+### `feec40a`
 
-## 2. Modularidade
+Bootstrap inicial do Hermes AI OS.
 
-Todo componente deve poder ser substituído sem impactar o restante do sistema.
+### `2a30fa4`
 
----
+API v1, settings centralizados e health endpoint.
 
-## 3. Reprodutibilidade
+## Trabalho atual
 
-Todo ambiente deverá ser recriado apenas seguindo a documentação do projeto.
+### EPIC-003 — Logging System
 
----
+### SPRINT-02 — Em andamento
 
-## 4. Documentação Viva
+Implementado e validado manualmente:
 
-A documentação faz parte do produto.
+- pacote `app.core.observability`;
+- logging com `dictConfig`;
+- logger `hermes`;
+- `ConsoleFormatter`;
+- `JsonFormatter`;
+- seleção entre `console` e `json` por `LOG_FORMAT`;
+- contexto com `ContextVar`;
+- middleware ASGI puro;
+- geração e propagação de `X-Request-ID`;
+- `settings.REQUEST_ID_HEADER` como fonte única do header;
+- logs HTTP com método, caminho, status e duração;
+- integração ao FastAPI;
+- oito testes automatizados aprovados;
+- `/` e `/api/v1/health` respondendo HTTP 200.
 
-Ela evolui junto com o software.
+A Sprint ainda não atende à Definition of Done porque não foi commitada nem publicada.
 
----
+Pendências principais:
 
-## 5. Produto Primeiro
-
-Toda decisão deverá responder à pergunta:
-
-> Esta decisão aproxima o Hermes AI OS de um produto que alguém pagaria para utilizar?
-
----
-
-# Estratégia Comercial
-
-Modelo Open Core.
-
-## Open Source
-
-O núcleo do Hermes AI OS permanecerá aberto.
-
-## Comercial
-
-Recursos avançados poderão ser disponibilizados futuramente através de versões comerciais, hospedagem gerenciada, plugins e soluções Enterprise.
-
----
-
-# Arquitetura (Resumo)
-
-O Hermes AI OS será dividido em grandes módulos independentes.
-
-- Dashboard
-- API
-- Core
-- Runtime de Agentes
-- Memória
-- Ferramentas
-- Model Router
-- Banco de Dados
-- Observabilidade
-
-A arquitetura completa será documentada em:
-
-```
-docs/04_ARCHITECTURE.md
-```
+- criar o commit da Sprint;
+- publicar no repositório remoto.
 
 ---
 
-# Estado Atual
+# Qualidade atual
 
-## Milestone
+## Pytest
 
-M0 — Foundation
+Resultado verificado:
 
----
+- 8 testes coletados;
+- 8 testes aprovados em `0.21s`;
+- 1 aviso de depreciação do `TestClient`.
 
-## Progresso Geral
+## Ruff
 
-```
-████░░░░░░░░░░░░░░ 20%
-```
+Resultado verificado:
 
----
+`All checks passed!`
 
-## Concluído
-
-- Estrutura inicial do projeto.
-- Workspace do VS Code.
-- Configuração do Git.
-- Configuração do GitHub.
-- Autenticação SSH.
-- Estratégia Open Core.
-- Estrutura inicial de diretórios.
+A análise estática está aprovada.
 
 ---
 
-## Em Desenvolvimento
+# Sistema de continuidade
 
-- Documentação principal.
+- `docs/00_PROJECT_MASTER.md` — visão e porta de entrada.
+- `docs/01_PROJECT_STATE.yaml` — estado operacional verificável.
+- `docs/02_BACKLOG.md` — trabalho e dívida técnica.
+- `docs/03_CHANGELOG.md` — histórico de mudanças.
+- `docs/adr/` — decisões arquiteturais.
 
----
+ADRs aceitos:
 
-## Próxima Task
-
-Criar:
-
-```
-01_PROJECT_STATE.yaml
-```
-
----
-
-# Estrutura Atual
-
-```
-Hermes-AI-OS/
-
-apps/
-packages/
-
-docs/
-
-docker/
-
-infra/
-
-config/
-
-scripts/
-
-tests/
-
-workspace/
-
-data/
-
-logs/
-
-temp/
-```
+- ADR-0001 — `pyproject.toml`.
+- ADR-0002 — pacote central de observabilidade.
+- ADR-0003 — middleware ASGI e `ContextVar`.
+- ADR-0004 — documentação como continuidade.
 
 ---
 
-# Roadmap
+# Roadmap de alto nível
 
-## M0
+- M0 — Foundation
+- M1 — Infraestrutura
+- M2 — Backend
+- M3 — Runtime de agentes
+- M4 — Memória
+- M5 — Dashboard
+- M6 — Integrações
+- M7 — Marketplace
+- M8 — Enterprise
 
-Foundation
-
-## M1
-
-Infraestrutura
-
-## M2
-
-Backend
-
-## M3
-
-Runtime de Agentes
-
-## M4
-
-Memória
-
-## M5
-
-Dashboard
-
-## M6
-
-Integrações
-
-## M7
-
-Marketplace
-
-## M8
-
-Enterprise
+Somente M0 está em andamento. Os demais permanecem pendentes como milestones formais.
 
 ---
 
-# Regras do Projeto
+# Fluxo obrigatório
 
-Todo desenvolvimento deverá seguir este fluxo:
-
-Pesquisa
-
-↓
-
-Análise
-
-↓
-
-Implementação
-
-↓
-
-Testes
-
-↓
-
-Validação
-
-↓
-
-Documentação
-
-↓
-
-Commit
-
-Nenhuma Task será considerada concluída antes da atualização da documentação.
-
----
+Pesquisa → Análise → Implementação → Testes → Validação → Documentação → Commit
 
 # Definition of Done
 
-Uma Task somente poderá ser marcada como concluída quando:
+Uma Task somente pode ser concluída quando:
 
-- Código implementado.
-- Testes executados.
-- Documentação atualizada.
-- PROJECT_STATE atualizado.
-- Commit realizado.
+- código implementado;
+- testes aplicáveis executados;
+- análise estática aprovada;
+- documentação atualizada;
+- `PROJECT_STATE` atualizado;
+- changelog atualizado;
+- ADR criado quando necessário;
+- commit realizado.
 
----
+# Regra de ouro
 
-# Documentação Principal
-
-Este documento é a porta de entrada do projeto.
-
-Os demais documentos complementam as informações aqui registradas.
-
-```
-00_PROJECT_MASTER.md
-
-01_PROJECT_STATE.yaml
-
-02_VISION.md
-
-03_ROADMAP.md
-
-04_ARCHITECTURE.md
-
-05_ENGINEERING_GUIDE.md
-
-06_AI_CONTEXT.md
-```
-
----
-
-# Regra de Ouro
-
-Se qualquer IA perder completamente o contexto do projeto, ela deverá conseguir continuar o desenvolvimento lendo apenas esta documentação.
-
----
-
-# Histórico
-
-## 12/07/2026
-
-Versão inicial do PROJECT_MASTER criada.
-
-Início oficial do desenvolvimento do Hermes AI OS.
+Qualquer pessoa ou IA deve conseguir retomar o Hermes AI OS lendo estes documentos e validando-os contra o repositório.

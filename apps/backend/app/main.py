@@ -1,12 +1,17 @@
+from app.api.router import api_router
+from app.core.observability import configure_logging
+from app.core.observability.middleware import RequestLoggingMiddleware
+from app.core.settings import settings
 from fastapi import FastAPI
 
-from app.api.router import api_router
-from app.core.settings import settings
+configure_logging()
 
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
 )
+
+app.add_middleware(RequestLoggingMiddleware)
 
 app.include_router(api_router)
 

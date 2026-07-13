@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hermes-ai-os"
+version = "0.0.1"
+description = "Local-first and cloud-ready platform for building, orchestrating and running AI agents."
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Sandro Prates" }
+]
+dependencies = [
+    "fastapi>=0.139,<1.0",
+    "uvicorn[standard]>=0.51,<1.0",
+    "pydantic-settings>=2.14,<3.0",
+    "orjson>=3.11,<4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "httpx>=0.28,<1.0",
+    "pytest>=9.1,<10.0",
+    "ruff>=0.15,<1.0",
+]
+
+[tool.setuptools]
+py-modules = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["apps/backend"]
+addopts = "-ra"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = [
+    ".git",
+    ".venv",
+    "data",
+    "logs",
+    "temp",
+    "workspace",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
