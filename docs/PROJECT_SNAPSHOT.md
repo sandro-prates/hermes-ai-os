@@ -3,7 +3,7 @@
 ## 1. Identificação
 
 - schema do snapshot: 3
-- fingerprint SHA-256 da árvore projetada: `f02d1c4fa2c1797f73a0aa5e31748823dbd3d1b15ee4fd193858e525fbdb9d39`
+- fingerprint SHA-256 da árvore projetada: `4642fa80b25e97d0e6c30dceff256fb719fe223de2d2f93fa785c4004687547f`
 - arquivos na projeção: 44
 - projeto: Hermes AI OS
 - versão: 0.0.1
@@ -17,14 +17,14 @@
 
 - EPIC: nenhuma EPIC associada
 - Status da EPIC: não aplicável
-- Sprint: SPRINT-06 — Continuity State Integrity
-- Status da Sprint: completed
-- Task: DT-009 — Integridade do estado de continuidade
-- Status da Task: completed
+- Sprint: SPRINT-07 — Dependency Reproducibility Proof
+- Status da Sprint: in_progress
+- Task: nenhuma Task ou DT formal
+- Status da Task: não aplicável
 
 ## 3. Continuidade de Sprint
 
-- Sprint ativa: nenhuma
+- Sprint ativa: SPRINT-07 — Dependency Reproducibility Proof
 - Próxima Sprint planejada: nenhuma
 
 ## 4. Estrutura Relevante
