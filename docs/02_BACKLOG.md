@@ -116,6 +116,70 @@ Nenhuma Sprint foi criada para esta Task.
 
 ---
 
+# Sprint Ativa
+
+## SPRINT-07 — Dependency Reproducibility Proof
+
+**Status:** 🟡 Em andamento (`in_progress`)
+
+**Milestone:** M0 — Foundation
+
+**EPIC:** nenhuma nova EPIC
+
+**Task ou DT formal ativa:** nenhuma
+
+**Última entrega concluída:** SPRINT-06 e DT-009
+
+**Sprint seguinte planejada:** nenhuma
+
+**Objetivo:** provar a reprodutibilidade das dependências do projeto, validando os
+metadados do `pyproject.toml` e o comportamento dos locks em ambientes isolados.
+
+**Escopo autorizado:**
+
+- ler diretamente o `pyproject.toml` e confirmar `requires-python`, dependências,
+  extras e marcadores;
+- instalar posteriormente uma versão específica do `uv` fora da `.venv` oficial,
+  registrando versão, caminho e método;
+- criar duas áreas experimentais independentes fora do repositório oficial,
+  ambas baseadas em `ea5a1ff`, incluindo um clone Git completo;
+- gerar um lock em cada área experimental e comparar os resultados;
+- validar instalação e testes em ambientes limpos;
+- testar imediatamente Windows com Python 3.14;
+- avaliar `pylock.toml` somente como interoperabilidade;
+- produzir relatório decisório;
+- tratar Linux com Python 3.12, 3.13 e 3.14 como gate de encerramento, caso essas
+  versões permaneçam na matriz aprovada.
+
+**Critérios de aceitação:**
+
+- [ ] metadados do `pyproject.toml` confirmados e registrados;
+- [ ] versão específica do `uv` instalada fora da `.venv` oficial, com versão,
+  caminho e método documentados;
+- [ ] duas áreas experimentais independentes criadas fora do repositório
+  oficial, incluindo um clone Git completo de `ea5a1ff`;
+- [ ] um lock gerado em cada área experimental;
+- [ ] locks comparados e divergências explicadas objetivamente;
+- [ ] instalação e testes validados em ambiente limpo no Windows Python 3.14;
+- [ ] interoperabilidade com `pylock.toml` avaliada;
+- [ ] relatório decisório produzido;
+- [ ] gate Linux cumprido, caso permaneça na matriz aprovada;
+- [ ] validação independente posterior realizada antes do encerramento.
+
+**Riscos:** divergência entre locks; incompatibilidade com Python 3.14; alteração
+acidental da `.venv` oficial; adoção indevida de lockfile; expansão para CI
+ou SPRINT-08 sem autorização.
+
+**Condições de parada:** necessidade de alterar dependências, adicionar um
+lockfile ao repositório oficial, mudar a matriz Python, expandir a arquitetura,
+criar CI ou ativar a SPRINT-08 sem aprovação específica.
+
+**Fora do escopo:** adição ou adoção de `uv.lock` no repositório oficial
+sem aprovação humana específica; alteração de dependências; CI;
+SPRINT-08; código da aplicação; alteração de testes do produto; snapshot; handoffs; push.
+
+---
+
 # Trabalho Histórico Verificado
 
 ## Bootstrap do Hermes AI OS

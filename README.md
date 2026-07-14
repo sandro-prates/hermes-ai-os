@@ -18,7 +18,9 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - SPRINT-05 — Technology Decision Baseline concluída no M0, sem nova EPIC.
 - SPRINT-06 — Continuity State Integrity concluída no M0, sem nova EPIC.
 - DT-009 — Integridade do estado de continuidade concluída na SPRINT-06.
-- Nenhuma Sprint está ativa.
+- SPRINT-07 — Dependency Reproducibility Proof está ativa; nenhuma Task formal está ativa.
+  Esta Sprint é uma prova experimental de reprodutibilidade e não representa adoção oficial
+  de `uv.lock`.
 - Nenhuma próxima Sprint está formalmente planejada.
 - DT-007 concluída como pesquisa no commit `126aff8`; nenhuma recomendação tecnológica
   foi automaticamente aceita ou implementada.

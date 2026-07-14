@@ -86,21 +86,24 @@ def test_real_project_state_has_explicit_active_completed_and_planned_values() -
     state = load_state()
     work = state["work"]
     assert isinstance(work, dict)
+
     active = work["active"]
     completed = work["last_completed"]
     planned = work["planned"]
+
     assert isinstance(active, dict)
     assert isinstance(completed, dict)
-    assert planned == {"sprint": None, "task": None}
 
-    if active == {"sprint": None, "task": None}:
-        assert completed["sprint"]["id"] == "SPRINT-06"
-        assert completed["task"]["id"] == "DT-009"
-    else:
-        assert active["sprint"]["id"] == "SPRINT-06"
-        assert active["task"]["id"] == "DT-009"
-        assert completed["sprint"]["id"] == "SPRINT-05"
-        assert completed["task"]["id"] == "DT-007"
+    assert active["sprint"] == {
+        "id": "SPRINT-07",
+        "title": "Dependency Reproducibility Proof",
+        "status": "in_progress",
+    }
+    assert active["task"] is None
+
+    assert completed["sprint"]["id"] == "SPRINT-06"
+    assert completed["task"]["id"] == "DT-009"
+    assert planned == {"sprint": None, "task": None}
 
 
 def test_activation_contract_preserves_sprint_05_and_dt_007_as_last_completed() -> None:

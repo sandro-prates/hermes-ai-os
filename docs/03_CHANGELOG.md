@@ -8,6 +8,10 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
+Ativação documental da SPRINT-07 — Dependency Reproducibility Proof
+(`in_progress`). Nenhum experimento, lockfile, instalação do `uv` ou alteração
+de código foi registrado nesta ativação.
+
 SPRINT-06 — Continuity State Integrity concluída localmente no M0, sem nova EPIC.
 
 ### Adicionado

@@ -12,11 +12,63 @@
 >
 > **Última Sprint concluída:** SPRINT-06 — Continuity State Integrity
 >
-> **Sprint atual:** nenhuma
+> **Sprint atual:** SPRINT-07 — Dependency Reproducibility Proof (in_progress)
 >
 > **Responsável:** Sandro Prates
 >
 > **Última verificação:** 13/07/2026
+
+## SPRINT-07 — Dependency Reproducibility Proof
+
+**Status:** `in_progress`
+
+**Milestone:** M0 — Foundation
+
+**EPIC:** nenhuma nova EPIC
+
+**Task ou DT formal ativa:** nenhuma
+
+**Última entrega concluída:** SPRINT-06 e DT-009
+
+**Sprint seguinte planejada:** nenhuma
+
+Baseline publicada comprovada antes da ativação:
+`9cfefa8bf117bceb11bcbd5df2a18cc28f82303c`.
+
+Baseline local pré-SPRINT-07:
+`ea5a1ffc456075c6938905759b32059e8b7e2b85`.
+
+Branch `main`, ahead 2, behind 0 e working tree limpa foram comprovados antes da
+ativação.
+
+**Escopo autorizado:**
+
+- ler diretamente o `pyproject.toml` e confirmar `requires-python`, dependências,
+  extras e marcadores;
+- instalar posteriormente uma versão específica do `uv` fora da `.venv` oficial,
+  registrando versão, caminho e método de instalação;
+- criar duas áreas experimentais independentes fora do repositório oficial,
+  ambas baseadas em `ea5a1ff`, incluindo um clone Git completo;
+- gerar um lock em cada área experimental e comparar os resultados;
+- validar instalação e testes em ambientes limpos;
+- testar imediatamente Windows com Python 3.14;
+- avaliar `pylock.toml` somente como mecanismo de interoperabilidade;
+- produzir relatório decisório;
+- tratar Linux com Python 3.12, 3.13 e 3.14 como gate de encerramento, caso essas
+  versões permaneçam na matriz aprovada.
+
+**Restrições:**
+
+- esta alteração apenas ativa documentalmente a Sprint;
+- nenhum experimento ou instalação do `uv` está registrado como executado;
+- nenhuma dependência pode ser alterada;
+- nenhum `uv.lock` pode ser adicionado ou adotado no repositório oficial sem
+  aprovação humana específica;
+- CI e SPRINT-08 permanecem fora do escopo;
+- código da aplicação, testes do produto, snapshot e handoffs permanecem inalterados;
+- testes de governança podem ser ajustados somente para refletir o estado documental aprovado;
+- o encerramento exige validação independente posterior;
+- push não está autorizado.
 
 ---
 
