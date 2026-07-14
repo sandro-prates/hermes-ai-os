@@ -271,8 +271,8 @@ Evidência Git:
 
 Resultado verificado:
 
-- 54 testes coletados;
-- 54 testes aprovados;
+- 76 testes coletados;
+- 76 testes aprovados;
 - 1 aviso de depreciação do `TestClient`.
 
 O aviso de depreciação é uma observação conhecida e não bloqueia o fechamento.
