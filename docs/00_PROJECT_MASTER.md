@@ -10,65 +10,78 @@
 >
 > **Último EPIC concluído:** EPIC-004 — Foundation Reproducibility
 >
-> **Última Sprint concluída:** SPRINT-06 — Continuity State Integrity
+> **Última Sprint concluída:** SPRINT-07 — Dependency Reproducibility Proof
 >
-> **Sprint atual:** SPRINT-07 — Dependency Reproducibility Proof (in_progress)
+> **Sprint atual:** nenhuma
 >
 > **Responsável:** Sandro Prates
 >
-> **Última verificação:** 13/07/2026
+> **Última verificação:** 17/07/2026
 
 ## SPRINT-07 — Dependency Reproducibility Proof
 
-**Status:** `in_progress`
+**Status:** `completed` localmente
 
 **Milestone:** M0 — Foundation
 
 **EPIC:** nenhuma nova EPIC
 
-**Task ou DT formal ativa:** nenhuma
+**Task ou DT formal:** nenhuma criada para esta Sprint
 
-**Última entrega concluída:** SPRINT-06 e DT-009
+**Última entrega concluída:** SPRINT-07; a última Task formal permanece DT-009,
+concluída na SPRINT-06
 
-**Sprint seguinte planejada:** nenhuma
+**Sprint seguinte planejada:** nenhuma; SPRINT-08 não está ativa
 
-Baseline publicada comprovada antes da ativação:
+Baseline publicada conhecida antes da SPRINT-07:
 `9cfefa8bf117bceb11bcbd5df2a18cc28f82303c`.
 
-Baseline local pré-SPRINT-07:
+Baseline experimental das duas resoluções:
 `ea5a1ffc456075c6938905759b32059e8b7e2b85`.
 
-Branch `main`, ahead 2, behind 0 e working tree limpa foram comprovados antes da
-ativação.
+Baseline oficial antes da adoção:
+`7513489c294a20ce5ee5f8e293f8111fbaf95af1`, branch `main`, ahead 4,
+behind 0 e working tree limpa.
 
-**Escopo autorizado:**
+**Resultados comprovados:**
 
-- ler diretamente o `pyproject.toml` e confirmar `requires-python`, dependências,
-  extras e marcadores;
-- instalar posteriormente uma versão específica do `uv` fora da `.venv` oficial,
-  registrando versão, caminho e método de instalação;
-- criar duas áreas experimentais independentes fora do repositório oficial,
-  ambas baseadas em `ea5a1ff`, incluindo um clone Git completo;
-- gerar um lock em cada área experimental e comparar os resultados;
-- validar instalação e testes em ambientes limpos;
-- testar imediatamente Windows com Python 3.14;
-- avaliar `pylock.toml` somente como mecanismo de interoperabilidade;
-- produzir relatório decisório;
-- tratar Linux com Python 3.12, 3.13 e 3.14 como gate de encerramento, caso essas
-  versões permaneçam na matriz aprovada.
+- metadados do `pyproject.toml` confirmados sem alteração;
+- duas resoluções independentes produziram locks byte-idênticos;
+- `uv 0.11.28` utilizado com índice `https://pypi.org/simple` e cutoff
+  `2026-07-14T11:53:48.187Z`;
+- Windows Python `3.14.6` aprovado;
+- Linux em Docker Desktop/WSL2 com Python `3.12.13`, `3.13.14` e `3.14.6`
+  aprovado;
+- Ruff, 76 testes com 1 warning conhecido, importação, endpoints, Request ID,
+  logging e snapshot aprovados;
+- exportação e consumo do `pylock.toml` pelo uv aprovados como evidência
+  experimental;
+- validação independente do Master 2 aprovada;
+- `uv.lock` canônico adotado oficialmente no commit local
+  `cf5dfdae11ddcb77137f8d75b11606b73bfc43a2`;
+- ADR-0006 aceito com política oficial de atualização do lock.
 
-**Restrições:**
+**Política oficial:**
 
-- esta alteração apenas ativa documentalmente a Sprint;
-- nenhum experimento ou instalação do `uv` está registrado como executado;
-- nenhuma dependência pode ser alterada;
-- nenhum `uv.lock` pode ser adicionado ou adotado no repositório oficial sem
-  aprovação humana específica;
-- CI e SPRINT-08 permanecem fora do escopo;
-- código da aplicação, testes do produto, snapshot e handoffs permanecem inalterados;
-- testes de governança podem ser ajustados somente para refletir o estado documental aprovado;
-- o encerramento exige validação independente posterior;
-- push não está autorizado.
+- `pyproject.toml` permanece como fonte declarativa;
+- `uv.lock` é o lock oficial e versionado;
+- instalações reproduzíveis devem consumir o lock sem modificá-lo;
+- atualizações exigem mudança planejada, versão do uv, índice, cutoff ou política
+  temporal equivalente, revisão integral do diff, ambiente limpo, gates completos,
+  documentação e commit específico;
+- futura CI deverá consumir o lock em modo bloqueado e não regenerá-lo
+  incidentalmente.
+
+**Limitações mantidas:**
+
+- o estado atual do servidor remoto não foi confirmado;
+- a prova Linux não ocorreu em host físico administrado separadamente;
+- CI não foi implementada;
+- interoperabilidade de terceiros do `pylock.toml` não foi comprovada;
+- `pylock.toml` não foi adotado oficialmente;
+- os commits do fechamento permanecem locais;
+- nenhum `fetch`, `pull` ou `push` foi executado;
+- SPRINT-08 não foi ativada.
 
 ---
 
@@ -120,10 +133,13 @@ Evoluir desde uma instalação local até uma plataforma comercial gerenciada, c
 
 ## Git
 
-- Branch: `main`
-- Upstream: `origin/main`
-- Baseline publicada antes do fechamento documental: `e1c3587`.
-- Commit do encerramento documental: `ed233ff`.
+- Branch operacional: `main`.
+- Upstream configurado: `origin/main`.
+- Referência remota local conhecida: `9cfefa8bf117bceb11bcbd5df2a18cc28f82303c`.
+- Estado atual do servidor remoto: não confirmado.
+- Baseline antes da adoção oficial do lock: `7513489`.
+- Commit local da adoção do lock e ADR-0006: `cf5dfda`.
+- Os commits do fechamento local não foram publicados.
 - O estado operacional de branch, upstream e working tree deve ser consultado
   diretamente com Git.
 
@@ -201,6 +217,11 @@ retorno no header, correlação por `ContextVar` e injeção nos logs.
 Contrato determinístico entre `Settings` e `.env.example` explicitado, incluindo
 `env_prefix`, aliases, `case_sensitive` e validações fail-closed.
 
+### `cf5dfda`
+
+`uv.lock` canônico adotado como lock oficial, ADR-0006 criado e índice de decisões
+arquiteturais atualizado. O commit permanece somente local.
+
 ## Último trabalho concluído
 
 ### EPIC-004 — Foundation Reproducibility — Concluída
@@ -264,7 +285,7 @@ cuja validade deve ser verificada com `python tools/project_snapshot.py --check`
   como SPRINT-07 — Dependency Reproducibility Proof e SPRINT-08 — Automated Quality
   Gate, sem adoção ou ativação.
 
-## Última Sprint concluída
+## Sprint concluída anterior
 
 ### SPRINT-06 — Continuity State Integrity — Concluída
 
@@ -281,7 +302,7 @@ cuja validade deve ser verificada com `python tools/project_snapshot.py --check`
 - Não inclui adoção tecnológica, dependências, CI ou código de aplicação.
 - Implementação local validada com 76 testes aprovados, 1 aviso conhecido, Ruff,
   YAML, importação, endpoints, Request ID e logging aprovados.
-- Nenhuma Sprint está ativa.
+- Ao término da SPRINT-06, nenhuma Sprint estava ativa.
 
 ## Trabalho concluído anterior
 
@@ -354,6 +375,11 @@ ADRs aceitos:
 - ADR-0003 — middleware ASGI e `ContextVar`.
 - ADR-0004 — documentação como continuidade.
 - ADR-0005 — snapshot como projeção determinística da árvore Git.
+- ADR-0006 — `uv.lock` como lock oficial de dependências.
+
+O `pyproject.toml` permanece como fonte declarativa, e o `uv.lock` passa a ser o
+artefato oficial de resolução reproduzível. Atualizações do lock são deliberadas,
+auditáveis e separadas de mudanças funcionais. O `pylock.toml` permanece experimental.
 
 O `README.md` é a entrada operacional para instalação, execução e validação local.
 

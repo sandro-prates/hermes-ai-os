@@ -18,17 +18,16 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - SPRINT-05 — Technology Decision Baseline concluída no M0, sem nova EPIC.
 - SPRINT-06 — Continuity State Integrity concluída no M0, sem nova EPIC.
 - DT-009 — Integridade do estado de continuidade concluída na SPRINT-06.
-- SPRINT-07 — Dependency Reproducibility Proof está ativa; nenhuma Task formal está ativa.
-  Esta Sprint é uma prova experimental de reprodutibilidade e não representa adoção oficial
-  de `uv.lock`.
-- Nenhuma próxima Sprint está formalmente planejada.
-- DT-007 concluída como pesquisa no commit `126aff8`; nenhuma recomendação tecnológica
-  foi automaticamente aceita ou implementada.
-- As identificações SPRINT-06 e SPRINT-07 registradas na pesquisa da SPRINT-05 eram
-  candidatas provisórias. Operacionalmente, essas candidatas passam a ser referenciadas
-  como SPRINT-07 e SPRINT-08, sem adoção ou ativação.
-- A SPRINT-04 protegeu diretamente os contratos públicos da API base e alinhou a
-  continuidade documental, sem alterar funcionalidades da aplicação.
+- SPRINT-07 — Dependency Reproducibility Proof concluída localmente no M0, sem nova
+  EPIC ou Task formal.
+- O `uv.lock` canônico foi adotado como lock oficial no commit local `cf5dfda`,
+  enquanto o `pyproject.toml` permanece como fonte declarativa.
+- Nenhuma Sprint está ativa ou formalmente planejada.
+- SPRINT-08 — Automated Quality Gate não foi ativada.
+- Os commits do fechamento permanecem locais; o estado atual do servidor remoto não
+  foi confirmado.
+- DT-007 foi concluída como pesquisa no commit `126aff8`; suas recomendações somente
+  se tornaram oficiais quando aprovadas e comprovadas na SPRINT-07.
 
 ## Funcionalidades implementadas
 
@@ -79,34 +78,36 @@ docs/
 ## Requisitos
 
 - Python `>=3.12,<3.15`.
+- Patches comprovados na SPRINT-07: Windows `3.14.6` e Linux `3.12.13`,
+  `3.13.14` e `3.14.6`.
 - Git para obter e versionar o projeto.
+- `uv` para instalação reproduzível; a prova oficial utilizou `uv 0.11.28`.
 
 Os comandos abaixo devem ser executados na raiz do repositório.
 
-## Instalação no Windows PowerShell
+## Instalação reproduzível no Windows PowerShell
 
 ```powershell
-python -m venv .venv
+uv sync --locked --all-extras
 .\.venv\Scripts\Activate.ps1
-python -m pip install -e ".[dev]"
 Copy-Item .env.example .env
 ```
 
-## Instalação no Linux ou macOS
+## Instalação reproduzível no Linux ou macOS
 
 ```bash
-python3 -m venv .venv
+uv sync --locked --all-extras
 source .venv/bin/activate
-python -m pip install -e ".[dev]"
 cp .env.example .env
 ```
 
-O extra `dev` instala as ferramentas declaradas no `pyproject.toml` para testes e
-análise estática. A cópia de `.env.example` é opcional; sem `.env`, os defaults de
-`Settings` são utilizados.
+O `pyproject.toml` continua sendo a fonte declarativa das dependências, e o
+`uv.lock` versionado é a resolução oficial que deve ser consumida sem alteração.
+A opção `--all-extras` instala também as ferramentas de desenvolvimento representadas
+no lock para testes e análise estática.
 
-O `.env.example` é um template sanitizado com os defaults suportados por `Settings`.
-A cópia para `.env` continua opcional quando os defaults forem adequados.
+A cópia de `.env.example` é opcional; sem `.env`, os defaults de `Settings` são
+utilizados. O template permanece sanitizado e alinhado ao contrato de configuração.
 
 ## Executar a API
 
@@ -211,12 +212,28 @@ Executar os testes:
 python -m pytest
 ```
 
-Estado atual verificado na SPRINT-06: 76 testes aprovados e 1 aviso de depreciação não
-bloqueante do `TestClient` relacionado ao `httpx`. A baseline anterior à SPRINT-06
-possuía 54 testes. As novas regressões protegem o schema 2 do Project State, a leitura
-legada do schema 1, validações fail-closed e o modo sem escrita do snapshot. Três
-testes protegem diretamente os contratos públicos da API base. Execute sempre o
-comando acima para obter o resultado atual; a quantidade de testes pode evoluir.
+Estado atual verificado no fechamento local da SPRINT-07: 76 testes aprovados e
+1 aviso de depreciação não bloqueante do `TestClient` relacionado ao `httpx`.
+Ruff, importação, endpoints, Request ID, logging e snapshot também foram aprovados.
+As regressões protegem o schema 2 do Project State, a leitura legada do schema 1,
+validações fail-closed e o modo sem escrita do snapshot. Execute sempre os comandos
+acima para obter o resultado atual; a quantidade de testes pode evoluir.
+
+## Dependências reproduzíveis
+
+O `uv.lock` é o lock oficial do Hermes AI OS. O arquivo canônico possui
+`135871 bytes` e SHA-256
+`6F43C7C21D2DAB65E9FEDDC72958BCB20D8823DA3DBE761AEE8AB134A40E6923`.
+
+Atualizações do lock são deliberadas: devem registrar a versão completa do `uv`, o
+índice e o cutoff ou política temporal equivalente, revisar o diff completo, validar
+ambiente limpo, executar todos os gates aplicáveis e usar commit específico. Testes,
+onboarding e futura CI devem consumir o lock sem modificá-lo.
+
+A política completa está no
+[ADR-0006](docs/adr/ADR-0006-uv-lock-como-lock-oficial-de-dependencias.md).
+O `pylock.toml` permanece somente como evidência experimental e não é um artefato
+oficial do repositório.
 
 ## Snapshot do Projeto
 
@@ -244,7 +261,8 @@ python tools/project_snapshot.py --check
 ## Limitações atuais
 
 O projeto ainda está no M0. Banco de dados, runtime de agentes, memória, dashboard e
-integrações externas ainda não estão implementados. Também não há estratégia de lock
-de dependências nem validação comprovada em todos os sistemas operacionais e versões
-de Python suportadas. A pesquisa da SPRINT-05 recomenda uma prova de lock antes de um
-quality gate automatizado, mas ambas as adoções dependem de aprovação futura.
+integrações externas ainda não estão implementados. A prova Linux ocorreu em Docker
+Desktop/WSL2, não em host físico Linux administrado separadamente. CI ainda não foi
+implementada. A interoperabilidade de terceiros do `pylock.toml` não foi comprovada,
+e o arquivo não foi adotado oficialmente. Os commits do fechamento permanecem locais,
+sem `fetch` ou `push`; o estado atual do servidor remoto continua não confirmado.

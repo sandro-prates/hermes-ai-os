@@ -8,46 +8,54 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-Ativação documental da SPRINT-07 — Dependency Reproducibility Proof
-(`in_progress`). Nenhum experimento, lockfile, instalação do `uv` ou alteração
-de código foi registrado nesta ativação.
-
-SPRINT-06 — Continuity State Integrity concluída localmente no M0, sem nova EPIC.
+SPRINT-07 — Dependency Reproducibility Proof concluída localmente no M0, sem nova
+EPIC ou Task formal. O fechamento não representa release publicada.
 
 ### Adicionado
 
-- DT-009 — Integridade do estado de continuidade registrada como item formal da
-  SPRINT-06.
-- Schema 2 do Project State ativado com `work.active`, `work.last_completed` e
-  `work.planned` como estrutura operacional única.
+- `uv.lock` canônico adotado como lock oficial no commit local `cf5dfda`.
+- Lock oficial com `135871 bytes` e SHA-256
+  `6F43C7C21D2DAB65E9FEDDC72958BCB20D8823DA3DBE761AEE8AB134A40E6923`.
+- ADR-0006 — `uv.lock` como lock oficial de dependências, com status `Accepted`.
+- Política deliberada de atualização do lock, incluindo versão do uv, índice,
+  cutoff ou política temporal, revisão integral do diff, ambiente limpo, gates
+  completos, documentação e commit específico.
+- Handoff oficial da SPRINT-07.
 
 ### Alterado
 
-- SPRINT-05 e DT-007 preservadas como última entrega concluída.
-- Candidatas provisórias SPRINT-06 e SPRINT-07 da pesquisa da SPRINT-05 passam a ser
-  referenciadas operacionalmente como SPRINT-07 e SPRINT-08, sem adoção, planejamento
-  ou ativação.
-- Baseline de ativação da SPRINT-06 comprovada em `da7a583`, sincronizada com
-  `origin/main`, com snapshot, Ruff e 54 testes aprovados e 1 aviso conhecido.
-- Documentos históricos da SPRINT-05 permanecem inalterados.
-
-### Implementado
-
-- Parser fail-closed do schema 2, isolado da leitura retrocompatível do schema 1.
-- Mensagens distintas para geração e validação sem escrita do snapshot.
-- Contrato real do Project State protegido por `tests/test_project_state.py`.
-- ADR-0004 e ADR-0005 alinhados factualmente sem mudança de status ou decisão.
+- SPRINT-07 passa de `in_progress` para `completed` localmente.
+- Nenhuma Sprint permanece ativa ou planejada; SPRINT-08 não foi ativada.
+- `pyproject.toml` permanece como fonte declarativa, enquanto `uv.lock` passa a
+  representar a resolução reproduzível oficial.
+- README e documentação viva passam a orientar consumo com `uv sync --locked`.
+- O estado remoto permanece `UNCONFIRMED`; os commits do fechamento são somente
+  locais.
 
 ### Validado
 
-- 76 testes aprovados com 1 `StarletteDeprecationWarning` conhecido.
-- Ruff, YAML, importação Hermes AI OS 0.0.1, endpoints, Request ID, logging console e
-  JSON e contrato `.env.example`/`Settings` aprovados.
-- Nenhuma alteração em `apps/`, dependências, pesquisa ou handoffs históricos.
-- Ativação documental registrada em `4e2619c`; implementação, migração e testes
-  registrados em `30416fe`.
-- SPRINT-06 e DT-009 concluídas; nenhuma Sprint está ativa ou formalmente planejada.
-- O snapshot oficial permanece regido pelo fluxo de commit exclusivo, `--check` e Git.
+- Duas resoluções independentes produziram locks byte-idênticos.
+- `uv 0.11.28`, índice `https://pypi.org/simple` e cutoff
+  `2026-07-14T11:53:48.187Z` registrados.
+- Windows Python `3.14.6` aprovado.
+- Linux em Docker Desktop/WSL2 com Python `3.12.13`, `3.13.14` e `3.14.6`
+  aprovado.
+- Ruff aprovado, 76 testes aprovados e 1 warning conhecido.
+- Importação, `GET /`, `GET /api/v1/health`, Request ID, logging console e JSON
+  e snapshot aprovados.
+- Exportação e consumo do `pylock.toml` pelo uv aprovados como evidência
+  experimental.
+- Validação independente do Master 2 aprovada.
+
+### Não incluído
+
+- Nenhuma alteração em dependências declaradas, `apps/` ou funcionalidade de
+  produto.
+- CI não foi implementada.
+- `pylock.toml` não foi adotado oficialmente.
+- Interoperabilidade de terceiros do pylock não foi comprovada.
+- Nenhum `fetch`, `pull` ou `push` foi executado.
+- Nenhuma versão nova do produto ou release publicada foi declarada.
 
 ## [SPRINT-05] — 2026-07-13
 

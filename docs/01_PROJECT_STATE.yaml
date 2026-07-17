@@ -1,7 +1,7 @@
 schema_version: 2
 last_verified:
-  date: '2026-07-13'
-  method: Auditoria automática contra Git, imports do código, pytest, Ruff e documentos
+  date: '2026-07-17'
+  method: Fechamento local da SPRINT-07 com Git, hashes, YAML, Ruff, Pytest, runtime, lock e snapshot
 project:
   name: Hermes AI OS
   version: 0.0.1
@@ -107,6 +107,27 @@ repository:
   - commit: 30416fee1a81b53fe57bf7d16d32c9f60120f989
     short_commit: 30416fe
     message: 'fix(project): normalize continuity state schema'
+  - commit: a98c3ce37ab37cc9ce1b7d4e72fc51377354884e
+    short_commit: a98c3ce
+    message: 'docs(project): close sprint 06 and prepare handoff'
+  - commit: 9cfefa8bf117bceb11bcbd5df2a18cc28f82303c
+    short_commit: 9cfefa8
+    message: 'docs(project): refresh sprint 06 snapshot'
+  - commit: 52ae7f1de35ef7b81600097ffd666f42fd1c0936
+    short_commit: 52ae7f1
+    message: 'docs(project): correct current pytest count'
+  - commit: ea5a1ffc456075c6938905759b32059e8b7e2b85
+    short_commit: ea5a1ff
+    message: 'docs(project): refresh snapshot after pytest count correction'
+  - commit: e97b3764785c8f3d2fd6ba35b79efa43bfae9e4d
+    short_commit: e97b376
+    message: 'chore(project): activate sprint 07 dependency reproducibility'
+  - commit: 7513489c294a20ce5ee5f8e293f8111fbaf95af1
+    short_commit: 7513489
+    message: 'docs(project): refresh snapshot after sprint 07 activation'
+  - commit: cf5dfdae11ddcb77137f8d75b11606b73bfc43a2
+    short_commit: cf5dfda
+    message: 'build(deps): adopt reproducible uv lock'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
@@ -120,21 +141,14 @@ repository:
     message: 'docs(project): close sprint and prepare handoff'
 work:
   active:
-    sprint:
-      id: SPRINT-07
-      title: Dependency Reproducibility Proof
-      status: in_progress
+    sprint: null
     task: null
   last_completed:
     sprint:
-      id: SPRINT-06
-      title: Continuity State Integrity
+      id: SPRINT-07
+      title: Dependency Reproducibility Proof
       status: completed
-    task:
-      id: DT-009
-      title: Integridade do estado de continuidade
-      status: completed
-      activated_in_sprint: SPRINT-06
+    task: null
   planned:
     sprint: null
     task: null
@@ -146,7 +160,6 @@ quality:
     collected_tests: 76
     passed_tests: 76
     warnings: 1
-    reported_duration_seconds: 7.84
   ruff:
     command: python -m ruff check .
     result: passed
@@ -175,6 +188,20 @@ architecture:
     fingerprint: sha256_of_normalized_git_tree_entries
     includes_commit_metadata: false
     adr: ADR-0005
+  dependency_management:
+    declarative_source: pyproject.toml
+    official_lock: uv.lock
+    official_lock_size: 135871
+    official_lock_sha256: 6F43C7C21D2DAB65E9FEDDC72958BCB20D8823DA3DBE761AEE8AB134A40E6923
+    generator:
+      name: uv
+      version: 0.11.28
+      executable_sha256: 533FE4044BC50B05AC89F4D07925597FDB5285369724E8986ECAB356818F09EE
+      index: https://pypi.org/simple
+      cutoff: '2026-07-14T11:53:48.187Z'
+    adr: ADR-0006
+    pylock_officially_adopted: false
+    remote_state: unconfirmed
 documentation:
   readme:
     path: README.md
@@ -192,9 +219,9 @@ documentation:
     path: docs/03_CHANGELOG.md
     status: maintained
   handoff:
-    path: docs/HANDOFF_2026-07-13-SPRINT-06.md
+    path: docs/HANDOFF_2026-07-17-SPRINT-07.md
     status: current
-    previous_path: docs/HANDOFF_2026-07-13-SPRINT-05.md
+    previous_path: docs/HANDOFF_2026-07-13-SPRINT-06.md
     historical_path: docs/HANDOFF_2026-07-12.md
   adr_directory:
     path: docs/adr/
@@ -285,6 +312,38 @@ sprint_06_activation_baseline:
   pytest_passed_tests: 54
   pytest_warnings: 1
   verified_before_local_changes: true
+sprint_07_closure:
+  status: completed_locally
+  formal_task_created: false
+  baseline:
+    official_head_before_adoption: 7513489c294a20ce5ee5f8e293f8111fbaf95af1
+    origin_main_local: 9cfefa8bf117bceb11bcbd5df2a18cc28f82303c
+    initial_ahead: 4
+    initial_behind: 0
+  determinism:
+    area_a_equals_area_b: true
+    lock_size: 135871
+    lock_sha256: 6F43C7C21D2DAB65E9FEDDC72958BCB20D8823DA3DBE761AEE8AB134A40E6923
+  validated_matrix:
+    windows:
+    - '3.14.6'
+    linux_docker_wsl2:
+    - 3.12.13
+    - 3.13.14
+    - 3.14.6
+  pylock:
+    export: passed
+    uv_consumption: passed
+    officially_adopted: false
+    third_party_interoperability: not_proven
+  limitations:
+  - remote_state_unconfirmed
+  - physical_linux_host_not_proven
+  - ci_not_implemented
+  - pylock_third_party_interoperability_not_proven
+  local_lock_adoption_commit: cf5dfdae11ddcb77137f8d75b11606b73bfc43a2
+  sprint_08_activated: false
+  planned_sprint: null
 continuity:
   snapshot:
     source_of_truth: docs/PROJECT_SNAPSHOT.md

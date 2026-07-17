@@ -86,6 +86,7 @@ def test_real_project_state_has_explicit_active_completed_and_planned_values() -
     state = load_state()
     work = state["work"]
     assert isinstance(work, dict)
+    assert set(work) == {"active", "last_completed", "planned"}
 
     active = work["active"]
     completed = work["last_completed"]
@@ -93,19 +94,21 @@ def test_real_project_state_has_explicit_active_completed_and_planned_values() -
 
     assert isinstance(active, dict)
     assert isinstance(completed, dict)
+    assert isinstance(planned, dict)
+    assert set(active) == {"sprint", "task"}
+    assert set(completed) == {"sprint", "task"}
+    assert set(planned) == {"sprint", "task"}
 
-    assert active["sprint"] == {
+    assert active["sprint"] is None
+    assert active["task"] is None
+    assert completed["sprint"] == {
         "id": "SPRINT-07",
         "title": "Dependency Reproducibility Proof",
-        "status": "in_progress",
+        "status": "completed",
     }
-    assert active["task"] is None
-
-    assert completed["sprint"]["id"] == "SPRINT-06"
-    assert completed["task"]["id"] == "DT-009"
-    assert planned == {"sprint": None, "task": None}
-
-
+    assert completed["task"] is None
+    assert planned["sprint"] is None
+    assert planned["task"] is None
 def test_activation_contract_preserves_sprint_05_and_dt_007_as_last_completed() -> None:
     values = parse_simple_yaml_mapping(activation_state())
 

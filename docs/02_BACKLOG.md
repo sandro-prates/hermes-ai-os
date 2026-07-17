@@ -116,67 +116,71 @@ Nenhuma Sprint foi criada para esta Task.
 
 ---
 
-# Sprint Ativa
+# Última Sprint Concluída
 
 ## SPRINT-07 — Dependency Reproducibility Proof
 
-**Status:** 🟡 Em andamento (`in_progress`)
+**Status:** ✅ Concluída localmente (`completed`)
 
 **Milestone:** M0 — Foundation
 
 **EPIC:** nenhuma nova EPIC
 
-**Task ou DT formal ativa:** nenhuma
+**Task ou DT formal:** nenhuma criada para esta Sprint
 
-**Última entrega concluída:** SPRINT-06 e DT-009
+**Última Task formal concluída:** DT-009, pertencente à SPRINT-06
 
-**Sprint seguinte planejada:** nenhuma
+**Sprint ativa:** nenhuma
 
-**Objetivo:** provar a reprodutibilidade das dependências do projeto, validando os
-metadados do `pyproject.toml` e o comportamento dos locks em ambientes isolados.
+**Sprint seguinte planejada:** nenhuma; SPRINT-08 não foi ativada
 
-**Escopo autorizado:**
-
-- ler diretamente o `pyproject.toml` e confirmar `requires-python`, dependências,
-  extras e marcadores;
-- instalar posteriormente uma versão específica do `uv` fora da `.venv` oficial,
-  registrando versão, caminho e método;
-- criar duas áreas experimentais independentes fora do repositório oficial,
-  ambas baseadas em `ea5a1ff`, incluindo um clone Git completo;
-- gerar um lock em cada área experimental e comparar os resultados;
-- validar instalação e testes em ambientes limpos;
-- testar imediatamente Windows com Python 3.14;
-- avaliar `pylock.toml` somente como interoperabilidade;
-- produzir relatório decisório;
-- tratar Linux com Python 3.12, 3.13 e 3.14 como gate de encerramento, caso essas
-  versões permaneçam na matriz aprovada.
+**Objetivo:** comprovar a resolução determinística e a reprodutibilidade das
+dependências, adotar o lock canônico autorizado e estabelecer sua política oficial.
 
 **Critérios de aceitação:**
 
-- [ ] metadados do `pyproject.toml` confirmados e registrados;
-- [ ] versão específica do `uv` instalada fora da `.venv` oficial, com versão,
-  caminho e método documentados;
-- [ ] duas áreas experimentais independentes criadas fora do repositório
-  oficial, incluindo um clone Git completo de `ea5a1ff`;
-- [ ] um lock gerado em cada área experimental;
-- [ ] locks comparados e divergências explicadas objetivamente;
-- [ ] instalação e testes validados em ambiente limpo no Windows Python 3.14;
-- [ ] interoperabilidade com `pylock.toml` avaliada;
-- [ ] relatório decisório produzido;
-- [ ] gate Linux cumprido, caso permaneça na matriz aprovada;
-- [ ] validação independente posterior realizada antes do encerramento.
+- [x] metadados do `pyproject.toml` confirmados sem alteração;
+- [x] `uv 0.11.28` utilizado fora da `.venv` oficial, com versão, caminho e
+  SHA-256 documentados;
+- [x] duas áreas experimentais independentes preservadas fora do repositório,
+  ambas baseadas em `ea5a1ff`;
+- [x] locks A/B gerados e comprovados como byte-idênticos;
+- [x] lock canônico com `135871 bytes` e SHA-256
+  `6F43C7C21D2DAB65E9FEDDC72958BCB20D8823DA3DBE761AEE8AB134A40E6923`;
+- [x] Windows Python `3.14.6` validado;
+- [x] Linux em Docker Desktop/WSL2 com Python `3.12.13`, `3.13.14` e `3.14.6`
+  validado;
+- [x] Ruff, 76 testes, 1 warning conhecido, importação, endpoints, Request ID,
+  logging e snapshot aprovados;
+- [x] exportação e consumo do `pylock.toml` pelo uv avaliados;
+- [x] interoperabilidade de terceiros classificada como não comprovada;
+- [x] validação independente do Master 2 aprovada;
+- [x] `uv.lock` adotado oficialmente no commit local `cf5dfda`;
+- [x] ADR-0006 criado e aceito;
+- [x] política deliberada de atualização do lock documentada;
+- [x] fechamento documental local realizado;
+- [ ] publicação remota — pendente de autorização humana específica.
 
-**Riscos:** divergência entre locks; incompatibilidade com Python 3.14; alteração
-acidental da `.venv` oficial; adoção indevida de lockfile; expansão para CI
-ou SPRINT-08 sem autorização.
+**Decisões:**
 
-**Condições de parada:** necessidade de alterar dependências, adicionar um
-lockfile ao repositório oficial, mudar a matriz Python, expandir a arquitetura,
-criar CI ou ativar a SPRINT-08 sem aprovação específica.
+- `pyproject.toml` permanece como fonte declarativa;
+- `uv.lock` é o lock oficial e versionado;
+- `pylock.toml` permanece somente como evidência experimental;
+- atualizações do lock devem usar processo planejado, gates completos e commit
+  específico;
+- futura CI deverá consumir o lock sem modificá-lo.
 
-**Fora do escopo:** adição ou adoção de `uv.lock` no repositório oficial
-sem aprovação humana específica; alteração de dependências; CI;
-SPRINT-08; código da aplicação; alteração de testes do produto; snapshot; handoffs; push.
+**Limitações mantidas:**
+
+- o estado atual do servidor remoto não foi confirmado;
+- nenhum `fetch`, `pull` ou `push` foi executado no fechamento;
+- a prova Linux ocorreu em Docker Desktop/WSL2, não em host físico separado;
+- CI não foi implementada;
+- interoperabilidade de terceiros do pylock não foi comprovada;
+- SPRINT-08 e backlog futuro permanecem não iniciados.
+
+**Evidências principais:** relatórios canônicos de determinismo, Windows, matriz
+Linux, pylock, validação independente, ADR-0006 e commits locais do fechamento.
 
 ---
 
