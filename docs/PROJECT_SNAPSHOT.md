@@ -3,8 +3,8 @@
 ## 1. Identificação
 
 - schema do snapshot: 3
-- fingerprint SHA-256 da árvore projetada: `4642fa80b25e97d0e6c30dceff256fb719fe223de2d2f93fa785c4004687547f`
-- arquivos na projeção: 44
+- fingerprint SHA-256 da árvore projetada: `a36e6f09bcd756835defa17d5e9e60a666f12d430719eb3d682eeb3117934656`
+- arquivos na projeção: 47
 - projeto: Hermes AI OS
 - versão: 0.0.1
 - estado analisado: projeção determinística da árvore commitada
@@ -18,13 +18,13 @@
 - EPIC: nenhuma EPIC associada
 - Status da EPIC: não aplicável
 - Sprint: SPRINT-07 — Dependency Reproducibility Proof
-- Status da Sprint: in_progress
+- Status da Sprint: completed
 - Task: nenhuma Task ou DT formal
 - Status da Task: não aplicável
 
 ## 3. Continuidade de Sprint
 
-- Sprint ativa: SPRINT-07 — Dependency Reproducibility Proof
+- Sprint ativa: nenhuma
 - Próxima Sprint planejada: nenhuma
 
 ## 4. Estrutura Relevante
@@ -38,6 +38,7 @@
 ├── LICENSE
 ├── pyproject.toml
 ├── README.md
+├── uv.lock
 ├── apps
 │   └── backend
 │       └── app
@@ -68,12 +69,14 @@
 │   ├── HANDOFF_2026-07-13-SPRINT-05.md
 │   ├── HANDOFF_2026-07-13-SPRINT-06.md
 │   ├── HANDOFF_2026-07-13.md
+│   ├── HANDOFF_2026-07-17-SPRINT-07.md
 │   ├── adr
 │   │   ├── ADR-0001-pyproject-como-fonte-de-dependencias.md
 │   │   ├── ADR-0002-pacote-central-de-observabilidade.md
 │   │   ├── ADR-0003-middleware-asgi-e-contextvars.md
 │   │   ├── ADR-0004-documentacao-como-sistema-de-continuidade.md
 │   │   ├── ADR-0005-snapshot-como-projecao-da-arvore-git.md
+│   │   ├── ADR-0006-uv-lock-como-lock-oficial-de-dependencias.md
 │   │   └── README.md
 │   └── research
 │       └── 2026-07-12-stack-tecnologica.md
@@ -169,6 +172,7 @@
 - ADR-0003 — Middleware ASGI puro e `ContextVar` para correlação — Accepted
 - ADR-0004 — Documentação viva como sistema formal de continuidade — Accepted
 - ADR-0005 — Snapshot como projeção determinística da árvore Git — Accepted
+- ADR-0006-uv-lock-como-lock-oficial-de-dependencias — Accepted
 
 ## 12. Problemas Conhecidos
 
