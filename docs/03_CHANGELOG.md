@@ -8,56 +8,69 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-Ativação da SPRINT-08 — Automated Quality Gate no M0, sem nova EPIC ou Task formal.
-A baseline remota foi confirmada em `85ef2616`. Não houve alteração de aplicação,
-dependências, `pyproject.toml` ou `uv.lock`. Workflow, testes do workflow e
-ADR-0007 permanecem pendentes neste commit de ativação.
+Nenhuma mudança funcional ou nova Sprint está ativa. A SPRINT-09 não foi autorizada.
+
+## [SPRINT-08] — 2026-07-18
+
+SPRINT-08 — Automated Quality Gate concluída no M0, sem nova EPIC ou Task formal.
 
 ### Adicionado
 
-- `uv.lock` canônico adotado como lock oficial no commit local `cf5dfda`.
-- Lock oficial com `135871 bytes` e SHA-256
+- Workflow `.github/workflows/quality-gate.yml`.
+- 43 testes contratuais em `tests/test_quality_gate_workflow.py`.
+- ADR-0007 — GitHub Actions como quality gate reproduzível e somente leitura.
+- Handoff oficial `docs/HANDOFF_2026-07-18-SPRINT-08.md`.
+
+### Implementado
+
+- Matriz com Ubuntu Python 3.12, 3.13 e 3.14 e Windows Python 3.14.
+- Actions externas pinadas por SHA completo.
+- `uv 0.11.28`, cutoff oficial, lock check e sincronização bloqueada.
+- Snapshot check, Ruff, Pytest, importação e preservação da árvore rastreada.
+- Permissões limitadas a `contents: read`, sem segredos, cache, artifacts,
+  deployment, autofix ou comandos Git de escrita.
+
+### Validado
+
+- Implementação publicada no commit `49b5dd5`.
+- Suíte local com 119 testes aprovados e 1 warning conhecido.
+- Endpoints, Request ID, logging console e JSON aprovados.
+- GitHub Actions run `29663968493` concluído com sucesso.
+- Quatro jobs e todos os passos obrigatórios aprovados.
+- `pyproject.toml`, `uv.lock`, `apps/` e `.venv` oficial preservados.
+- ADR-0007 promovida de `Proposed` para `Accepted`.
+
+### Continuidade
+
+- SPRINT-08 passa de `in_progress` para `completed`.
+- Nenhuma Sprint permanece ativa ou planejada.
+- SPRINT-09 não foi autorizada.
+- Nenhuma nova versão do produto ou release foi declarada.
+
+## [SPRINT-07] — 2026-07-17
+
+SPRINT-07 — Dependency Reproducibility Proof concluída no M0, sem nova EPIC ou
+Task formal.
+
+### Adicionado
+
+- `uv.lock` canônico com `135871 bytes` e SHA-256
   `6F43C7C21D2DAB65E9FEDDC72958BCB20D8823DA3DBE761AEE8AB134A40E6923`.
-- ADR-0006 — `uv.lock` como lock oficial de dependências, com status `Accepted`.
-- Política deliberada de atualização do lock, incluindo versão do uv, índice,
-  cutoff ou política temporal, revisão integral do diff, ambiente limpo, gates
-  completos, documentação e commit específico.
+- ADR-0006 e política deliberada de atualização do lock.
 - Handoff oficial da SPRINT-07.
-
-### Alterado
-
-- SPRINT-08 é ativada formalmente com status `in_progress`.
-- Estado do servidor remoto confirmado na baseline `85ef2616`.
-- `pyproject.toml` permanece como fonte declarativa, enquanto `uv.lock` passa a
-  representar a resolução reproduzível oficial.
-- README e documentação viva passam a orientar consumo com `uv sync --locked`.
-- O estado remoto permanece `UNCONFIRMED`; os commits do fechamento são somente
-  locais.
 
 ### Validado
 
 - Duas resoluções independentes produziram locks byte-idênticos.
-- `uv 0.11.28`, índice `https://pypi.org/simple` e cutoff
-  `2026-07-14T11:53:48.187Z` registrados.
-- Windows Python `3.14.6` aprovado.
-- Linux em Docker Desktop/WSL2 com Python `3.12.13`, `3.13.14` e `3.14.6`
-  aprovado.
-- Ruff aprovado, 76 testes aprovados e 1 warning conhecido.
-- Importação, `GET /`, `GET /api/v1/health`, Request ID, logging console e JSON
-  e snapshot aprovados.
-- Exportação e consumo do `pylock.toml` pelo uv aprovados como evidência
-  experimental.
-- Validação independente do Master 2 aprovada.
+- Windows Python 3.14.6 e matriz Linux 3.12.13, 3.13.14 e 3.14.6 aprovados.
+- Ruff, 76 testes, importação, endpoints, Request ID, logging e snapshot aprovados.
+- Publicação remota concluída na baseline `85ef2616`.
 
-### Não incluído
+### Limitações históricas
 
-- Nenhuma alteração em dependências declaradas, `apps/` ou funcionalidade de
-  produto.
-- CI não foi implementada.
-- `pylock.toml` não foi adotado oficialmente.
-- Interoperabilidade de terceiros do pylock não foi comprovada.
-- Nenhum `fetch`, `pull` ou `push` foi executado.
-- Nenhuma versão nova do produto ou release publicada foi declarada.
+- Prova Linux em Docker Desktop/WSL2, não em host físico separado.
+- Interoperabilidade de terceiros do `pylock.toml` não comprovada.
+- `pylock.toml` não adotado oficialmente.
 
 ## [SPRINT-05] — 2026-07-13
 

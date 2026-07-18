@@ -10,9 +10,9 @@
 >
 > **Último EPIC concluído:** EPIC-004 — Foundation Reproducibility
 >
-> **Última Sprint concluída:** SPRINT-07 — Dependency Reproducibility Proof
+> **Última Sprint concluída:** SPRINT-08 — Automated Quality Gate
 >
-> **Sprint atual:** SPRINT-08 — Automated Quality Gate
+> **Sprint atual:** nenhuma
 >
 > **Responsável:** Sandro Prates
 >
@@ -85,7 +85,7 @@ behind 0 e working tree limpa.
 
 ## SPRINT-08 — Automated Quality Gate
 
-**Status:** `in_progress`
+**Status:** `completed` e publicada
 
 **Milestone:** M0 — Foundation
 
@@ -93,16 +93,38 @@ behind 0 e working tree limpa.
 
 **Task ou DT formal:** nenhuma criada para esta Sprint
 
-**Objetivo:** implementar e validar um automated quality gate reproduzível no
-GitHub Actions.
+**Objetivo concluído:** implementar, validar localmente e comprovar remotamente um
+automated quality gate reproduzível e somente leitura no GitHub Actions.
 
-**Escopo autorizado:** workflow somente leitura, matriz Python e sistemas operacionais
-aprovada, Actions pinadas por SHA completo, consumo bloqueado do `uv.lock`, snapshot
-check, Ruff, Pytest, importação da aplicação e testes automatizados do contrato do
-workflow.
+**Implementação publicada:** commit
+`49b5dd5d8d240f6bbb4784c97e1d1242add0d040`.
 
-**Estado neste commit:** workflow, testes do workflow e ADR-0007 ainda não foram
-criados; implementação e validação remota permanecem pendentes.
+**Execução remota de aceitação:** GitHub Actions run `29663968493`, com status
+`completed` e conclusão `success`.
+
+**Matriz aprovada:**
+
+- `ubuntu-latest` com Python `3.12`;
+- `ubuntu-latest` com Python `3.13`;
+- `ubuntu-latest` com Python `3.14`;
+- `windows-latest` com Python `3.14`.
+
+**Contratos comprovados:**
+
+- triggers restritos a `push` em `main`, `pull_request` para `main` e
+  `workflow_dispatch`;
+- `permissions: contents: read`, sem permissões de escrita;
+- Actions externas pinadas por SHA completo;
+- `uv 0.11.28` e cutoff `2026-07-14T11:53:48.187Z`;
+- `uv lock --check` e `uv sync --locked --all-extras`;
+- snapshot check, Ruff, Pytest, importação e preservação dos arquivos rastreados;
+- ausência de segredos, cache, artifacts, deployment, autofix e comandos Git de
+  escrita;
+- 43 testes contratuais do workflow e 119 testes totais aprovados;
+- ADR-0007 aceita após comprovação remota integral.
+
+**Continuidade:** nenhuma Sprint está ativa ou planejada. A SPRINT-09 não foi
+autorizada.
 
 ---
 
@@ -156,14 +178,16 @@ Evoluir desde uma instalação local até uma plataforma comercial gerenciada, c
 
 - Branch operacional: `main`.
 - Upstream configurado: `origin/main`.
-- HEAD, `origin/main` e `remote main` confirmados em
-  `85ef2616bdfe4573d9bf8bf2abecde06e76aac6a`.
-- Divergência confirmada: ahead `0`, behind `0`.
-- Working tree validada como limpa antes da ativação da SPRINT-08.
+- Baseline de implementação da SPRINT-08 confirmada em
+  `49b5dd5d8d240f6bbb4784c97e1d1242add0d040`, com `HEAD`, `origin/main` e
+  `remote main` sincronizados antes do fechamento documental.
+- Divergência confirmada nessa baseline: ahead `0`, behind `0`.
+- Working tree e staging validados como limpos antes do fechamento.
 - Baseline antes da adoção oficial do lock: `7513489`.
-- A adoção do lock e do ADR-0006 ocorreu no commit `cf5dfda`, já integrado à
+- A adoção do lock e do ADR-0006 ocorreu no commit `cf5dfda`, integrado à
   baseline publicada.
-- O fechamento da SPRINT-07 está publicado na baseline `85ef2616`.
+- A SPRINT-07 está publicada na baseline `85ef2616`.
+- A implementação do quality gate está publicada em `49b5dd5`.
 - O estado operacional de branch, upstream e working tree deve ser consultado
   diretamente com Git.
 
@@ -244,9 +268,30 @@ Contrato determinístico entre `Settings` e `.env.example` explicitado, incluind
 ### `cf5dfda`
 
 `uv.lock` canônico adotado como lock oficial, ADR-0006 criado e índice de decisões
-arquiteturais atualizado. O commit permanece somente local.
+arquiteturais atualizado. O commit integra a baseline publicada.
 
-## Último trabalho concluído
+### `61fa4b5`
+
+Fechamento documental da SPRINT-07 — Dependency Reproducibility Proof.
+
+### `85ef261`
+
+Snapshot final da SPRINT-07 publicado e adotado como baseline da SPRINT-08.
+
+### `50bc0d9`
+
+Ativação documental da SPRINT-08 — Automated Quality Gate.
+
+### `9359c1d`
+
+Snapshot atualizado após a ativação da SPRINT-08.
+
+### `49b5dd5`
+
+Workflow reproduzível, testes contratuais, ADR-0007 proposta e snapshot da
+implementação do quality gate.
+
+## Trabalho concluído histórico
 
 ### EPIC-004 — Foundation Reproducibility — Concluída
 
@@ -368,9 +413,11 @@ Evidência Git:
 
 Resultado verificado:
 
-- 76 testes coletados;
-- 76 testes aprovados;
-- 1 aviso de depreciação do `TestClient`.
+- 119 testes coletados;
+- 119 testes aprovados;
+- 1 aviso de depreciação do `TestClient`;
+- 43 testes contratuais dedicados ao workflow;
+- quatro jobs remotos aprovados no GitHub Actions run `29663968493`.
 
 O aviso de depreciação é uma observação conhecida e não bloqueia o fechamento.
 
@@ -400,6 +447,7 @@ ADRs aceitos:
 - ADR-0004 — documentação como continuidade.
 - ADR-0005 — snapshot como projeção determinística da árvore Git.
 - ADR-0006 — `uv.lock` como lock oficial de dependências.
+- ADR-0007 — GitHub Actions como quality gate reproduzível e somente leitura.
 
 O `pyproject.toml` permanece como fonte declarativa, e o `uv.lock` passa a ser o
 artefato oficial de resolução reproduzível. Atualizações do lock são deliberadas,

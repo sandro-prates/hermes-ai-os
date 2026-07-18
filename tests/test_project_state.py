@@ -99,20 +99,18 @@ def test_real_project_state_has_explicit_active_completed_and_planned_values() -
     assert set(completed) == {"sprint", "task"}
     assert set(planned) == {"sprint", "task"}
 
-    assert active["sprint"] == {
-        "id": "SPRINT-08",
-        "title": "Automated Quality Gate",
-        "status": "in_progress",
-    }
+    assert active["sprint"] is None
     assert active["task"] is None
     assert completed["sprint"] == {
-        "id": "SPRINT-07",
-        "title": "Dependency Reproducibility Proof",
+        "id": "SPRINT-08",
+        "title": "Automated Quality Gate",
         "status": "completed",
     }
     assert completed["task"] is None
     assert planned["sprint"] is None
     assert planned["task"] is None
+
+
 def test_activation_contract_preserves_sprint_05_and_dt_007_as_last_completed() -> None:
     values = parse_simple_yaml_mapping(activation_state())
 

@@ -1,7 +1,7 @@
 schema_version: 2
 last_verified:
   date: '2026-07-18'
-  method: Validação read-only da baseline da SPRINT-08 com Git local, remote main via HTTPS, hashes, YAML, Ruff, Pytest, importação, lock e snapshot
+  method: Fechamento da SPRINT-08 com Git local e remoto, matriz GitHub Actions, hashes, YAML, Ruff, Pytest, runtime, lock e snapshot
 project:
   name: Hermes AI OS
   version: 0.0.1
@@ -128,6 +128,18 @@ repository:
   - commit: cf5dfdae11ddcb77137f8d75b11606b73bfc43a2
     short_commit: cf5dfda
     message: 'build(deps): adopt reproducible uv lock'
+  - commit: 85ef2616bdfe4573d9bf8bf2abecde06e76aac6a
+    short_commit: 85ef261
+    message: 'docs(project): refresh sprint 07 final snapshot'
+  - commit: 50bc0d98acea15e88e08318a70aa115c6932b26b
+    short_commit: 50bc0d9
+    message: 'docs(project): activate sprint 08 automated quality gate'
+  - commit: 9359c1dd706d7bc6431153cd6a3c184a8811ce17
+    short_commit: 9359c1d
+    message: 'docs(project): refresh snapshot after sprint 08 activation'
+  - commit: 49b5dd5d8d240f6bbb4784c97e1d1242add0d040
+    short_commit: 49b5dd5
+    message: 'ci(quality): add reproducible automated quality gate'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
@@ -141,15 +153,12 @@ repository:
     message: 'docs(project): close sprint and prepare handoff'
 work:
   active:
-    sprint:
-      id: SPRINT-08
-      title: Automated Quality Gate
-      status: in_progress
+    sprint: null
     task: null
   last_completed:
     sprint:
-      id: SPRINT-07
-      title: Dependency Reproducibility Proof
+      id: SPRINT-08
+      title: Automated Quality Gate
       status: completed
     task: null
   planned:
@@ -160,8 +169,8 @@ quality:
   pytest:
     command: python -m pytest
     result: passed
-    collected_tests: 76
-    passed_tests: 76
+    collected_tests: 119
+    passed_tests: 119
     warnings: 1
   ruff:
     command: python -m ruff check .
@@ -176,7 +185,8 @@ quality:
       status: fixed
   automated_test_coverage:
     status: present
-    collected_tests: 76
+    collected_tests: 119
+    workflow_contract_tests: 43
 architecture:
   active_logging_package: app.core.observability
   legacy_logging_module_removed: true
@@ -205,6 +215,50 @@ architecture:
     adr: ADR-0006
     pylock_officially_adopted: false
     remote_state: confirmed
+  automated_quality_gate:
+    provider: GitHub Actions
+    workflow_path: .github/workflows/quality-gate.yml
+    workflow_name: Quality Gate
+    status: operational
+    permissions:
+      contents: read
+    fail_fast: false
+    matrix:
+    - os: ubuntu-latest
+      python: '3.12'
+    - os: ubuntu-latest
+      python: '3.13'
+    - os: ubuntu-latest
+      python: '3.14'
+    - os: windows-latest
+      python: '3.14'
+    uv_version: '0.11.28'
+    cutoff: '2026-07-14T11:53:48.187Z'
+    actions:
+      checkout:
+        version: v7.0.0
+        sha: 9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      setup_python:
+        version: v6.3.0
+        sha: ece7cb06caefa5fff74198d8649806c4678c61a1
+      setup_uv:
+        version: v8.3.2
+        sha: 11f9893b081a58869d3b5fccaea48c9e9e46f990
+    remote_acceptance:
+      run_id: 29663968493
+      head_sha: 49b5dd5d8d240f6bbb4784c97e1d1242add0d040
+      status: completed
+      conclusion: success
+      jobs_total: 4
+    security:
+      secrets_used: false
+      cache_enabled: false
+      artifacts_uploaded: false
+      deployment_enabled: false
+      write_permissions: false
+      git_write_commands: false
+      autofix_enabled: false
+    adr: ADR-0007
 documentation:
   readme:
     path: README.md
@@ -222,10 +276,10 @@ documentation:
     path: docs/03_CHANGELOG.md
     status: maintained
   handoff:
-    path: docs/HANDOFF_2026-07-17-SPRINT-07.md
+    path: docs/HANDOFF_2026-07-18-SPRINT-08.md
     status: current
-    previous_path: docs/HANDOFF_2026-07-13-SPRINT-06.md
-    historical_path: docs/HANDOFF_2026-07-12.md
+    previous_path: docs/HANDOFF_2026-07-17-SPRINT-07.md
+    historical_path: docs/HANDOFF_2026-07-13-SPRINT-06.md
   adr_directory:
     path: docs/adr/
     status: committed
@@ -371,6 +425,38 @@ sprint_08_activation_baseline:
   uv_lock_sha256: 6F43C7C21D2DAB65E9FEDDC72958BCB20D8823DA3DBE761AEE8AB134A40E6923
   cutoff: '2026-07-14T11:53:48.187Z'
   verified_before_local_changes: true
+sprint_08_closure:
+  status: completed
+  formal_task_created: false
+  implementation_commit: 49b5dd5d8d240f6bbb4784c97e1d1242add0d040
+  workflow:
+    path: .github/workflows/quality-gate.yml
+    permissions: contents_read
+    fail_fast: false
+    remote_run_id: 29663968493
+    remote_run_status: completed
+    remote_run_conclusion: success
+    remote_jobs_total: 4
+  local_validation:
+    python_version: '3.14.6'
+    pytest_passed_tests: 119
+    pytest_warnings: 1
+    ruff: passed
+    snapshot_check: passed
+    application_import: passed
+    endpoints: passed
+    request_id: passed
+    console_logging: passed
+    json_logging: passed
+  preserved:
+    pyproject: true
+    uv_lock: true
+    application_files: true
+    official_venv: true
+  adr_0007_status: Accepted
+  active_sprint: null
+  planned_sprint: null
+  sprint_09_authorized: false
 continuity:
   snapshot:
     source_of_truth: docs/PROJECT_SNAPSHOT.md

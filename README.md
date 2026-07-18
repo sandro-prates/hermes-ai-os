@@ -22,9 +22,10 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
   `85ef261`.
 - O `uv.lock` canônico foi adotado como lock oficial no commit `cf5dfda`,
   enquanto o `pyproject.toml` permanece como fonte declarativa.
-- SPRINT-08 — Automated Quality Gate está ativa com status `in_progress`, sem nova EPIC
-  ou Task formal. Objetivo: implementar e validar um automated quality gate reproduzível
-  no GitHub Actions. Neste primeiro commit, workflow e ADR-0007 ainda não foram criados.
+- SPRINT-08 — Automated Quality Gate concluída no M0, sem nova EPIC ou Task formal.
+  A implementação foi publicada no commit `49b5dd5`, e as quatro combinações da
+  matriz foram aprovadas no GitHub Actions run `29663968493`.
+- Nenhuma Sprint está ativa ou planejada. A SPRINT-09 não foi autorizada.
 - DT-007 foi concluída como pesquisa no commit `126aff8`; suas recomendações somente
   se tornaram oficiais quando aprovadas e comprovadas na SPRINT-07.
 
@@ -40,6 +41,10 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - Testes diretos dos contratos públicos de `GET /` e `GET /api/v1/health`.
 - Testes automatizados de formatters, contexto e middleware.
 - Análise estática com Ruff.
+- Quality gate reproduzível em GitHub Actions, somente leitura e sem segredos.
+- Matriz automatizada para Ubuntu Python 3.12, 3.13 e 3.14 e Windows Python 3.14.
+- Validação automática de lock, snapshot, Ruff, Pytest, importação e preservação da
+  árvore rastreada.
 
 ## Arquitetura atual
 
@@ -49,6 +54,8 @@ em `app.core.settings`, e logging, formatters, contexto e middleware ficam no pa
 `app.core.observability`.
 
 ```text
+.github/workflows/
+└── quality-gate.yml
 apps/backend/app/
 ├── api/
 │   └── v1/health.py
@@ -62,7 +69,8 @@ tests/
 ├── test_middleware.py
 ├── test_observability.py
 ├── test_project_snapshot.py
-└── test_project_state.py
+├── test_project_state.py
+└── test_quality_gate_workflow.py
 tools/
 └── project_snapshot.py
 docs/
@@ -71,6 +79,7 @@ docs/
 ├── 01_PROJECT_STATE.yaml
 ├── 02_BACKLOG.md
 ├── 03_CHANGELOG.md
+├── HANDOFF_2026-07-18-SPRINT-08.md
 └── PROJECT_SNAPSHOT.md
 ```
 
@@ -211,12 +220,12 @@ Executar os testes:
 python -m pytest
 ```
 
-Estado atual verificado no fechamento local da SPRINT-07: 76 testes aprovados e
+Estado atual verificado no fechamento da SPRINT-08: 119 testes aprovados e
 1 aviso de depreciação não bloqueante do `TestClient` relacionado ao `httpx`.
-Ruff, importação, endpoints, Request ID, logging e snapshot também foram aprovados.
-As regressões protegem o schema 2 do Project State, a leitura legada do schema 1,
-validações fail-closed e o modo sem escrita do snapshot. Execute sempre os comandos
-acima para obter o resultado atual; a quantidade de testes pode evoluir.
+Ruff, importação, endpoints, Request ID, logging, snapshot e os 43 contratos do
+workflow foram aprovados localmente. O GitHub Actions run `29663968493` aprovou as
+quatro combinações da matriz e todos os passos obrigatórios. Execute sempre os
+comandos acima para obter o resultado local atual; a quantidade de testes pode evoluir.
 
 ## Dependências reproduzíveis
 
@@ -255,13 +264,14 @@ python tools/project_snapshot.py --check
 - [Estado operacional](docs/01_PROJECT_STATE.yaml)
 - [Backlog](docs/02_BACKLOG.md)
 - [Changelog](docs/03_CHANGELOG.md)
+- [Handoff da SPRINT-08](docs/HANDOFF_2026-07-18-SPRINT-08.md)
 - [Architecture Decision Records](docs/adr/README.md)
 
 ## Limitações atuais
 
 O projeto ainda está no M0. Banco de dados, runtime de agentes, memória, dashboard e
-integrações externas ainda não estão implementados. A prova Linux ocorreu em Docker
-Desktop/WSL2, não em host físico Linux administrado separadamente. CI ainda não foi
-implementada. A interoperabilidade de terceiros do `pylock.toml` não foi comprovada,
-e o arquivo não foi adotado oficialmente. Os commits do fechamento permanecem locais,
-sem `fetch` ou `push`; o estado atual do servidor remoto continua não confirmado.
+integrações externas ainda não estão implementados. A prova Linux da SPRINT-07 ocorreu
+em Docker Desktop/WSL2, não em host físico Linux administrado separadamente. O quality
+gate inicial não usa cache, artifacts, deployment ou segredos e ainda não constitui
+uma plataforma de entrega contínua. A interoperabilidade de terceiros do
+`pylock.toml` não foi comprovada, e o arquivo não foi adotado oficialmente.

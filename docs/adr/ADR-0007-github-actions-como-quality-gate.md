@@ -1,20 +1,20 @@
 # ADR-0007 — GitHub Actions como quality gate
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Data:** 18/07/2026
 - **Escopo:** M0 — Foundation / SPRINT-08 — Automated Quality Gate
 
 ## Contexto
 
-O Hermes AI OS já possui `pyproject.toml` como fonte declarativa, `uv.lock` como
-resolução oficial e gates locais para Ruff, Pytest, importação e snapshot. Ainda
-não existe execução automatizada e reproduzível desses contratos no repositório
-remoto.
+O Hermes AI OS já possuía `pyproject.toml` como fonte declarativa, `uv.lock` como
+resolução oficial e gates locais para Ruff, Pytest, importação e snapshot. Antes da
+SPRINT-08, esses contratos ainda não eram executados de forma automatizada e
+reproduzível no repositório remoto.
 
 A SPRINT-08 deve introduzir esse controle sem modificar aplicação, dependências,
 lockfile ou permissões de escrita.
 
-## Decisão proposta
+## Decisão
 
 Adotar GitHub Actions como quality gate inicial e somente leitura.
 
@@ -100,13 +100,27 @@ O checkout usa `persist-credentials: false`.
 O rollback deve ocorrer por commit Git normal, sem amend, rebase, reset destrutivo
 ou force push.
 
-## Critérios para Accepted
+## Evidência de aceitação
 
-Esta ADR somente poderá mudar de `Proposed` para `Accepted` quando:
+A decisão foi aceita após a publicação normal da implementação em `main` no commit
+`49b5dd5d8d240f6bbb4784c97e1d1242add0d040` e a conclusão integral do GitHub
+Actions run `29663968493`.
 
-- os arquivos forem publicados normalmente em `main`;
-- as quatro combinações concluírem com sucesso;
-- todos os passos obrigatórios forem comprovados;
-- nenhuma permissão de escrita, segredo, cache, artifact ou deployment for usado;
-- `pyproject.toml`, `uv.lock`, `apps/` e a `.venv` oficial permanecerem preservados;
-- o resultado remoto for registrado no fechamento da SPRINT-08.
+As quatro combinações foram aprovadas:
+
+- `ubuntu-latest` / Python `3.12`;
+- `ubuntu-latest` / Python `3.13`;
+- `ubuntu-latest` / Python `3.14`;
+- `windows-latest` / Python `3.14`.
+
+Todos os passos obrigatórios concluíram com `success`. A auditoria também confirmou:
+
+- somente `permissions: contents: read`;
+- ausência de segredos, cache, artifacts e deployment;
+- ausência de autofix e comandos Git de escrita;
+- `pyproject.toml`, `uv.lock`, `apps/` e `.venv` oficial preservados;
+- suíte local com 119 testes aprovados e 1 warning conhecido;
+- snapshot, Ruff, importação, endpoints, Request ID e logging aprovados.
+
+A ADR-0007 passa, portanto, de `Proposed` para `Accepted` no fechamento da
+SPRINT-08.

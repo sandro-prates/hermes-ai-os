@@ -116,7 +116,7 @@ Nenhuma Sprint foi criada para esta Task.
 
 ---
 
-# Última Sprint Concluída
+# Sprint concluída anterior
 
 ## SPRINT-07 — Dependency Reproducibility Proof
 
@@ -184,11 +184,11 @@ Linux, pylock, validação independente, ADR-0006 e commits locais do fechamento
 
 ---
 
-# Trabalho Atual
+# Última Sprint Concluída
 
 ## SPRINT-08 — Automated Quality Gate
 
-**Status:** 🟡 Em andamento (`in_progress`)
+**Status:** ✅ Concluída e publicada (`completed`)
 
 **Milestone:** M0 — Foundation
 
@@ -196,25 +196,34 @@ Linux, pylock, validação independente, ADR-0006 e commits locais do fechamento
 
 **Task ou DT formal:** nenhuma criada para esta Sprint
 
-**Objetivo:** implementar e validar um automated quality gate reproduzível no
-GitHub Actions.
+**Objetivo concluído:** implementar e validar um automated quality gate
+reproduzível e somente leitura no GitHub Actions.
 
-**Critérios pendentes:**
+**Critérios de aceitação:**
 
-- [ ] Criar o workflow `.github/workflows/quality-gate.yml`.
-- [ ] Configurar somente `push` em `main`, `pull_request` para `main` e
-  `workflow_dispatch`.
-- [ ] Aplicar `permissions: contents: read` e nenhuma permissão de escrita.
-- [ ] Executar exatamente a matriz Linux Python 3.12, 3.13 e 3.14, além de Windows
-  Python 3.14, com `fail-fast: false`.
-- [ ] Pinar todas as Actions externas por SHA completo e registrar suas versões.
-- [ ] Instalar `uv 0.11.28` e aplicar o cutoff oficial da SPRINT-07.
-- [ ] Executar `uv lock --check` e sincronização com `--locked`.
-- [ ] Executar snapshot check, Ruff, Pytest e importação da aplicação.
-- [ ] Criar testes automatizados do contrato do workflow.
-- [ ] Criar ADR-0007 inicialmente com status `Proposed`.
-- [ ] Comprovar todos os jobs verdes no GitHub Actions antes de aceitar a ADR e
-  concluir a Sprint.
+- [x] workflow `.github/workflows/quality-gate.yml` criado;
+- [x] triggers restritos a `push` em `main`, `pull_request` para `main` e
+  `workflow_dispatch`;
+- [x] `permissions: contents: read` e nenhuma permissão de escrita;
+- [x] matriz com Ubuntu Python 3.12, 3.13 e 3.14 e Windows Python 3.14;
+- [x] `fail-fast: false`;
+- [x] Actions externas pinadas por SHA completo e versão humana registrada;
+- [x] `uv 0.11.28` e cutoff oficial da SPRINT-07;
+- [x] `uv lock --check` e `uv sync --locked --all-extras`;
+- [x] snapshot check, Ruff, Pytest, importação e preservação da árvore rastreada;
+- [x] 43 testes automatizados do contrato do workflow;
+- [x] suíte local com 119 testes aprovados e 1 warning conhecido;
+- [x] execução remota `29663968493` concluída com sucesso nos quatro jobs;
+- [x] ausência de segredos, cache, artifacts, deployment, autofix, permissões de
+  escrita e comandos Git de escrita;
+- [x] `pyproject.toml`, `uv.lock`, `apps/` e `.venv` oficial preservados;
+- [x] ADR-0007 aceita após comprovação remota.
+
+**Evidência principal:** implementação publicada em `49b5dd5`; GitHub Actions run
+`29663968493` integralmente verde.
+
+**Continuidade:** nenhuma Sprint está ativa ou planejada. A SPRINT-09 não foi
+autorizada.
 
 ---
 
