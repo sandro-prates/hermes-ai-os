@@ -3,8 +3,8 @@
 ## 1. Identificação
 
 - schema do snapshot: 3
-- fingerprint SHA-256 da árvore projetada: `da971937472cf28200bac891493868d029e44c03bfa0528dd11160d496936200`
-- arquivos na projeção: 47
+- fingerprint SHA-256 da árvore projetada: `5da705e7788fdccb2a7433c38581f0a01131194a1bb3cb88e20737a9353ce391`
+- arquivos na projeção: 50
 - projeto: Hermes AI OS
 - versão: 0.0.1
 - estado analisado: projeção determinística da árvore commitada
@@ -39,6 +39,9 @@
 ├── pyproject.toml
 ├── README.md
 ├── uv.lock
+├── .github
+│   └── workflows
+│       └── quality-gate.yml
 ├── apps
 │   └── backend
 │       └── app
@@ -77,6 +80,7 @@
 │   │   ├── ADR-0004-documentacao-como-sistema-de-continuidade.md
 │   │   ├── ADR-0005-snapshot-como-projecao-da-arvore-git.md
 │   │   ├── ADR-0006-uv-lock-como-lock-oficial-de-dependencias.md
+│   │   ├── ADR-0007-github-actions-como-quality-gate.md
 │   │   └── README.md
 │   └── research
 │       └── 2026-07-12-stack-tecnologica.md
@@ -86,7 +90,8 @@
 │   ├── test_middleware.py
 │   ├── test_observability.py
 │   ├── test_project_snapshot.py
-│   └── test_project_state.py
+│   ├── test_project_state.py
+│   └── test_quality_gate_workflow.py
 └── tools
     └── project_snapshot.py
 ```
@@ -173,6 +178,7 @@
 - ADR-0004 — Documentação viva como sistema formal de continuidade — Accepted
 - ADR-0005 — Snapshot como projeção determinística da árvore Git — Accepted
 - ADR-0006-uv-lock-como-lock-oficial-de-dependencias — Accepted
+- ADR-0007 — GitHub Actions como quality gate — Proposed
 
 ## 12. Problemas Conhecidos
 
