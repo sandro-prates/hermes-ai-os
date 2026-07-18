@@ -12,15 +12,15 @@
 >
 > **Última Sprint concluída:** SPRINT-07 — Dependency Reproducibility Proof
 >
-> **Sprint atual:** nenhuma
+> **Sprint atual:** SPRINT-08 — Automated Quality Gate
 >
 > **Responsável:** Sandro Prates
 >
-> **Última verificação:** 17/07/2026
+> **Última verificação:** 18/07/2026
 
 ## SPRINT-07 — Dependency Reproducibility Proof
 
-**Status:** `completed` localmente
+**Status:** `completed` e publicada
 
 **Milestone:** M0 — Foundation
 
@@ -31,7 +31,7 @@
 **Última entrega concluída:** SPRINT-07; a última Task formal permanece DT-009,
 concluída na SPRINT-06
 
-**Sprint seguinte planejada:** nenhuma; SPRINT-08 não está ativa
+**Estado histórico no fechamento local:** nenhuma Sprint seguinte estava ativa; a SPRINT-08 ainda não havia sido autorizada.
 
 Baseline publicada conhecida antes da SPRINT-07:
 `9cfefa8bf117bceb11bcbd5df2a18cc28f82303c`.
@@ -57,7 +57,7 @@ behind 0 e working tree limpa.
 - exportação e consumo do `pylock.toml` pelo uv aprovados como evidência
   experimental;
 - validação independente do Master 2 aprovada;
-- `uv.lock` canônico adotado oficialmente no commit local
+- `uv.lock` canônico adotado oficialmente no commit
   `cf5dfdae11ddcb77137f8d75b11606b73bfc43a2`;
 - ADR-0006 aceito com política oficial de atualização do lock.
 
@@ -72,7 +72,7 @@ behind 0 e working tree limpa.
 - futura CI deverá consumir o lock em modo bloqueado e não regenerá-lo
   incidentalmente.
 
-**Limitações mantidas:**
+**Limitações registradas no fechamento local da SPRINT-07:**
 
 - o estado atual do servidor remoto não foi confirmado;
 - a prova Linux não ocorreu em host físico administrado separadamente;
@@ -82,6 +82,27 @@ behind 0 e working tree limpa.
 - os commits do fechamento permanecem locais;
 - nenhum `fetch`, `pull` ou `push` foi executado;
 - SPRINT-08 não foi ativada.
+
+## SPRINT-08 — Automated Quality Gate
+
+**Status:** `in_progress`
+
+**Milestone:** M0 — Foundation
+
+**EPIC:** nenhuma nova EPIC
+
+**Task ou DT formal:** nenhuma criada para esta Sprint
+
+**Objetivo:** implementar e validar um automated quality gate reproduzível no
+GitHub Actions.
+
+**Escopo autorizado:** workflow somente leitura, matriz Python e sistemas operacionais
+aprovada, Actions pinadas por SHA completo, consumo bloqueado do `uv.lock`, snapshot
+check, Ruff, Pytest, importação da aplicação e testes automatizados do contrato do
+workflow.
+
+**Estado neste commit:** workflow, testes do workflow e ADR-0007 ainda não foram
+criados; implementação e validação remota permanecem pendentes.
 
 ---
 
@@ -135,11 +156,14 @@ Evoluir desde uma instalação local até uma plataforma comercial gerenciada, c
 
 - Branch operacional: `main`.
 - Upstream configurado: `origin/main`.
-- Referência remota local conhecida: `9cfefa8bf117bceb11bcbd5df2a18cc28f82303c`.
-- Estado atual do servidor remoto: não confirmado.
+- HEAD, `origin/main` e `remote main` confirmados em
+  `85ef2616bdfe4573d9bf8bf2abecde06e76aac6a`.
+- Divergência confirmada: ahead `0`, behind `0`.
+- Working tree validada como limpa antes da ativação da SPRINT-08.
 - Baseline antes da adoção oficial do lock: `7513489`.
-- Commit local da adoção do lock e ADR-0006: `cf5dfda`.
-- Os commits do fechamento local não foram publicados.
+- A adoção do lock e do ADR-0006 ocorreu no commit `cf5dfda`, já integrado à
+  baseline publicada.
+- O fechamento da SPRINT-07 está publicado na baseline `85ef2616`.
 - O estado operacional de branch, upstream e working tree deve ser consultado
   diretamente com Git.
 

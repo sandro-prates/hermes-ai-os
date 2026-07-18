@@ -18,14 +18,13 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - SPRINT-05 — Technology Decision Baseline concluída no M0, sem nova EPIC.
 - SPRINT-06 — Continuity State Integrity concluída no M0, sem nova EPIC.
 - DT-009 — Integridade do estado de continuidade concluída na SPRINT-06.
-- SPRINT-07 — Dependency Reproducibility Proof concluída localmente no M0, sem nova
-  EPIC ou Task formal.
-- O `uv.lock` canônico foi adotado como lock oficial no commit local `cf5dfda`,
+- SPRINT-07 — Dependency Reproducibility Proof concluída e publicada no commit
+  `85ef261`.
+- O `uv.lock` canônico foi adotado como lock oficial no commit `cf5dfda`,
   enquanto o `pyproject.toml` permanece como fonte declarativa.
-- Nenhuma Sprint está ativa ou formalmente planejada.
-- SPRINT-08 — Automated Quality Gate não foi ativada.
-- Os commits do fechamento permanecem locais; o estado atual do servidor remoto não
-  foi confirmado.
+- SPRINT-08 — Automated Quality Gate está ativa com status `in_progress`, sem nova EPIC
+  ou Task formal. Objetivo: implementar e validar um automated quality gate reproduzível
+  no GitHub Actions. Neste primeiro commit, workflow e ADR-0007 ainda não foram criados.
 - DT-007 foi concluída como pesquisa no commit `126aff8`; suas recomendações somente
   se tornaram oficiais quando aprovadas e comprovadas na SPRINT-07.
 

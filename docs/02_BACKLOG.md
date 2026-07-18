@@ -1,6 +1,6 @@
 # Hermes AI OS — Backlog
 
-> Última verificação: 13/07/2026
+> Última verificação: 18/07/2026
 >
 > Fonte de verdade operacional: `docs/01_PROJECT_STATE.yaml`
 >
@@ -120,7 +120,7 @@ Nenhuma Sprint foi criada para esta Task.
 
 ## SPRINT-07 — Dependency Reproducibility Proof
 
-**Status:** ✅ Concluída localmente (`completed`)
+**Status:** ✅ Concluída e publicada (`completed`)
 
 **Milestone:** M0 — Foundation
 
@@ -130,9 +130,9 @@ Nenhuma Sprint foi criada para esta Task.
 
 **Última Task formal concluída:** DT-009, pertencente à SPRINT-06
 
-**Sprint ativa:** nenhuma
+**Sprint ativa:** SPRINT-08 — Automated Quality Gate
 
-**Sprint seguinte planejada:** nenhuma; SPRINT-08 não foi ativada
+**Sprint seguinte planejada:** nenhuma; a SPRINT-08 está ativa, não apenas planejada
 
 **Objetivo:** comprovar a resolução determinística e a reprodutibilidade das
 dependências, adotar o lock canônico autorizado e estabelecer sua política oficial.
@@ -159,7 +159,7 @@ dependências, adotar o lock canônico autorizado e estabelecer sua política of
 - [x] ADR-0006 criado e aceito;
 - [x] política deliberada de atualização do lock documentada;
 - [x] fechamento documental local realizado;
-- [ ] publicação remota — pendente de autorização humana específica.
+- [x] publicação remota concluída na baseline `85ef2616bdfe4573d9bf8bf2abecde06e76aac6a`.
 
 **Decisões:**
 
@@ -170,17 +170,51 @@ dependências, adotar o lock canônico autorizado e estabelecer sua política of
   específico;
 - futura CI deverá consumir o lock sem modificá-lo.
 
-**Limitações mantidas:**
+**Limitações registradas no fechamento local da SPRINT-07:**
 
-- o estado atual do servidor remoto não foi confirmado;
-- nenhum `fetch`, `pull` ou `push` foi executado no fechamento;
+- o estado remoto ainda não havia sido confirmado naquele fechamento;
+- nenhum `fetch`, `pull` ou `push` havia sido executado naquele fechamento;
 - a prova Linux ocorreu em Docker Desktop/WSL2, não em host físico separado;
-- CI não foi implementada;
+- CI ainda não havia sido implementada;
 - interoperabilidade de terceiros do pylock não foi comprovada;
-- SPRINT-08 e backlog futuro permanecem não iniciados.
+- a SPRINT-08 ainda não havia sido iniciada naquele fechamento.
 
 **Evidências principais:** relatórios canônicos de determinismo, Windows, matriz
 Linux, pylock, validação independente, ADR-0006 e commits locais do fechamento.
+
+---
+
+# Trabalho Atual
+
+## SPRINT-08 — Automated Quality Gate
+
+**Status:** 🟡 Em andamento (`in_progress`)
+
+**Milestone:** M0 — Foundation
+
+**EPIC:** nenhuma nova EPIC
+
+**Task ou DT formal:** nenhuma criada para esta Sprint
+
+**Objetivo:** implementar e validar um automated quality gate reproduzível no
+GitHub Actions.
+
+**Critérios pendentes:**
+
+- [ ] Criar o workflow `.github/workflows/quality-gate.yml`.
+- [ ] Configurar somente `push` em `main`, `pull_request` para `main` e
+  `workflow_dispatch`.
+- [ ] Aplicar `permissions: contents: read` e nenhuma permissão de escrita.
+- [ ] Executar exatamente a matriz Linux Python 3.12, 3.13 e 3.14, além de Windows
+  Python 3.14, com `fail-fast: false`.
+- [ ] Pinar todas as Actions externas por SHA completo e registrar suas versões.
+- [ ] Instalar `uv 0.11.28` e aplicar o cutoff oficial da SPRINT-07.
+- [ ] Executar `uv lock --check` e sincronização com `--locked`.
+- [ ] Executar snapshot check, Ruff, Pytest e importação da aplicação.
+- [ ] Criar testes automatizados do contrato do workflow.
+- [ ] Criar ADR-0007 inicialmente com status `Proposed`.
+- [ ] Comprovar todos os jobs verdes no GitHub Actions antes de aceitar a ADR e
+  concluir a Sprint.
 
 ---
 

@@ -1,7 +1,7 @@
 schema_version: 2
 last_verified:
-  date: '2026-07-17'
-  method: Fechamento local da SPRINT-07 com Git, hashes, YAML, Ruff, Pytest, runtime, lock e snapshot
+  date: '2026-07-18'
+  method: Validação read-only da baseline da SPRINT-08 com Git local, remote main via HTTPS, hashes, YAML, Ruff, Pytest, importação, lock e snapshot
 project:
   name: Hermes AI OS
   version: 0.0.1
@@ -141,7 +141,10 @@ repository:
     message: 'docs(project): close sprint and prepare handoff'
 work:
   active:
-    sprint: null
+    sprint:
+      id: SPRINT-08
+      title: Automated Quality Gate
+      status: in_progress
     task: null
   last_completed:
     sprint:
@@ -201,7 +204,7 @@ architecture:
       cutoff: '2026-07-14T11:53:48.187Z'
     adr: ADR-0006
     pylock_officially_adopted: false
-    remote_state: unconfirmed
+    remote_state: confirmed
 documentation:
   readme:
     path: README.md
@@ -344,6 +347,30 @@ sprint_07_closure:
   local_lock_adoption_commit: cf5dfdae11ddcb77137f8d75b11606b73bfc43a2
   sprint_08_activated: false
   planned_sprint: null
+sprint_08_activation_baseline:
+  commit: 85ef2616bdfe4573d9bf8bf2abecde06e76aac6a
+  short_commit: 85ef261
+  branch: main
+  upstream: origin/main
+  origin_main: 85ef2616bdfe4573d9bf8bf2abecde06e76aac6a
+  remote_main: 85ef2616bdfe4573d9bf8bf2abecde06e76aac6a
+  remote_verification_method: https_ls_remote
+  divergence_main_origin_main: 0 0
+  working_tree_before_activation: clean
+  index_lock_before_activation: absent
+  python_version: '3.14.6'
+  snapshot_schema: 3
+  snapshot_check: passed
+  ruff: passed
+  pytest_collected_tests: 76
+  pytest_passed_tests: 76
+  pytest_warnings: 1
+  application_import: passed
+  uv_version: '0.11.28'
+  uv_lock_size: 135871
+  uv_lock_sha256: 6F43C7C21D2DAB65E9FEDDC72958BCB20D8823DA3DBE761AEE8AB134A40E6923
+  cutoff: '2026-07-14T11:53:48.187Z'
+  verified_before_local_changes: true
 continuity:
   snapshot:
     source_of_truth: docs/PROJECT_SNAPSHOT.md

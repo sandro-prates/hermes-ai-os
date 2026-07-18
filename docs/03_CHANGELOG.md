@@ -8,8 +8,10 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-SPRINT-07 — Dependency Reproducibility Proof concluída localmente no M0, sem nova
-EPIC ou Task formal. O fechamento não representa release publicada.
+Ativação da SPRINT-08 — Automated Quality Gate no M0, sem nova EPIC ou Task formal.
+A baseline remota foi confirmada em `85ef2616`. Não houve alteração de aplicação,
+dependências, `pyproject.toml` ou `uv.lock`. Workflow, testes do workflow e
+ADR-0007 permanecem pendentes neste commit de ativação.
 
 ### Adicionado
 
@@ -24,8 +26,8 @@ EPIC ou Task formal. O fechamento não representa release publicada.
 
 ### Alterado
 
-- SPRINT-07 passa de `in_progress` para `completed` localmente.
-- Nenhuma Sprint permanece ativa ou planejada; SPRINT-08 não foi ativada.
+- SPRINT-08 é ativada formalmente com status `in_progress`.
+- Estado do servidor remoto confirmado na baseline `85ef2616`.
 - `pyproject.toml` permanece como fonte declarativa, enquanto `uv.lock` passa a
   representar a resolução reproduzível oficial.
 - README e documentação viva passam a orientar consumo com `uv sync --locked`.
