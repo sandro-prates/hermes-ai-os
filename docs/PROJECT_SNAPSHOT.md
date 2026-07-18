@@ -3,7 +3,7 @@
 ## 1. Identificação
 
 - schema do snapshot: 3
-- fingerprint SHA-256 da árvore projetada: `a36e6f09bcd756835defa17d5e9e60a666f12d430719eb3d682eeb3117934656`
+- fingerprint SHA-256 da árvore projetada: `da971937472cf28200bac891493868d029e44c03bfa0528dd11160d496936200`
 - arquivos na projeção: 47
 - projeto: Hermes AI OS
 - versão: 0.0.1
@@ -17,14 +17,14 @@
 
 - EPIC: nenhuma EPIC associada
 - Status da EPIC: não aplicável
-- Sprint: SPRINT-07 — Dependency Reproducibility Proof
-- Status da Sprint: completed
+- Sprint: SPRINT-08 — Automated Quality Gate
+- Status da Sprint: in_progress
 - Task: nenhuma Task ou DT formal
 - Status da Task: não aplicável
 
 ## 3. Continuidade de Sprint
 
-- Sprint ativa: nenhuma
+- Sprint ativa: SPRINT-08 — Automated Quality Gate
 - Próxima Sprint planejada: nenhuma
 
 ## 4. Estrutura Relevante
