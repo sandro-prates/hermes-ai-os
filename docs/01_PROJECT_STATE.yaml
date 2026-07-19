@@ -1,8 +1,7 @@
 schema_version: 2
 last_verified:
   date: '2026-07-19'
-  method: fechamento documental da SPRINT-09 após publicação normal, remote main por ls-remote, Quality Gate e Container
-    Gate aprovados, gates locais e snapshot auditados
+  method: 'fechamento documental da SPRINT-09 após publicação normal, remote main por ls-remote, Quality Gate e Container Gate aprovados, gates locais e snapshot auditados'
 project:
   name: Hermes AI OS
   version: 0.0.1
