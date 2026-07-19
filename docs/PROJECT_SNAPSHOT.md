@@ -3,8 +3,8 @@
 ## 1. Identificação
 
 - schema do snapshot: 3
-- fingerprint SHA-256 da árvore projetada: `2e0f0dfe15647a948e3683d8494c1a1b5b8bfa677b2a951aea5d346fa16fe19f`
-- arquivos na projeção: 57
+- fingerprint SHA-256 da árvore projetada: `99edadb0af06dfa2fc38456c4f3c47ff9f64e665618224e631fb98ad40570287`
+- arquivos na projeção: 58
 - projeto: Hermes AI OS
 - versão: 0.0.1
 - estado analisado: projeção determinística da árvore commitada
@@ -18,13 +18,13 @@
 - EPIC: nenhuma EPIC associada
 - Status da EPIC: não aplicável
 - Sprint: SPRINT-09 — Reproducible Container Baseline
-- Status da Sprint: in_progress
+- Status da Sprint: completed
 - Task: nenhuma Task ou DT formal
 - Status da Task: não aplicável
 
 ## 3. Continuidade de Sprint
 
-- Sprint ativa: SPRINT-09 — Reproducible Container Baseline
+- Sprint ativa: nenhuma
 - Próxima Sprint planejada: nenhuma
 
 ## 4. Estrutura Relevante
@@ -77,6 +77,7 @@
 │   ├── HANDOFF_2026-07-13.md
 │   ├── HANDOFF_2026-07-17-SPRINT-07.md
 │   ├── HANDOFF_2026-07-18-SPRINT-08.md
+│   ├── HANDOFF_2026-07-19-SPRINT-09.md
 │   ├── adr
 │   │   ├── ADR-0001-pyproject-como-fonte-de-dependencias.md
 │   │   ├── ADR-0002-pacote-central-de-observabilidade.md
@@ -169,7 +170,7 @@
 ## 10. Qualidade
 
 - Ruff: estado commitado `passed`.
-- Pytest: estado commitado `passed — 119 aprovado(s), 1 aviso(s)`.
+- Pytest: estado commitado `passed — 133 aprovado(s), 1 aviso(s)`.
 - importação da aplicação: estado commitado `passed`.
 
 ## 11. Documentação e ADRs
@@ -186,7 +187,7 @@
 - ADR-0005 — Snapshot como projeção determinística da árvore Git — Accepted
 - ADR-0006-uv-lock-como-lock-oficial-de-dependencias — Accepted
 - ADR-0007 — GitHub Actions como quality gate — Accepted
-- ADR-0008 — Baseline reproduzível de container — Proposed
+- ADR-0008 — Baseline reproduzível de container — Accepted
 
 ## 12. Problemas Conhecidos
 
