@@ -3,8 +3,8 @@
 ## 1. Identificação
 
 - schema do snapshot: 3
-- fingerprint SHA-256 da árvore projetada: `f815c95f9e9516637397bd30adaa30d2b23925642d715e64f68fd0511f9fdcef`
-- arquivos na projeção: 51
+- fingerprint SHA-256 da árvore projetada: `2e0f0dfe15647a948e3683d8494c1a1b5b8bfa677b2a951aea5d346fa16fe19f`
+- arquivos na projeção: 57
 - projeto: Hermes AI OS
 - versão: 0.0.1
 - estado analisado: projeção determinística da árvore commitada
@@ -30,10 +30,12 @@
 ## 4. Estrutura Relevante
 
 ```text
+├── .dockerignore
 ├── .editorconfig
 ├── .env.example
 ├── .gitattributes
 ├── .gitignore
+├── Dockerfile
 ├── Hermes-AI-OS.code-workspace
 ├── LICENSE
 ├── pyproject.toml
@@ -41,6 +43,7 @@
 ├── uv.lock
 ├── .github
 │   └── workflows
+│       ├── container-gate.yml
 │       └── quality-gate.yml
 ├── apps
 │   └── backend
@@ -82,11 +85,14 @@
 │   │   ├── ADR-0005-snapshot-como-projecao-da-arvore-git.md
 │   │   ├── ADR-0006-uv-lock-como-lock-oficial-de-dependencias.md
 │   │   ├── ADR-0007-github-actions-como-quality-gate.md
+│   │   ├── ADR-0008-reproducible-container-baseline.md
 │   │   └── README.md
 │   └── research
 │       └── 2026-07-12-stack-tecnologica.md
 ├── tests
 │   ├── test_api.py
+│   ├── test_container_baseline.py
+│   ├── test_container_gate_workflow.py
 │   ├── test_env_example.py
 │   ├── test_middleware.py
 │   ├── test_observability.py
@@ -180,6 +186,7 @@
 - ADR-0005 — Snapshot como projeção determinística da árvore Git — Accepted
 - ADR-0006-uv-lock-como-lock-oficial-de-dependencias — Accepted
 - ADR-0007 — GitHub Actions como quality gate — Accepted
+- ADR-0008 — Baseline reproduzível de container — Proposed
 
 ## 12. Problemas Conhecidos
 
