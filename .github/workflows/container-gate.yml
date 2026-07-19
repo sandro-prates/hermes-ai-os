@@ -1,0 +1,86 @@
+name: Container Gate
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  container-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Print Docker information
+        run: |
+          docker version
+          docker info
+          docker buildx version
+
+      - name: Build image without external cache
+        run: docker build --no-cache --pull=false --tag hermes-ai-os:sprint09-gate .
+
+      - name: Inspect image and prove runtime contract
+        run: |
+          docker image inspect hermes-ai-os:sprint09-gate
+          test "$(docker image inspect --format '{{.Config.User}}' hermes-ai-os:sprint09-gate)" = "10001:10001"
+          test "$(docker run --rm hermes-ai-os:sprint09-gate id -u)" = "10001"
+          test -z "$(docker image inspect --format '{{range .Config.Env}}{{println .}}{{end}}' hermes-ai-os:sprint09-gate | grep -E '(^|/)(pytest|ruff|httpx|uv)(=|$)' || true)"
+          ! docker run --rm hermes-ai-os:sprint09-gate sh -c 'command -v uv || command -v pytest || command -v ruff || python -c "import httpx"'
+
+      - name: Run read-only console container and validate HTTP contract
+        run: |
+          set -Eeuo pipefail
+          container=hermes-ai-os-sprint09-console
+          cleanup() { docker logs "$container" 2>&1 || true; docker rm --force "$container" >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          docker run --detach --read-only --name "$container" --env LOG_FORMAT=console --publish 18000:8000 hermes-ai-os:sprint09-gate
+          for attempt in $(seq 1 30); do
+            status=$(docker inspect --format '{{.State.Health.Status}}' "$container")
+            [ "$status" = healthy ] && break
+            [ "$status" = unhealthy ] && exit 1
+            sleep 1
+          done
+          test "$(docker inspect --format '{{.State.Health.Status}}' "$container")" = healthy
+          curl --fail --silent --show-error http://127.0.0.1:18000/
+          curl --fail --silent --show-error http://127.0.0.1:18000/api/v1/health
+          generated=$(curl --fail --silent --dump-header - http://127.0.0.1:18000/api/v1/health | grep -i '^x-request-id:' | awk '{print $2}' | tr -d '\r')
+          test -n "$generated"
+          echo "generated_request_id=$generated"
+          preserved=$(curl --fail --silent --dump-header - -H 'X-Request-ID: sprint09-preserved-request' http://127.0.0.1:18000/api/v1/health | grep -i '^x-request-id:' | awk '{print $2}' | tr -d '\r')
+          test "$preserved" = sprint09-preserved-request
+          echo "preserved_request_id=$preserved"
+          docker logs "$container"
+
+      - name: Exercise JSON logging and runtime inventory
+        run: |
+          set -Eeuo pipefail
+          container=hermes-ai-os-sprint09-json
+          cleanup() { docker logs "$container" 2>&1 || true; docker rm --force "$container" >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          docker run --detach --read-only --name "$container" --env LOG_FORMAT=json --publish 18001:8000 hermes-ai-os:sprint09-gate
+          for attempt in $(seq 1 30); do
+            status=$(docker inspect --format '{{.State.Health.Status}}' "$container")
+            [ "$status" = healthy ] && break
+            [ "$status" = unhealthy ] && exit 1
+            sleep 1
+          done
+          curl --fail --silent --show-error http://127.0.0.1:18001/api/v1/health >/dev/null
+          docker exec "$container" python --version
+          docker exec "$container" python -c 'import importlib.metadata as m; print("runtime_distributions"); print("\n".join(sorted(d.metadata["Name"] for d in m.distributions())))'
+          ! docker exec "$container" python -c 'import pytest, ruff, httpx, uv'
+          docker logs "$container" | grep -q '"request_id"'
+
+      - name: Confirm tracked files remain unchanged
+        run: git diff --exit-code -- .

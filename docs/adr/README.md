@@ -22,6 +22,7 @@ O status do ADR representa a decisão arquitetural, não significa necessariamen
 | [ADR-0005](ADR-0005-snapshot-como-projecao-da-arvore-git.md) | Definir o snapshot como projeção determinística da árvore Git | Accepted |
 | [ADR-0006](ADR-0006-uv-lock-como-lock-oficial-de-dependencias.md) | Adotar `uv.lock` como lock oficial e reproduzível de dependências | Accepted |
 | [ADR-0007](ADR-0007-github-actions-como-quality-gate.md) | Adotar GitHub Actions como quality gate reproduzível e somente leitura | Accepted |
+| [ADR-0008](ADR-0008-reproducible-container-baseline.md) | Estabelecer uma baseline reproduzível de container Linux | Proposed |
 
 ## Regra
 
