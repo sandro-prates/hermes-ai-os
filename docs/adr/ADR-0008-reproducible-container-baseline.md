@@ -1,6 +1,6 @@
 # ADR-0008 — Baseline reproduzível de container
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Data:** 19/07/2026
 - **Escopo:** M0 → M1 / SPRINT-09 — Reproducible Container Baseline
 
@@ -67,4 +67,16 @@ aplicação.
 5. Pytest, Ruff e auditoria do snapshot passam sem alterar arquivos protegidos.
 6. O Container Gate remoto e o Quality Gate remoto passam após publicação.
 
-Esta decisão permanece Proposed até que o último critério seja comprovado.
+## Evidência de aceitação
+
+- **Implementation HEAD:** `29b0ecef81b319d369064d16435676f73e03c7ad`;
+- **Quality Gate:** run `29689585477` — `success`;
+- **Container Gate:** run `29689585471` — `success`;
+- **Python image:**
+  `python:3.14.6-slim-trixie@sha256:d4fea6e20c09820028eea3f5c17f5b8ebd2ecb9c2bf28e561681a74a96090e4f`;
+- **uv image:**
+  `ghcr.io/astral-sh/uv:0.11.28@sha256:5c3ab83183a73c5d319a77009eb425b60d5bb937f339fb7876788ebf567baf48`.
+
+O último critério foi comprovado pela publicação normal da baseline e pelos dois
+workflows remotos concluídos com sucesso. A decisão é aceita sem alteração do
+contrato técnico implementado.

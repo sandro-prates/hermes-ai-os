@@ -8,7 +8,8 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 
 - Versão atual: `0.0.1`.
 - Fase atual: `M1 — Infraestrutura`.
-- `M0 — Foundation` concluído nesta ativação documental.
+- `M0 — Foundation` concluído como fato histórico; `M1 — Infraestrutura`
+  permanece em andamento.
 - API FastAPI executável localmente.
 - EPIC-003 / SPRINT-02 (Logging System) concluída.
 - SPRINT-03 — Reproducible Onboarding Baseline concluída na EPIC-004.
@@ -28,8 +29,12 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
   matriz foram aprovadas no GitHub Actions run `29663968493`.
 - A baseline final da SPRINT-08 foi publicada no commit `df23d72`; o quality gate
   dessa baseline foi aprovado no GitHub Actions run `29664949487`.
-- SPRINT-09 — Reproducible Container Baseline ativa em M1, sem nova EPIC ou Task/DT
-  formal; sua implementação técnica ainda não foi iniciada.
+- SPRINT-09 — Reproducible Container Baseline concluída e publicada em M1, sem
+  nova EPIC ou Task/DT formal. A implementação está na baseline `29b0ece`, com
+  Quality Gate `29689585477` e Container Gate `29689585471` aprovados.
+- ADR-0008 — Baseline reproduzível de container aceita após comprovação local e
+  remota.
+- Nenhuma Sprint está ativa ou planejada; a SPRINT-10 não foi autorizada.
 - DT-007 foi concluída como pesquisa no commit `126aff8`; suas recomendações somente
   se tornaram oficiais quando aprovadas e comprovadas na SPRINT-07.
 
@@ -49,6 +54,13 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - Matriz automatizada para Ubuntu Python 3.12, 3.13 e 3.14 e Windows Python 3.14.
 - Validação automática de lock, snapshot, Ruff, Pytest, importação e preservação da
   árvore rastreada.
+- Baseline reproduzível de container Linux com inputs pinados por digest completo.
+- Build Docker multi-stage com Python `3.14.6`, instalação bloqueada pelo `uv.lock`
+  e runtime mínimo.
+- Runtime com UID/GID `10001:10001`, healthcheck e filesystem somente leitura.
+- Ausência de ferramentas e dependências de desenvolvimento na imagem runtime.
+- Container Gate somente leitura, sem secrets, registry login, publicação de imagem,
+  cache externo, artifacts ou deployment.
 
 ## Arquitetura atual
 
@@ -58,8 +70,11 @@ em `app.core.settings`, e logging, formatters, contexto e middleware ficam no pa
 `app.core.observability`.
 
 ```text
+Dockerfile
+.dockerignore
 .github/workflows/
-└── quality-gate.yml
+├── quality-gate.yml
+└── container-gate.yml
 apps/backend/app/
 ├── api/
 │   └── v1/health.py
@@ -69,6 +84,8 @@ apps/backend/app/
 └── main.py
 tests/
 ├── test_api.py
+├── test_container_baseline.py
+├── test_container_gate_workflow.py
 ├── test_env_example.py
 ├── test_middleware.py
 ├── test_observability.py
@@ -83,9 +100,35 @@ docs/
 ├── 01_PROJECT_STATE.yaml
 ├── 02_BACKLOG.md
 ├── 03_CHANGELOG.md
-├── HANDOFF_2026-07-18-SPRINT-08.md
+├── HANDOFF_2026-07-19-SPRINT-09.md
 └── PROJECT_SNAPSHOT.md
 ```
+
+## Container reproduzível
+
+As entradas do build estão fixadas por tag legível e digest completo para
+`linux/amd64`:
+
+```text
+python:3.14.6-slim-trixie@sha256:d4fea6e20c09820028eea3f5c17f5b8ebd2ecb9c2bf28e561681a74a96090e4f
+ghcr.io/astral-sh/uv:0.11.28@sha256:5c3ab83183a73c5d319a77009eb425b60d5bb937f339fb7876788ebf567baf48
+```
+
+Build local aprovado:
+
+```powershell
+docker build --no-cache --pull=false --tag hermes-ai-os:local .
+```
+
+Execução local com filesystem somente leitura:
+
+```powershell
+docker run --rm --read-only --publish 8000:8000 hermes-ai-os:local
+```
+
+A imagem usa usuário não root, expõe a porta `8000`, possui healthcheck e preserva
+os contratos de `GET /`, `GET /api/v1/health`, Request ID e logging console/JSON.
+Nenhuma imagem foi publicada e nenhum deployment foi executado.
 
 ## Requisitos
 
@@ -224,11 +267,12 @@ Executar os testes:
 python -m pytest
 ```
 
-Estado atual verificado no fechamento da SPRINT-08: 119 testes aprovados e
+Estado atual verificado no fechamento da SPRINT-09: 133 testes aprovados e
 1 aviso de depreciação não bloqueante do `TestClient` relacionado ao `httpx`.
-Ruff, importação, endpoints, Request ID, logging, snapshot e os 43 contratos do
-workflow foram aprovados localmente. O GitHub Actions run `29663968493` aprovou as
-quatro combinações da matriz e todos os passos obrigatórios. Execute sempre os
+Ruff, importação, endpoints, Request ID, logging, snapshot, os 43 contratos do
+Quality Gate e os 14 contratos do container foram aprovados localmente. O Quality
+Gate run `29689585477` aprovou as quatro combinações da matriz, e o Container Gate
+run `29689585471` aprovou integralmente o contrato da imagem. Execute sempre os
 comandos acima para obter o resultado local atual; a quantidade de testes pode evoluir.
 
 ## Dependências reproduzíveis
@@ -268,15 +312,17 @@ python tools/project_snapshot.py --check
 - [Estado operacional](docs/01_PROJECT_STATE.yaml)
 - [Backlog](docs/02_BACKLOG.md)
 - [Changelog](docs/03_CHANGELOG.md)
-- [Handoff da SPRINT-08](docs/HANDOFF_2026-07-18-SPRINT-08.md)
+- [Handoff da SPRINT-09](docs/HANDOFF_2026-07-19-SPRINT-09.md)
 - [Architecture Decision Records](docs/adr/README.md)
 
 ## Limitações atuais
 
-O projeto está em M1. A implementação técnica da SPRINT-09 ainda não foi iniciada.
-Banco de dados, runtime de agentes, memória, dashboard e integrações externas
-ainda não estão implementados. A prova Linux da SPRINT-07 ocorreu
-em Docker Desktop/WSL2, não em host físico Linux administrado separadamente. O quality
-gate inicial não usa cache, artifacts, deployment ou segredos e ainda não constitui
-uma plataforma de entrega contínua. A interoperabilidade de terceiros do
+O projeto permanece em `M1 — Infraestrutura`, que ainda não está concluído. Nenhuma
+Sprint está ativa ou planejada, e a SPRINT-10 não foi autorizada.
+
+A baseline de container cobre `linux/amd64`, mas não inclui Docker Compose, registry,
+publicação de imagem, deployment, persistência ou orquestração. Banco de dados,
+runtime de agentes, memória, dashboard e integrações externas ainda não estão
+implementados. A prova Linux da SPRINT-07 ocorreu em Docker Desktop/WSL2, não em host
+físico Linux administrado separadamente. A interoperabilidade de terceiros do
 `pylock.toml` não foi comprovada, e o arquivo não foi adotado oficialmente.

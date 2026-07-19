@@ -10,49 +10,59 @@
 >
 > **Último EPIC concluído:** EPIC-004 — Foundation Reproducibility
 >
-> **Última Sprint concluída:** SPRINT-08 — Automated Quality Gate
+> **Última Sprint concluída:** SPRINT-09 — Reproducible Container Baseline
 >
-> **Sprint atual:** SPRINT-09 — Reproducible Container Baseline
+> **Sprint atual:** nenhuma
 >
 > **Responsável:** Sandro Prates
 >
 > **Última verificação:** 19/07/2026
 
-## Transição documental corrente — 2026-07-19
+## Fechamento da SPRINT-09 — 2026-07-19
 
-### Fechamento factual do M0 — Foundation
+### Estado final
 
-O M0 foi encerrado por evidências implementadas e comprovadas: estrutura base do
-projeto e API FastAPI executável; settings centralizados; endpoints públicos;
-observabilidade, logging e Request ID; testes automatizados; Ruff; documentação viva
-e continuidade formal; snapshot determinístico baseado em HEAD; onboarding reproduzível
-com `.env.example` sanitizado; `pyproject.toml` como fonte declarativa; `uv.lock` como
-lock oficial reproduzível; matriz Python validada; quality gate automatizado,
-reproduzível e somente leitura; baseline final da SPRINT-08 publicada e sincronizada;
-119 testes aprovados e um warning conhecido não bloqueante.
+- **M0 — Foundation:** `completed`, como fato histórico.
+- **M1 — Infraestrutura:** `in_progress`.
+- **SPRINT-09 — Reproducible Container Baseline:** `completed`.
+- **Sprint ativa:** nenhuma.
+- **Sprint planejada:** nenhuma.
+- **Task ativa ou planejada:** nenhuma.
+- **EPIC, Task ou DT criada na Sprint:** nenhuma.
+- **SPRINT-10:** não autorizada.
 
-Não existia uma lista histórica formal prévia chamada “critérios de saída do M0”; as
-afirmações acima são as evidências factuais usadas para o encerramento. Nenhuma
-funcionalidade de container foi declarada concluída, a versão permanece `0.0.1` e
-M1 não está concluído.
+A SPRINT-09 estabeleceu uma baseline reproduzível de container Linux sem alterar a
+aplicação, dependências ou lock. A implementação publicada está no HEAD
+`29b0ecef81b319d369064d16435676f73e03c7ad`.
 
-### Ativação da SPRINT-09
+### Entregas e arquitetura
 
-- **Status:** `in_progress`
-- **Milestone:** M1 — Infraestrutura
-- **Sprint:** SPRINT-09 — Reproducible Container Baseline
-- **EPIC:** nenhuma
-- **Task ou DT formal:** nenhuma criada
-- **Baseline de ativação:** `df23d729069a637e914052ffc6a5a0d6d21ddf1d`
+- `Dockerfile` Linux multi-stage;
+- `.dockerignore` restritivo;
+- Python `3.14.6` no builder e runtime;
+- inputs Python e uv pinados por digest completo para `linux/amd64`;
+- `uv sync --locked --no-dev --no-editable` no builder;
+- runtime com UID/GID numéricos `10001:10001`;
+- filesystem somente leitura comprovado;
+- healthcheck com biblioteca padrão do Python;
+- contratos de `GET /`, `GET /api/v1/health`, Request ID e logs console/JSON;
+- ausência de ferramentas e dependências de desenvolvimento na imagem runtime;
+- Container Gate somente leitura, sem secrets, registry login, push de imagem,
+  cache externo, artifacts, deployment ou comandos Git de escrita.
 
-Objetivo: estabelecer futuramente uma baseline reproduzível de container. Nesta
-sessão ocorreu somente a ativação documental; a implementação técnica ainda não foi
-iniciada. Permanecem fora do escopo atual Dockerfile, Compose, testes de container,
-alterações em dependências, lock, workflow, aplicações e código de infraestrutura.
+### Evidência remota
 
-O método de verificação desta transição foi ativação documental autorizada após
-baseline, macrobloco read-only, auditoria semântica, Git, lock, snapshot da
-baseline em auditoria, Ruff, Pytest e importação aprovados.
+- Quality Gate run `29689585477`: `completed/success`, quatro jobs aprovados;
+- Container Gate run `29689585471`: `completed/success`, job `container-gate`
+  aprovado;
+- ADR-0008 promovida para `Accepted` após satisfação integral dos critérios.
+
+### Limites preservados
+
+Nenhuma imagem foi publicada, nenhum deployment foi executado, Docker Compose e
+registry não foram configurados, nenhuma dependência foi adicionada e o comportamento
+da aplicação não mudou. M1 permanece em andamento e nenhum próximo incremento está
+autorizado.
 
 ## SPRINT-07 — Dependency Reproducibility Proof
 
@@ -214,11 +224,12 @@ Evoluir desde uma instalação local até uma plataforma comercial gerenciada, c
 
 - Branch operacional: `main`.
 - Upstream configurado: `origin/main`.
-- Baseline de implementação da SPRINT-08 confirmada em
-  `49b5dd5d8d240f6bbb4784c97e1d1242add0d040`, com `HEAD`, `origin/main` e
-  `remote main` sincronizados antes do fechamento documental.
+- Baseline publicada da SPRINT-09 confirmada em
+  `29b0ecef81b319d369064d16435676f73e03c7ad`, com `HEAD`, `origin/main` e
+  `remote main` sincronizados antes do fechamento documental final.
 - Divergência confirmada nessa baseline: ahead `0`, behind `0`.
-- Working tree e staging validados como limpos antes do fechamento.
+- Working tree, staging, tracked unstaged e untracked validados como limpos antes
+  do fechamento; `.git/index.lock` ausente.
 - Baseline antes da adoção oficial do lock: `7513489`.
 - A adoção do lock e do ADR-0006 ocorreu no commit `cf5dfda`, integrado à
   baseline publicada.
@@ -226,7 +237,11 @@ Evoluir desde uma instalação local até uma plataforma comercial gerenciada, c
 - A implementação do quality gate está publicada em `49b5dd5`.
 - O fechamento documental da SPRINT-08 está publicado em `31e4afd`.
 - A baseline final publicada e sincronizada da SPRINT-08 é `df23d72`.
-- O quality gate da baseline final foi aprovado no run `29664949487`.
+- O quality gate da baseline final da SPRINT-08 foi aprovado no run `29664949487`.
+- A SPRINT-09 foi ativada em `fb3d63c`, recebeu snapshot em `68494de`, implementação
+  de container em `ff01f10` e snapshot de implementação em `29b0ece`.
+- A publicação de `29b0ece` foi comprovada por `git ls-remote`; Quality Gate
+  `29689585477` e Container Gate `29689585471` concluíram com `success`.
 - O estado operacional de branch, upstream e working tree deve ser consultado
   diretamente com Git.
 
@@ -338,6 +353,24 @@ Fechamento documental da SPRINT-08 — Automated Quality Gate.
 
 Snapshot final da SPRINT-08 publicado e adotado como baseline de ativação da
 SPRINT-09.
+
+### `fb3d63c`
+
+M0 encerrado, M1 iniciado e SPRINT-09 ativada documentalmente.
+
+### `68494de`
+
+Snapshot atualizado após a ativação da SPRINT-09.
+
+### `ff01f10`
+
+Baseline reproduzível de container implementada com Dockerfile, `.dockerignore`,
+Container Gate, testes contratuais e ADR-0008 proposta.
+
+### `29b0ece`
+
+Snapshot atualizado após a implementação e publicado como baseline remota de
+aceitação da SPRINT-09.
 
 ## Trabalho concluído histórico
 
@@ -461,11 +494,12 @@ Evidência Git:
 
 Resultado verificado:
 
-- 119 testes coletados;
-- 119 testes aprovados;
+- 133 testes coletados;
+- 133 testes aprovados;
 - 1 aviso de depreciação do `TestClient`;
-- 43 testes contratuais dedicados ao workflow;
-- quatro jobs remotos aprovados no GitHub Actions run `29663968493`.
+- 43 testes contratuais do Quality Gate;
+- 14 testes contratuais da baseline e do Container Gate;
+- Quality Gate run `29689585477` e Container Gate run `29689585471` aprovados.
 
 O aviso de depreciação é uma observação conhecida e não bloqueia o fechamento.
 
@@ -496,6 +530,7 @@ ADRs aceitos:
 - ADR-0005 — snapshot como projeção determinística da árvore Git.
 - ADR-0006 — `uv.lock` como lock oficial de dependências.
 - ADR-0007 — GitHub Actions como quality gate reproduzível e somente leitura.
+- ADR-0008 — baseline reproduzível de container Linux.
 
 O `pyproject.toml` permanece como fonte declarativa, e o `uv.lock` passa a ser o
 artefato oficial de resolução reproduzível. Atualizações do lock são deliberadas,
@@ -526,19 +561,19 @@ mudar.
 - M1 — Infraestrutura: `in_progress`.
 - M2 a M8: `pending`.
 
-## Sprint concluída
+## Estado operacional corrente
 
-- EPIC-004 — Foundation Reproducibility.
-- SPRINT-03 — Reproducible Onboarding Baseline.
-- Status: `completed`.
-- Objetivo: tornar o onboarding documentado reproduzível a partir de um clone limpo.
-- Task concluída: DT-008 — versionar e validar um `.env.example` sanitizado (`completed`).
+- Última Sprint concluída: SPRINT-09 — Reproducible Container Baseline.
+- Sprint ativa: nenhuma.
+- Sprint planejada: nenhuma.
+- Task ativa ou planejada: nenhuma.
+- M0 — Foundation: `completed` como fato histórico.
+- M1 — Infraestrutura: `in_progress`.
+- SPRINT-10: não autorizada.
 
-A baseline publicada em `51d3747` foi comprovada antes da ativação, e a implementação
-foi commitada em `2ebed11`. EPIC-004, SPRINT-03 e DT-008 estão concluídas. A documentação
-e o handoff estão comprovados por `b1ab2ea` e `313de97`. A continuidade do snapshot
-segue o contrato do ADR-0005 e é verificada operacionalmente por `--check`. Nenhuma
-nova Sprint foi ativada.
+O próximo incremento depende de nova definição explícita. A continuidade deve partir
+deste documento, do Project State, do handoff da SPRINT-09, dos ADRs aceitos e da
+validação direta do Git.
 
 ---
 

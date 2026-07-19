@@ -84,6 +84,15 @@ def test_real_project_state_uses_only_schema_2_work_contract() -> None:
 
 def test_real_project_state_has_explicit_active_completed_and_planned_values() -> None:
     state = load_state()
+
+    project = state["project"]
+    assert isinstance(project, dict)
+    assert project["phase"] == {
+        "id": "M1",
+        "name": "Infraestrutura",
+        "status": "in_progress",
+    }
+
     work = state["work"]
     assert isinstance(work, dict)
     assert set(work) == {"active", "last_completed", "planned"}
@@ -99,20 +108,17 @@ def test_real_project_state_has_explicit_active_completed_and_planned_values() -
     assert set(completed) == {"sprint", "task"}
     assert set(planned) == {"sprint", "task"}
 
-    assert active["sprint"] == {
-        "id": "SPRINT-09",
-        "title": "Reproducible Container Baseline",
-        "status": "in_progress",
-    }
+    assert active["sprint"] is None
     assert active["task"] is None
     assert completed["sprint"] == {
-        "id": "SPRINT-08",
-        "title": "Automated Quality Gate",
+        "id": "SPRINT-09",
+        "title": "Reproducible Container Baseline",
         "status": "completed",
     }
     assert completed["task"] is None
     assert planned["sprint"] is None
     assert planned["task"] is None
+
 
 
 def test_activation_contract_preserves_sprint_05_and_dt_007_as_last_completed() -> None:

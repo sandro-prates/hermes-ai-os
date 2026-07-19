@@ -116,32 +116,97 @@ Nenhuma Sprint foi criada para esta Task.
 
 ---
 
-# Sprint ativa
+# Última Sprint Concluída
 
 ## SPRINT-09 — Reproducible Container Baseline
 
-**Status:** 🟡 `in_progress`
+**Status:** ✅ Concluída e publicada (`completed`)
 
-**Milestone:** M1 — Infraestrutura
+**Milestone:** M1 — Infraestrutura (`in_progress`)
 
 **EPIC:** nenhuma
 
 **Task ou DT formal:** nenhuma criada
 
-**Baseline de ativação:** `df23d729069a637e914052ffc6a5a0d6d21ddf1d`
+**Baseline publicada:** `29b0ecef81b319d369064d16435676f73e03c7ad`
 
-**Objetivo documental:** formalizar a transição de M0 concluído para M1 em andamento
-e manter o estado operacional verificável.
+**Critérios existentes e comprovados:**
 
-**Objetivo técnico futuro:** estabelecer uma baseline reproduzível de container.
+- [x] Dockerfile Linux multi-stage criado e validado;
+- [x] `.dockerignore` restritivo criado e validado;
+- [x] Python `3.14.6` e uv `0.11.28` pinados por digest completo;
+- [x] manifestos `linux/amd64` confirmados;
+- [x] instalação bloqueada por `uv.lock`, sem alteração de dependências;
+- [x] runtime não root com UID/GID `10001:10001`;
+- [x] execução com filesystem somente leitura;
+- [x] healthcheck, `GET /` e `GET /api/v1/health` aprovados;
+- [x] Request ID gerado e preservado;
+- [x] logging console e JSON aprovados;
+- [x] ausência de ferramentas e dependências de desenvolvimento na imagem runtime;
+- [x] Container Gate somente leitura implementado;
+- [x] 14 testes contratuais novos aprovados;
+- [x] suíte completa com 133 testes aprovados e 1 warning conhecido;
+- [x] Ruff, importação, snapshot e `git diff --check` aprovados;
+- [x] Quality Gate run `29689585477` concluído com `success`;
+- [x] Container Gate run `29689585471` concluído com `success`;
+- [x] ADR-0008 aceita após comprovação remota;
+- [x] commits `fb3d63c`, `68494de`, `ff01f10` e `29b0ece` publicados.
 
-Nesta ativação nenhuma implementação de container foi realizada. O escopo futuro
-inclui desenho, implementação e validação da baseline reproduzível, ainda sem itens
-marcados como concluídos.
+**Limites e exclusões preservados:**
 
-**Fora de escopo nesta ativação:** Dockerfile, Compose, testes de container, código de
-infraestrutura, dependências, `.venv`, `pyproject.toml`, `uv.lock`, workflow de
-quality gate, aplicações, nova EPIC e Task/DT formal.
+```text
+IMAGE_PUBLISHED=NAO
+DEPLOYMENT_EXECUTED=NAO
+COMPOSE_IMPLEMENTED=NAO
+REGISTRY_CONFIGURED=NAO
+NEW_DEPENDENCIES=NAO
+APPLICATION_BEHAVIOR_CHANGED=NAO
+```
+
+Nenhuma Sprint ou Task está ativa ou planejada. A SPRINT-10 não foi autorizada.
+
+---
+
+# Sprint concluída anterior
+
+## SPRINT-08 — Automated Quality Gate
+
+**Status:** ✅ Concluída e publicada (`completed`)
+
+**Milestone:** M0 — Foundation
+
+**EPIC:** nenhuma nova EPIC
+
+**Task ou DT formal:** nenhuma criada para esta Sprint
+
+**Objetivo concluído:** implementar e validar um automated quality gate
+reproduzível e somente leitura no GitHub Actions.
+
+**Critérios de aceitação:**
+
+- [x] workflow `.github/workflows/quality-gate.yml` criado;
+- [x] triggers restritos a `push` em `main`, `pull_request` para `main` e
+  `workflow_dispatch`;
+- [x] `permissions: contents: read` e nenhuma permissão de escrita;
+- [x] matriz com Ubuntu Python 3.12, 3.13 e 3.14 e Windows Python 3.14;
+- [x] `fail-fast: false`;
+- [x] Actions externas pinadas por SHA completo e versão humana registrada;
+- [x] `uv 0.11.28` e cutoff oficial da SPRINT-07;
+- [x] `uv lock --check` e `uv sync --locked --all-extras`;
+- [x] snapshot check, Ruff, Pytest, importação e preservação da árvore rastreada;
+- [x] 43 testes automatizados do contrato do workflow;
+- [x] suíte local com 119 testes aprovados e 1 warning conhecido;
+- [x] execução remota `29663968493` concluída com sucesso nos quatro jobs;
+- [x] ausência de segredos, cache, artifacts, deployment, autofix, permissões de
+  escrita e comandos Git de escrita;
+- [x] `pyproject.toml`, `uv.lock`, `apps/` e `.venv` oficial preservados;
+- [x] ADR-0007 aceita após comprovação remota.
+
+**Evidência principal:** implementação publicada em `49b5dd5`; GitHub Actions run
+`29663968493` integralmente verde.
+
+**Continuidade histórica:** no fechamento da SPRINT-08, nenhuma Sprint estava ativa
+ou planejada e a SPRINT-09 ainda não havia sido autorizada.
 
 ---
 
@@ -211,49 +276,6 @@ dependências, adotar o lock canônico autorizado e estabelecer sua política of
 
 **Evidências principais:** relatórios canônicos de determinismo, Windows, matriz
 Linux, pylock, validação independente, ADR-0006 e commits locais do fechamento.
-
----
-
-# Última Sprint Concluída
-
-## SPRINT-08 — Automated Quality Gate
-
-**Status:** ✅ Concluída e publicada (`completed`)
-
-**Milestone:** M0 — Foundation
-
-**EPIC:** nenhuma nova EPIC
-
-**Task ou DT formal:** nenhuma criada para esta Sprint
-
-**Objetivo concluído:** implementar e validar um automated quality gate
-reproduzível e somente leitura no GitHub Actions.
-
-**Critérios de aceitação:**
-
-- [x] workflow `.github/workflows/quality-gate.yml` criado;
-- [x] triggers restritos a `push` em `main`, `pull_request` para `main` e
-  `workflow_dispatch`;
-- [x] `permissions: contents: read` e nenhuma permissão de escrita;
-- [x] matriz com Ubuntu Python 3.12, 3.13 e 3.14 e Windows Python 3.14;
-- [x] `fail-fast: false`;
-- [x] Actions externas pinadas por SHA completo e versão humana registrada;
-- [x] `uv 0.11.28` e cutoff oficial da SPRINT-07;
-- [x] `uv lock --check` e `uv sync --locked --all-extras`;
-- [x] snapshot check, Ruff, Pytest, importação e preservação da árvore rastreada;
-- [x] 43 testes automatizados do contrato do workflow;
-- [x] suíte local com 119 testes aprovados e 1 warning conhecido;
-- [x] execução remota `29663968493` concluída com sucesso nos quatro jobs;
-- [x] ausência de segredos, cache, artifacts, deployment, autofix, permissões de
-  escrita e comandos Git de escrita;
-- [x] `pyproject.toml`, `uv.lock`, `apps/` e `.venv` oficial preservados;
-- [x] ADR-0007 aceita após comprovação remota.
-
-**Evidência principal:** implementação publicada em `49b5dd5`; GitHub Actions run
-`29663968493` integralmente verde.
-
-**Continuidade histórica:** no fechamento da SPRINT-08, nenhuma Sprint estava ativa
-ou planejada e a SPRINT-09 ainda não havia sido autorizada.
 
 ---
 

@@ -8,17 +8,61 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-### Ativação documental — 2026-07-19
+Nenhuma nova Sprint ou mudança funcional está ativa. M1 — Infraestrutura permanece
+`in_progress`, e a SPRINT-10 não foi autorizada.
 
-- M0 — Foundation encerrado.
-- M1 — Infraestrutura iniciado.
-- SPRINT-09 — Reproducible Container Baseline ativada.
-- Nenhuma EPIC ou Task/DT formal criada.
-- Nenhuma funcionalidade, dependência, workflow, lock, código de aplicação ou
-  infraestrutura alterados.
-- `tests/test_project_state.py` ajustado somente para refletir a SPRINT-09 ativa.
-- Baseline de ativação: `df23d729069a637e914052ffc6a5a0d6d21ddf1d`.
-- Implementação técnica da SPRINT-09 ainda não iniciada.
+## [SPRINT-09] — 2026-07-19
+
+SPRINT-09 — Reproducible Container Baseline concluída em M1, sem nova EPIC ou
+Task/DT formal.
+
+### Adicionado
+
+- `Dockerfile` Linux multi-stage;
+- `.dockerignore` restritivo;
+- workflow `.github/workflows/container-gate.yml`;
+- testes contratuais `tests/test_container_baseline.py` e
+  `tests/test_container_gate_workflow.py`;
+- ADR-0008 — Baseline reproduzível de container;
+- handoff `docs/HANDOFF_2026-07-19-SPRINT-09.md`.
+
+### Implementado
+
+- Python `3.14.6` e uv `0.11.28` pinados por digest completo para `linux/amd64`;
+- build multi-stage com `uv sync --locked --no-dev --no-editable`;
+- runtime não root com UID/GID `10001:10001`;
+- filesystem somente leitura;
+- healthcheck com biblioteca padrão do Python;
+- contratos de endpoints, Request ID e logging console/JSON;
+- ausência de ferramentas e dependências de desenvolvimento na imagem runtime;
+- Container Gate somente leitura, sem secrets, registry login, push de imagem,
+  cache externo, artifacts, deployment ou comandos Git de escrita.
+
+### Validado
+
+- 14 testes focados e 133 testes totais aprovados, com 1 warning conhecido;
+- Ruff, importação, snapshot e `git diff --check` aprovados;
+- Quality Gate run `29689585477` concluído com `success`;
+- Container Gate run `29689585471` concluído com `success`;
+- ADR-0008 promovida de `Proposed` para `Accepted`;
+- arquivos de aplicação, `pyproject.toml`, `uv.lock`, Quality Gate e contratos
+  técnicos existentes preservados.
+
+### Não realizado
+
+- publicação de imagem;
+- deployment;
+- Docker Compose;
+- configuração de registry;
+- alteração de dependências ou do comportamento da aplicação.
+
+### Continuidade
+
+- SPRINT-09 passa de `in_progress` para `completed`;
+- nenhuma Sprint ou Task permanece ativa ou planejada;
+- M0 permanece `completed` como fato histórico;
+- M1 permanece `in_progress`;
+- SPRINT-10 não autorizada.
 
 ## [SPRINT-08] — 2026-07-18
 
