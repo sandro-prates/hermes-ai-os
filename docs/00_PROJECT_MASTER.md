@@ -6,17 +6,53 @@
 >
 > **Modelo de negócio:** Open Core
 >
-> **Fase atual:** M0 — Foundation
+> **Fase atual:** M1 — Infraestrutura
 >
 > **Último EPIC concluído:** EPIC-004 — Foundation Reproducibility
 >
 > **Última Sprint concluída:** SPRINT-08 — Automated Quality Gate
 >
-> **Sprint atual:** nenhuma
+> **Sprint atual:** SPRINT-09 — Reproducible Container Baseline
 >
 > **Responsável:** Sandro Prates
 >
-> **Última verificação:** 18/07/2026
+> **Última verificação:** 19/07/2026
+
+## Transição documental corrente — 2026-07-19
+
+### Fechamento factual do M0 — Foundation
+
+O M0 foi encerrado por evidências implementadas e comprovadas: estrutura base do
+projeto e API FastAPI executável; settings centralizados; endpoints públicos;
+observabilidade, logging e Request ID; testes automatizados; Ruff; documentação viva
+e continuidade formal; snapshot determinístico baseado em HEAD; onboarding reproduzível
+com `.env.example` sanitizado; `pyproject.toml` como fonte declarativa; `uv.lock` como
+lock oficial reproduzível; matriz Python validada; quality gate automatizado,
+reproduzível e somente leitura; baseline final da SPRINT-08 publicada e sincronizada;
+119 testes aprovados e um warning conhecido não bloqueante.
+
+Não existia uma lista histórica formal prévia chamada “critérios de saída do M0”; as
+afirmações acima são as evidências factuais usadas para o encerramento. Nenhuma
+funcionalidade de container foi declarada concluída, a versão permanece `0.0.1` e
+M1 não está concluído.
+
+### Ativação da SPRINT-09
+
+- **Status:** `in_progress`
+- **Milestone:** M1 — Infraestrutura
+- **Sprint:** SPRINT-09 — Reproducible Container Baseline
+- **EPIC:** nenhuma
+- **Task ou DT formal:** nenhuma criada
+- **Baseline de ativação:** `df23d729069a637e914052ffc6a5a0d6d21ddf1d`
+
+Objetivo: estabelecer futuramente uma baseline reproduzível de container. Nesta
+sessão ocorreu somente a ativação documental; a implementação técnica ainda não foi
+iniciada. Permanecem fora do escopo atual Dockerfile, Compose, testes de container,
+alterações em dependências, lock, workflow, aplicações e código de infraestrutura.
+
+O método de verificação desta transição foi ativação documental autorizada após
+baseline, macrobloco read-only, auditoria semântica, Git, lock, snapshot da
+baseline em auditoria, Ruff, Pytest e importação aprovados.
 
 ## SPRINT-07 — Dependency Reproducibility Proof
 
@@ -123,8 +159,8 @@ automated quality gate reproduzível e somente leitura no GitHub Actions.
 - 43 testes contratuais do workflow e 119 testes totais aprovados;
 - ADR-0007 aceita após comprovação remota integral.
 
-**Continuidade:** nenhuma Sprint está ativa ou planejada. A SPRINT-09 não foi
-autorizada.
+**Continuidade histórica:** no fechamento da SPRINT-08, nenhuma Sprint estava ativa
+ou planejada e a SPRINT-09 ainda não havia sido autorizada.
 
 ---
 
@@ -188,6 +224,9 @@ Evoluir desde uma instalação local até uma plataforma comercial gerenciada, c
   baseline publicada.
 - A SPRINT-07 está publicada na baseline `85ef2616`.
 - A implementação do quality gate está publicada em `49b5dd5`.
+- O fechamento documental da SPRINT-08 está publicado em `31e4afd`.
+- A baseline final publicada e sincronizada da SPRINT-08 é `df23d72`.
+- O quality gate da baseline final foi aprovado no run `29664949487`.
 - O estado operacional de branch, upstream e working tree deve ser consultado
   diretamente com Git.
 
@@ -290,6 +329,15 @@ Snapshot atualizado após a ativação da SPRINT-08.
 
 Workflow reproduzível, testes contratuais, ADR-0007 proposta e snapshot da
 implementação do quality gate.
+
+### `31e4afd`
+
+Fechamento documental da SPRINT-08 — Automated Quality Gate.
+
+### `df23d72`
+
+Snapshot final da SPRINT-08 publicado e adotado como baseline de ativação da
+SPRINT-09.
 
 ## Trabalho concluído histórico
 
@@ -474,7 +522,9 @@ mudar.
 - M7 — Marketplace
 - M8 — Enterprise
 
-Somente M0 está em andamento. Os demais permanecem pendentes como milestones formais.
+- M0 — Foundation: `completed`.
+- M1 — Infraestrutura: `in_progress`.
+- M2 a M8: `pending`.
 
 ## Sprint concluída
 

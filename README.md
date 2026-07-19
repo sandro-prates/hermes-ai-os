@@ -7,7 +7,8 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 ## Status
 
 - Versão atual: `0.0.1`.
-- Fase atual: `M0 — Foundation`.
+- Fase atual: `M1 — Infraestrutura`.
+- `M0 — Foundation` concluído nesta ativação documental.
 - API FastAPI executável localmente.
 - EPIC-003 / SPRINT-02 (Logging System) concluída.
 - SPRINT-03 — Reproducible Onboarding Baseline concluída na EPIC-004.
@@ -25,7 +26,10 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - SPRINT-08 — Automated Quality Gate concluída no M0, sem nova EPIC ou Task formal.
   A implementação foi publicada no commit `49b5dd5`, e as quatro combinações da
   matriz foram aprovadas no GitHub Actions run `29663968493`.
-- Nenhuma Sprint está ativa ou planejada. A SPRINT-09 não foi autorizada.
+- A baseline final da SPRINT-08 foi publicada no commit `df23d72`; o quality gate
+  dessa baseline foi aprovado no GitHub Actions run `29664949487`.
+- SPRINT-09 — Reproducible Container Baseline ativa em M1, sem nova EPIC ou Task/DT
+  formal; sua implementação técnica ainda não foi iniciada.
 - DT-007 foi concluída como pesquisa no commit `126aff8`; suas recomendações somente
   se tornaram oficiais quando aprovadas e comprovadas na SPRINT-07.
 
@@ -269,8 +273,9 @@ python tools/project_snapshot.py --check
 
 ## Limitações atuais
 
-O projeto ainda está no M0. Banco de dados, runtime de agentes, memória, dashboard e
-integrações externas ainda não estão implementados. A prova Linux da SPRINT-07 ocorreu
+O projeto está em M1. A implementação técnica da SPRINT-09 ainda não foi iniciada.
+Banco de dados, runtime de agentes, memória, dashboard e integrações externas
+ainda não estão implementados. A prova Linux da SPRINT-07 ocorreu
 em Docker Desktop/WSL2, não em host físico Linux administrado separadamente. O quality
 gate inicial não usa cache, artifacts, deployment ou segredos e ainda não constitui
 uma plataforma de entrega contínua. A interoperabilidade de terceiros do

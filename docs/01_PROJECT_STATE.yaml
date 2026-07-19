@@ -1,14 +1,14 @@
 schema_version: 2
 last_verified:
-  date: '2026-07-18'
-  method: Fechamento da SPRINT-08 com Git local e remoto, matriz GitHub Actions, hashes, YAML, Ruff, Pytest, runtime, lock e snapshot
+  date: '2026-07-19'
+  method: ativação documental autorizada após baseline, macrobloco read-only, auditoria semântica, Git, lock, snapshot da baseline em auditoria, Ruff, Pytest e importação aprovados
 project:
   name: Hermes AI OS
   version: 0.0.1
   business_model: Open Core
   phase:
-    id: M0
-    name: Foundation
+    id: M1
+    name: Infraestrutura
     status: in_progress
 repository:
   branch: main
@@ -128,6 +128,9 @@ repository:
   - commit: cf5dfdae11ddcb77137f8d75b11606b73bfc43a2
     short_commit: cf5dfda
     message: 'build(deps): adopt reproducible uv lock'
+  - commit: 61fa4b5ea7389aff70bde319f7722934a52f9ced
+    short_commit: 61fa4b5
+    message: 'docs(project): close sprint 07 dependency reproducibility'
   - commit: 85ef2616bdfe4573d9bf8bf2abecde06e76aac6a
     short_commit: 85ef261
     message: 'docs(project): refresh sprint 07 final snapshot'
@@ -140,6 +143,12 @@ repository:
   - commit: 49b5dd5d8d240f6bbb4784c97e1d1242add0d040
     short_commit: 49b5dd5
     message: 'ci(quality): add reproducible automated quality gate'
+  - commit: 31e4afd4a27f4f71d44e2fcae43e85ac640537a3
+    short_commit: 31e4afd
+    message: 'docs(project): close sprint 08 automated quality gate'
+  - commit: df23d729069a637e914052ffc6a5a0d6d21ddf1d
+    short_commit: df23d72
+    message: 'docs(project): refresh sprint 08 final snapshot'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
@@ -153,7 +162,10 @@ repository:
     message: 'docs(project): close sprint and prepare handoff'
 work:
   active:
-    sprint: null
+    sprint:
+      id: SPRINT-09
+      title: Reproducible Container Baseline
+      status: in_progress
     task: null
   last_completed:
     sprint:

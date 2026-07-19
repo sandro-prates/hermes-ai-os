@@ -8,7 +8,17 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-Nenhuma mudança funcional ou nova Sprint está ativa. A SPRINT-09 não foi autorizada.
+### Ativação documental — 2026-07-19
+
+- M0 — Foundation encerrado.
+- M1 — Infraestrutura iniciado.
+- SPRINT-09 — Reproducible Container Baseline ativada.
+- Nenhuma EPIC ou Task/DT formal criada.
+- Nenhuma funcionalidade, dependência, workflow, lock, código de aplicação ou
+  infraestrutura alterados.
+- `tests/test_project_state.py` ajustado somente para refletir a SPRINT-09 ativa.
+- Baseline de ativação: `df23d729069a637e914052ffc6a5a0d6d21ddf1d`.
+- Implementação técnica da SPRINT-09 ainda não iniciada.
 
 ## [SPRINT-08] — 2026-07-18
 

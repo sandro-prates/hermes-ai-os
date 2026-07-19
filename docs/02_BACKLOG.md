@@ -1,6 +1,6 @@
 # Hermes AI OS — Backlog
 
-> Última verificação: 18/07/2026
+> Última verificação: 19/07/2026
 >
 > Fonte de verdade operacional: `docs/01_PROJECT_STATE.yaml`
 >
@@ -116,6 +116,35 @@ Nenhuma Sprint foi criada para esta Task.
 
 ---
 
+# Sprint ativa
+
+## SPRINT-09 — Reproducible Container Baseline
+
+**Status:** 🟡 `in_progress`
+
+**Milestone:** M1 — Infraestrutura
+
+**EPIC:** nenhuma
+
+**Task ou DT formal:** nenhuma criada
+
+**Baseline de ativação:** `df23d729069a637e914052ffc6a5a0d6d21ddf1d`
+
+**Objetivo documental:** formalizar a transição de M0 concluído para M1 em andamento
+e manter o estado operacional verificável.
+
+**Objetivo técnico futuro:** estabelecer uma baseline reproduzível de container.
+
+Nesta ativação nenhuma implementação de container foi realizada. O escopo futuro
+inclui desenho, implementação e validação da baseline reproduzível, ainda sem itens
+marcados como concluídos.
+
+**Fora de escopo nesta ativação:** Dockerfile, Compose, testes de container, código de
+infraestrutura, dependências, `.venv`, `pyproject.toml`, `uv.lock`, workflow de
+quality gate, aplicações, nova EPIC e Task/DT formal.
+
+---
+
 # Sprint concluída anterior
 
 ## SPRINT-07 — Dependency Reproducibility Proof
@@ -130,9 +159,10 @@ Nenhuma Sprint foi criada para esta Task.
 
 **Última Task formal concluída:** DT-009, pertencente à SPRINT-06
 
-**Sprint ativa:** SPRINT-08 — Automated Quality Gate
+**Sprint ativa no fechamento histórico:** SPRINT-08 — Automated Quality Gate
 
-**Sprint seguinte planejada:** nenhuma; a SPRINT-08 está ativa, não apenas planejada
+**Sprint seguinte planejada naquele fechamento:** nenhuma; a SPRINT-08 estava
+ativa, não apenas planejada
 
 **Objetivo:** comprovar a resolução determinística e a reprodutibilidade das
 dependências, adotar o lock canônico autorizado e estabelecer sua política oficial.
@@ -222,8 +252,8 @@ reproduzível e somente leitura no GitHub Actions.
 **Evidência principal:** implementação publicada em `49b5dd5`; GitHub Actions run
 `29663968493` integralmente verde.
 
-**Continuidade:** nenhuma Sprint está ativa ou planejada. A SPRINT-09 não foi
-autorizada.
+**Continuidade histórica:** no fechamento da SPRINT-08, nenhuma Sprint estava ativa
+ou planejada e a SPRINT-09 ainda não havia sido autorizada.
 
 ---
 
@@ -577,15 +607,15 @@ ignorados. A continuidade do snapshot segue o gerador oficial e a validação po
 
 Os itens abaixo vêm do `PROJECT_MASTER` e ainda não representam Sprints planejadas ou aprovadas.
 
-- [ ] M0 — Foundation
-- [ ] M1 — Infraestrutura
-- [ ] M2 — Backend
-- [ ] M3 — Runtime de Agentes
-- [ ] M4 — Memória
-- [ ] M5 — Dashboard
-- [ ] M6 — Integrações
-- [ ] M7 — Marketplace
-- [ ] M8 — Enterprise
+- [x] M0 — Foundation (`completed`)
+- [ ] M1 — Infraestrutura (`in_progress`)
+- [ ] M2 — Backend (`pending`)
+- [ ] M3 — Runtime de Agentes (`pending`)
+- [ ] M4 — Memória (`pending`)
+- [ ] M5 — Dashboard (`pending`)
+- [ ] M6 — Integrações (`pending`)
+- [ ] M7 — Marketplace (`pending`)
+- [ ] M8 — Enterprise (`pending`)
 
 ---
 
