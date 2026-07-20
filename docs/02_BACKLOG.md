@@ -116,6 +116,58 @@ Nenhuma Sprint foi criada para esta Task.
 
 ---
 
+# Sprint ativa
+
+## SPRINT-10 — Snapshot Quality Gate Integrity
+
+**Status:** 🟡 Em andamento (`in_progress`)
+
+**Milestone:** M1 — Infraestrutura
+
+**EPIC:** nenhuma
+
+**Task ou DT formal:** nenhuma criada
+
+**Baseline publicada de ativação:**
+`6464999e0657ac90a2175b9c698d2886119b4223`
+
+**Classificação:** bloqueador antes da publicação de artefatos de container.
+
+**Defeito confirmado:** `tools/project_snapshot.py --check` pode informar falha em
+um gate ao vivo e ainda retornar exit code zero, permitindo escrita ou validação do
+snapshot. A evidência observada registrou Pytest interno reprovado com 92 testes
+aprovados e 3 warnings, enquanto a suíte independente da mesma baseline aprovou 133
+testes com 1 warning e os gates remotos concluíram com `success`.
+
+**Objetivo técnico autorizado somente para planejamento posterior:** tornar Ruff,
+Pytest e importação fail-closed no gerador, sem alterar o contrato determinístico do
+snapshot.
+
+**Critérios de aceitação da futura implementação:**
+
+- [ ] falha de Ruff retorna exit code diferente de zero;
+- [ ] falha de Pytest retorna exit code diferente de zero;
+- [ ] falha de importação retorna exit code diferente de zero;
+- [ ] nenhuma falha de gate permite escrita do snapshot;
+- [ ] nenhuma falha de gate permite que `--check` declare validação;
+- [ ] caminho integralmente aprovado continua gerando e validando o snapshot;
+- [ ] testes de regressão cobrem geração e `--check` para os três gates;
+- [ ] `apps/`, dependências, workflows, Dockerfile e comportamento público permanecem
+  inalterados;
+- [ ] suíte completa, Ruff, importação, snapshot e `git diff --check` aprovados.
+
+**Escopo desta ativação:** documentação, teste de continuidade do Project State,
+commit de ativação e commit exclusivo do snapshot.
+
+**Ainda não autorizado:** implementação técnica, GHCR ou outro registry, publicação
+de imagem, Docker Compose, deployment, novas dependências, mudanças em `apps/`,
+SPRINT-11 e push.
+
+**ADR:** nenhuma nova ADR requerida; trata-se de correção de integridade do contrato
+já adotado para o snapshot.
+
+---
+
 # Última Sprint Concluída
 
 ## SPRINT-09 — Reproducible Container Baseline
@@ -163,7 +215,8 @@ NEW_DEPENDENCIES=NAO
 APPLICATION_BEHAVIOR_CHANGED=NAO
 ```
 
-Nenhuma Sprint ou Task está ativa ou planejada. A SPRINT-10 não foi autorizada.
+**Continuidade histórica:** no fechamento da SPRINT-09, nenhuma Sprint ou Task
+estava ativa ou planejada e a SPRINT-10 ainda não havia sido autorizada.
 
 ---
 

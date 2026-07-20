@@ -12,11 +12,56 @@
 >
 > **Última Sprint concluída:** SPRINT-09 — Reproducible Container Baseline
 >
-> **Sprint atual:** nenhuma
+> **Sprint atual:** SPRINT-10 — Snapshot Quality Gate Integrity
 >
 > **Responsável:** Sandro Prates
 >
 > **Última verificação:** 19/07/2026
+
+## Ativação da SPRINT-10 — 2026-07-19
+
+### Estado de ativação
+
+- **Milestone:** M1 — Infraestrutura (`in_progress`).
+- **SPRINT-10 — Snapshot Quality Gate Integrity:** `in_progress`.
+- **Última Sprint concluída:** SPRINT-09 — Reproducible Container Baseline.
+- **EPIC, Task ou DT formal:** nenhuma criada.
+- **Baseline publicada de ativação:**
+  `6464999e0657ac90a2175b9c698d2886119b4223`.
+- **Quality Gate da baseline:** run `29704668788`, `success`.
+- **Container Gate da baseline:** run `29704668667`, `success`.
+- **Nova ADR:** não requerida.
+
+### Defeito bloqueador
+
+Na publicação final da SPRINT-09, uma execução de
+`python tools/project_snapshot.py --check` informou internamente
+`Pytest executado: Reprovado — 92 aprovado(s), 3 aviso(s)`, mas o comando ainda
+retornou exit code zero e declarou o snapshot validado. Na mesma baseline, a suíte
+independente concluiu `133 passed, 1 warning` e os gates remotos terminaram com
+`success`; portanto, o defeito confirmado é o comportamento fail-open do gerador,
+não uma reprovação da baseline publicada.
+
+### Objetivo vinculante
+
+Corrigir futuramente `tools/project_snapshot.py` para que qualquer falha nos gates
+ao vivo de Ruff, Pytest ou importação:
+
+- resulte em exit code diferente de zero;
+- impeça a escrita do snapshot;
+- impeça que `--check` declare validação;
+- preserve o caminho de sucesso e o contrato determinístico existente.
+
+O defeito está classificado como bloqueador antes da publicação de artefatos de
+container.
+
+### Limites desta ativação
+
+Esta etapa é exclusivamente documental. Não estão autorizados nesta ativação:
+implementação técnica, mudanças em `tools/project_snapshot.py`, alterações em
+`apps/`, novas dependências, publicação em GHCR ou outro registry, Docker Compose,
+deployment, SPRINT-11 ou push. A implementação técnica dependerá de autorização
+humana específica após os dois commits de ativação.
 
 ## Fechamento da SPRINT-09 — 2026-07-19
 
@@ -564,16 +609,17 @@ mudar.
 ## Estado operacional corrente
 
 - Última Sprint concluída: SPRINT-09 — Reproducible Container Baseline.
-- Sprint ativa: nenhuma.
+- Sprint ativa: SPRINT-10 — Snapshot Quality Gate Integrity (`in_progress`).
 - Sprint planejada: nenhuma.
 - Task ativa ou planejada: nenhuma.
 - M0 — Foundation: `completed` como fato histórico.
 - M1 — Infraestrutura: `in_progress`.
-- SPRINT-10: não autorizada.
+- Implementação técnica da SPRINT-10: não autorizada nesta ativação.
+- Publicação de artefatos, Docker Compose e deployment: não autorizados.
 
-O próximo incremento depende de nova definição explícita. A continuidade deve partir
-deste documento, do Project State, do handoff da SPRINT-09, dos ADRs aceitos e da
-validação direta do Git.
+A continuidade deve partir deste documento, do Project State, do handoff da
+SPRINT-09, dos ADRs aceitos e da validação direta do Git. O próximo gate é a
+autorização humana para a implementação técnica da SPRINT-10.
 
 ---
 

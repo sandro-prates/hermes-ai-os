@@ -34,7 +34,10 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
   Quality Gate `29689585477` e Container Gate `29689585471` aprovados.
 - ADR-0008 — Baseline reproduzível de container aceita após comprovação local e
   remota.
-- Nenhuma Sprint está ativa ou planejada; a SPRINT-10 não foi autorizada.
+- SPRINT-10 — Snapshot Quality Gate Integrity ativa em M1, sem nova EPIC ou
+  Task/DT formal; a implementação técnica ainda não foi iniciada.
+- O comportamento fail-open dos gates ao vivo de `tools/project_snapshot.py` está
+  classificado como bloqueador antes da publicação de artefatos de container.
 - DT-007 foi concluída como pesquisa no commit `126aff8`; suas recomendações somente
   se tornaram oficiais quando aprovadas e comprovadas na SPRINT-07.
 
@@ -306,6 +309,11 @@ Sua validade operacional deve ser confirmada sem escrita com:
 python tools/project_snapshot.py --check
 ```
 
+A SPRINT-10 está ativa para tornar os gates ao vivo de Ruff, Pytest e importação
+fail-closed: qualquer falha deverá retornar exit code diferente de zero e impedir
+a escrita ou a validação do snapshot. Nesta ativação documental, o comportamento
+técnico ainda não foi alterado.
+
 ## Documentação do projeto
 
 - [Project Master](docs/00_PROJECT_MASTER.md)
@@ -317,8 +325,10 @@ python tools/project_snapshot.py --check
 
 ## Limitações atuais
 
-O projeto permanece em `M1 — Infraestrutura`, que ainda não está concluído. Nenhuma
-Sprint está ativa ou planejada, e a SPRINT-10 não foi autorizada.
+O projeto permanece em `M1 — Infraestrutura`, que ainda não está concluído. A
+SPRINT-10 — Snapshot Quality Gate Integrity está ativa somente no plano documental;
+a implementação técnica ainda não foi autorizada. A publicação de artefatos de
+container permanece bloqueada até a comprovação do comportamento fail-closed.
 
 A baseline de container cobre `linux/amd64`, mas não inclui Docker Compose, registry,
 publicação de imagem, deployment, persistência ou orquestração. Banco de dados,

@@ -108,7 +108,11 @@ def test_real_project_state_has_explicit_active_completed_and_planned_values() -
     assert set(completed) == {"sprint", "task"}
     assert set(planned) == {"sprint", "task"}
 
-    assert active["sprint"] is None
+    assert active["sprint"] == {
+        "id": "SPRINT-10",
+        "title": "Snapshot Quality Gate Integrity",
+        "status": "in_progress",
+    }
     assert active["task"] is None
     assert completed["sprint"] == {
         "id": "SPRINT-09",

@@ -1,7 +1,7 @@
 schema_version: 2
 last_verified:
   date: '2026-07-19'
-  method: 'fechamento documental da SPRINT-09 após publicação normal, remote main por ls-remote, Quality Gate e Container Gate aprovados, gates locais e snapshot auditados'
+  method: 'ativação documental da SPRINT-10 após baseline final publicada da SPRINT-09, remote main por ls-remote, working tree limpa, gates locais e remotos aprovados e defeito fail-open classificado'
 project:
   name: Hermes AI OS
   version: 0.0.1
@@ -161,6 +161,15 @@ repository:
   - commit: 29b0ecef81b319d369064d16435676f73e03c7ad
     short_commit: 29b0ece
     message: 'docs(project): refresh snapshot after sprint 09 container baseline'
+  - commit: 3d3353f2739bb9c0ceb2fae9a2075daf381161a6
+    short_commit: 3d3353f
+    message: 'docs(project): close sprint 09 container baseline'
+  - commit: 3bd2d27d6198c69364f2a9b9c6fa477012fe2287
+    short_commit: 3bd2d27
+    message: 'docs(project): keep sprint 09 state snapshot-compatible'
+  - commit: 6464999e0657ac90a2175b9c698d2886119b4223
+    short_commit: 6464999
+    message: 'docs(project): refresh sprint 09 final snapshot'
   working_tree:
     status: not_recorded_as_canonical_project_state
     reason: Estado transitório deve ser consultado diretamente com Git
@@ -175,7 +184,10 @@ repository:
     reason: avoid_self_reference
 work:
   active:
-    sprint: null
+    sprint:
+      id: SPRINT-10
+      title: Snapshot Quality Gate Integrity
+      status: in_progress
     task: null
   last_completed:
     sprint:
@@ -225,6 +237,14 @@ architecture:
     fingerprint: sha256_of_normalized_git_tree_entries
     includes_commit_metadata: false
     adr: ADR-0005
+    live_quality_gates:
+      current_behavior: fail_open_defect_confirmed
+      target_behavior: fail_closed
+      failure_exit_code_required: non_zero
+      write_or_validation_after_gate_failure: prohibited
+      blocking_before_artifact_publication: true
+      implementation_status: not_started
+      sprint: SPRINT-10
   dependency_management:
     declarative_source: pyproject.toml
     official_lock: uv.lock
@@ -577,6 +597,40 @@ sprint_09_closure:
   registry_configured: false
   new_dependencies: false
   application_behavior_changed: false
+sprint_10_activation_baseline:
+  status: in_progress
+  name: Snapshot Quality Gate Integrity
+  scope: FAIL_CLOSED_SNAPSHOT_QUALITY_GATES
+  milestone: M1 — Infraestrutura
+  baseline:
+    commit: 6464999e0657ac90a2175b9c698d2886119b4223
+    short_commit: 6464999
+    origin_main: 6464999e0657ac90a2175b9c698d2886119b4223
+    remote_main: 6464999e0657ac90a2175b9c698d2886119b4223
+    divergence_main_origin_main: 0 0
+    working_tree_before_activation: clean
+    index_lock_before_activation: absent
+  remote_validation:
+    quality_gate_run: 29704668788
+    quality_gate_conclusion: success
+    container_gate_run: 29704668667
+    container_gate_conclusion: success
+  defect_evidence:
+    snapshot_command: python tools/project_snapshot.py --check
+    snapshot_exit_code: 0
+    internal_pytest_result: failed
+    internal_pytest_passed_tests: 92
+    internal_pytest_warnings: 3
+    independent_pytest_passed_tests: 133
+    independent_pytest_warnings: 1
+  defect_classification: blocking_before_artifact_publication
+  target_behavior: fail_closed
+  new_adr_required: false
+  technical_implementation_authorized: false
+  artifact_publication_authorized: false
+  compose_authorized: false
+  deployment_authorized: false
+  sprint_11_authorized: false
 continuity:
   snapshot:
     source_of_truth: docs/PROJECT_SNAPSHOT.md
@@ -590,7 +644,7 @@ continuity:
   - Ler docs/03_CHANGELOG.md
   - Ler os ADRs aceitos em docs/adr/
   - Executar git status --short --branch
-  - Não iniciar uma nova Sprint sem definição explícita
+  - Não iniciar a implementação técnica da SPRINT-10 sem autorização explícita
   audit:
     status: continuous
     required_checks:

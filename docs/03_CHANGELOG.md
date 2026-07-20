@@ -8,8 +8,19 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-Nenhuma nova Sprint ou mudança funcional está ativa. M1 — Infraestrutura permanece
-`in_progress`, e a SPRINT-10 não foi autorizada.
+### Ativação documental da SPRINT-10 — 2026-07-19
+
+- SPRINT-10 — Snapshot Quality Gate Integrity ativada em M1.
+- Escopo vinculante: corrigir o comportamento fail-open dos gates ao vivo de Ruff,
+  Pytest e importação em `tools/project_snapshot.py`.
+- Defeito classificado como bloqueador antes da publicação de artefatos.
+- Baseline publicada: `6464999e0657ac90a2175b9c698d2886119b4223`.
+- Quality Gate `29704668788` e Container Gate `29704668667` concluídos com
+  `success`.
+- Nenhuma EPIC, Task/DT ou ADR criada.
+- Nesta ativação não houve implementação técnica, mudança em `apps/`, dependência,
+  workflow, container, publicação de imagem, Docker Compose ou deployment.
+- SPRINT-11 e push permanecem não autorizados.
 
 ## [SPRINT-09] — 2026-07-19
 
