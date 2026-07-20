@@ -3,8 +3,8 @@
 ## 1. Identificação
 
 - schema do snapshot: 3
-- fingerprint SHA-256 da árvore projetada: `15273672b4fab18c6662bd05e455fbcc9311870944ab316354154012e9f16787`
-- arquivos na projeção: 59
+- fingerprint SHA-256 da árvore projetada: `0c27315ff7ea8a605100b64b7ff97bf6fc2aedb198ac26357abf6bbaca317126`
+- arquivos na projeção: 62
 - projeto: Hermes AI OS
 - versão: 0.0.1
 - estado analisado: projeção determinística da árvore commitada
@@ -44,6 +44,7 @@
 ├── .github
 │   └── workflows
 │       ├── container-gate.yml
+│       ├── publish-container.yml
 │       └── quality-gate.yml
 ├── apps
 │   └── backend
@@ -88,6 +89,7 @@
 │   │   ├── ADR-0006-uv-lock-como-lock-oficial-de-dependencias.md
 │   │   ├── ADR-0007-github-actions-como-quality-gate.md
 │   │   ├── ADR-0008-reproducible-container-baseline.md
+│   │   ├── ADR-0009-container-artifact-publication-policy.md
 │   │   └── README.md
 │   └── research
 │       └── 2026-07-12-stack-tecnologica.md
@@ -95,6 +97,7 @@
 │   ├── test_api.py
 │   ├── test_container_baseline.py
 │   ├── test_container_gate_workflow.py
+│   ├── test_container_publication_workflow.py
 │   ├── test_env_example.py
 │   ├── test_middleware.py
 │   ├── test_observability.py
@@ -189,6 +192,7 @@
 - ADR-0006-uv-lock-como-lock-oficial-de-dependencias — Accepted
 - ADR-0007 — GitHub Actions como quality gate — Accepted
 - ADR-0008 — Baseline reproduzível de container — Accepted
+- ADR-0009 — Política de publicação do artefato de container — Proposed
 
 ## 12. Problemas Conhecidos
 
