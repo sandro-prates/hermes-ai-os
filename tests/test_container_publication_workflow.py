@@ -10,6 +10,20 @@ import yaml
 WORKFLOW_PATH = Path(__file__).resolve().parents[1] / ".github/workflows/publish-container.yml"
 CHECKOUT_SHA = "9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0"
 
+LOGIN_STATE_FILE = "${{ runner.temp }}/hermes-ghcr-login-state"
+DIGEST_STATE_FILE = "${{ runner.temp }}/hermes-published-digests"
+LOGIN_STATE_STEPS = {
+    "Authenticate to GHCR with GITHUB_TOKEN",
+    "Logout defensively after every login attempt",
+}
+DIGEST_STATE_STEPS = {
+    "Push exactly once and capture the final manifest digest",
+    "Inspect registry digest and verify private linked package",
+    "Remove tag, pull exclusively by digest, and validate RepoDigest",
+    "Smoke the pulled digest with console logging",
+    "Smoke the pulled digest with JSON logging",
+}
+
 
 def raw() -> str:
     return WORKFLOW_PATH.read_text(encoding="utf-8")
@@ -272,3 +286,87 @@ def test_no_git_writes_or_out_of_scope_capabilities() -> None:
         "id-token",
     ):
         assert forbidden not in text
+
+def test_runner_context_is_absent_from_job_level_env() -> None:
+    for job_definition in workflow()["jobs"].values():
+        environment = job_definition.get("env", {})
+        assert all("${{ runner." not in str(value) for value in environment.values())
+
+    publication_environment = job("publish-container")["env"]
+    assert "LOGIN_STATE_FILE" not in publication_environment
+    assert "DIGEST_STATE_FILE" not in publication_environment
+
+
+def test_login_state_file_uses_runner_temp_only_in_authorized_steps() -> None:
+    steps = job("publish-container")["steps"]
+    actual = {
+        step["name"]
+        for step in steps
+        if step.get("env", {}).get("LOGIN_STATE_FILE") == LOGIN_STATE_FILE
+    }
+    assert actual == LOGIN_STATE_STEPS
+
+    for step in steps:
+        environment = step.get("env", {})
+        if step["name"] in LOGIN_STATE_STEPS:
+            assert environment["LOGIN_STATE_FILE"] == LOGIN_STATE_FILE
+        else:
+            assert "LOGIN_STATE_FILE" not in environment
+
+
+def test_digest_state_file_uses_runner_temp_only_in_authorized_steps() -> None:
+    steps = job("publish-container")["steps"]
+    actual = {
+        step["name"]
+        for step in steps
+        if step.get("env", {}).get("DIGEST_STATE_FILE") == DIGEST_STATE_FILE
+    }
+    assert actual == DIGEST_STATE_STEPS
+
+    for step in steps:
+        environment = step.get("env", {})
+        if step["name"] in DIGEST_STATE_STEPS:
+            assert environment["DIGEST_STATE_FILE"] == DIGEST_STATE_FILE
+        else:
+            assert "DIGEST_STATE_FILE" not in environment
+
+
+def test_runner_context_scope_is_explicitly_limited_to_step_env() -> None:
+    runner_expressions: list[tuple[str, str, str]] = []
+    for job_name, job_definition in workflow()["jobs"].items():
+        for key, value in job_definition.get("env", {}).items():
+            if "${{ runner." in str(value):
+                runner_expressions.append((job_name, f"job.env.{key}", str(value)))
+        for step in job_definition["steps"]:
+            for key, value in step.get("env", {}).items():
+                if "${{ runner." in str(value):
+                    runner_expressions.append(
+                        (job_name, f"step.env.{step['name']}.{key}", str(value))
+                    )
+
+    expected = {
+        *{
+            ("publish-container", f"step.env.{name}.LOGIN_STATE_FILE", LOGIN_STATE_FILE)
+            for name in LOGIN_STATE_STEPS
+        },
+        *{
+            ("publish-container", f"step.env.{name}.DIGEST_STATE_FILE", DIGEST_STATE_FILE)
+            for name in DIGEST_STATE_STEPS
+        },
+    }
+    assert set(runner_expressions) == expected
+    assert raw().count("${{ runner.") == len(expected)
+
+
+def test_context_scope_repair_adds_no_action_or_install_dependency() -> None:
+    action_uses = [
+        step["uses"]
+        for job_definition in workflow()["jobs"].values()
+        for step in job_definition["steps"]
+        if "uses" in step
+    ]
+    assert action_uses == [f"actions/checkout@{CHECKOUT_SHA}"]
+    assert not re.search(
+        r"(?m)^\s*(?:python\s+-m\s+)?pip\s+install\b",
+        commands("publish-container"),
+    )

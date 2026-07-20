@@ -114,8 +114,6 @@ jobs:
       IMAGE_NAME: ghcr.io/sandro-prates/hermes-ai-os
       IMAGE_TAG: sha-${{ needs.verify-gates.outputs.expected_sha }}
       EXPECTED_SHA: ${{ needs.verify-gates.outputs.expected_sha }}
-      LOGIN_STATE_FILE: ${{ runner.temp }}/hermes-ghcr-login-state
-      DIGEST_STATE_FILE: ${{ runner.temp }}/hermes-published-digests
     steps:
       - name: Checkout the exact approved revision
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -126,6 +124,7 @@ jobs:
       - name: Authenticate to GHCR with GITHUB_TOKEN
         env:
           GHCR_TOKEN: ${{ github.token }}
+          LOGIN_STATE_FILE: ${{ runner.temp }}/hermes-ghcr-login-state
         run: |
           set -Eeuo pipefail
           printf '%s\n' 'LOGIN_STATE=NOT_ATTEMPTED' > "$LOGIN_STATE_FILE"
@@ -326,6 +325,8 @@ jobs:
           PY
 
       - name: Push exactly once and capture the final manifest digest
+        env:
+          DIGEST_STATE_FILE: ${{ runner.temp }}/hermes-published-digests
         run: |
           set -Eeuo pipefail
           push_log="$RUNNER_TEMP/hermes-docker-push.log"
@@ -339,6 +340,7 @@ jobs:
           GHCR_TOKEN: ${{ github.token }}
           GHCR_ACTOR: ${{ github.actor }}
           GH_TOKEN: ${{ github.token }}
+          DIGEST_STATE_FILE: ${{ runner.temp }}/hermes-published-digests
         run: |
           python - <<'PY'
           import base64
@@ -393,6 +395,8 @@ jobs:
           PY
 
       - name: Remove tag, pull exclusively by digest, and validate RepoDigest
+        env:
+          DIGEST_STATE_FILE: ${{ runner.temp }}/hermes-published-digests
         run: |
           set -Eeuo pipefail
           . "$DIGEST_STATE_FILE"
@@ -412,6 +416,8 @@ jobs:
           test "$REGISTRY_INSPECTED_MANIFEST_DIGEST" = "$repo_digest"
 
       - name: Smoke the pulled digest with console logging
+        env:
+          DIGEST_STATE_FILE: ${{ runner.temp }}/hermes-published-digests
         run: |
           set -Eeuo pipefail
           . "$DIGEST_STATE_FILE"
@@ -442,6 +448,8 @@ jobs:
           docker logs "$container" | grep -q 'request_id'
 
       - name: Smoke the pulled digest with JSON logging
+        env:
+          DIGEST_STATE_FILE: ${{ runner.temp }}/hermes-published-digests
         run: |
           set -Eeuo pipefail
           . "$DIGEST_STATE_FILE"
@@ -462,6 +470,8 @@ jobs:
 
       - name: Logout defensively after every login attempt
         if: always()
+        env:
+          LOGIN_STATE_FILE: ${{ runner.temp }}/hermes-ghcr-login-state
         run: |
           set -Eeuo pipefail
           state=LOGIN_STATE=NOT_ATTEMPTED
