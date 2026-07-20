@@ -8,7 +8,19 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-Nenhuma mudança adicional registrada após o fechamento local da SPRINT-10.
+### Ativação documental da SPRINT-11 — 2026-07-20
+
+- SPRINT-11 — Container Artifact Publication Baseline ativada em M1 com status
+  `in_progress` sobre a baseline publicada `b01753473be47d24e4d14a2d7691cdd1f12a405d`;
+- SPRINT-10 permanece como última Sprint concluída;
+- nenhuma EPIC, Task ou DT formal criada;
+- nenhuma Sprint ou Task planejada;
+- GHCR preservado como registry selecionado pelo planejamento;
+- primeiro package definido como `PRIVATE`, sem autorização de visibilidade pública;
+- implementação técnica, workflow de publicação, Publication Gate, ADR-0009,
+  autenticação no GHCR e publicação externa não iniciados;
+- nenhuma aplicação, dependência, lock, Dockerfile, workflow, package ou visibilidade
+  alterados nesta ativação.
 
 ## [SPRINT-10] — 2026-07-20
 

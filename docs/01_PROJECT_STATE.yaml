@@ -1,7 +1,7 @@
 schema_version: 2
 last_verified:
   date: '2026-07-20'
-  method: 'fechamento documental da SPRINT-10 após implementação fail-closed publicada, Quality Gate e Container Gate aprovados, 161 testes locais, Ruff, importação, snapshot e estado Git validados'
+  method: 'ativação documental da SPRINT-11 sobre a baseline publicada b01753473be47d24e4d14a2d7691cdd1f12a405d; implementação técnica e publicação externa não iniciadas'
 project:
   name: Hermes AI OS
   version: 0.0.1
@@ -196,7 +196,10 @@ repository:
     reason: avoid_self_reference
 work:
   active:
-    sprint: null
+    sprint:
+      id: SPRINT-11
+      title: Container Artifact Publication Baseline
+      status: in_progress
     task: null
   last_completed:
     sprint:
@@ -395,7 +398,7 @@ documentation:
     settings_contract_commit: 4f4e2bb7eb3031a5c753f20b91c4598010d32690
     protected_contracts:
     - explicit_epic_sprint_and_task_status
-    - no_active_or_planned_sprint
+    - explicit_active_completed_and_planned_sprint_state
     - current_limitations
     - request_id_generation_preservation_response_and_logging
     - exact_settings_env_example_mapping
@@ -700,6 +703,36 @@ sprint_10_closure:
   registry_configured: false
   new_dependencies: false
   application_behavior_changed: false
+sprint_11_activation_baseline:
+  status: in_progress
+  name: Container Artifact Publication Baseline
+  milestone: M1 — Infraestrutura
+  baseline:
+    commit: b01753473be47d24e4d14a2d7691cdd1f12a405d
+    short_commit: b017534
+    origin_main: b01753473be47d24e4d14a2d7691cdd1f12a405d
+    remote_main: b01753473be47d24e4d14a2d7691cdd1f12a405d
+    divergence_main_origin_main: 0 0
+    working_tree_before_activation: clean
+    index_lock_before_activation: absent
+  registry: ghcr.io
+  package_visibility: PRIVATE
+  public_visibility_authorized: false
+  formal_epic_created: false
+  formal_task_created: false
+  planned_sprint: null
+  planned_task: null
+  technical_implementation_authorized: false
+  publication_workflow_created: false
+  publication_gate_created: false
+  adr_0009_created: false
+  package_publication_authorized: false
+  package_published: false
+  git_push_authorized: false
+  codex_usage_authorized: false
+  compose_authorized: false
+  deployment_authorized: false
+  sprint_12_authorized: false
 continuity:
   snapshot:
     source_of_truth: docs/PROJECT_SNAPSHOT.md
@@ -713,7 +746,7 @@ continuity:
   - Ler docs/03_CHANGELOG.md
   - Ler os ADRs aceitos em docs/adr/
   - Executar git status --short --branch
-  - Não iniciar a SPRINT-11 ou outro incremento sem autorização explícita
+  - Não iniciar implementação técnica, ADR-0009, Publication Gate ou publicação externa sem autorização explícita
   audit:
     status: continuous
     required_checks:

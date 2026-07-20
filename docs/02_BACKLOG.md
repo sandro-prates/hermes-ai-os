@@ -118,11 +118,45 @@ Nenhuma Sprint foi criada para esta Task.
 
 # Sprint ativa
 
-Nenhuma Sprint está ativa.
+## SPRINT-11 — Container Artifact Publication Baseline
 
-Nenhuma Task ou DT está ativa.
+**Status:** 🟡 Em andamento (`in_progress`)
 
-SPRINT-11 não está autorizada.
+**Milestone:** M1 — Infraestrutura (`in_progress`)
+
+**Última Sprint concluída:** SPRINT-10 — Snapshot Quality Gate Integrity
+
+**EPIC:** nenhuma
+
+**Task ou DT formal:** nenhuma criada
+
+**Baseline publicada de ativação:** `b01753473be47d24e4d14a2d7691cdd1f12a405d`
+
+**Etapa autorizada:** ativação documental e snapshot exclusivo.
+
+**Decisões vinculantes já aprovadas:**
+
+```text
+REGISTRY=GHCR
+PACKAGE_VISIBILITY=PRIVATE
+PUBLIC_VISIBILITY_AUTHORIZED=NAO
+```
+
+**Ainda não autorizado:**
+
+- implementação do workflow de publicação;
+- criação ou execução do Publication Gate;
+- criação técnica da ADR-0009;
+- login no GHCR;
+- criação ou alteração de package;
+- `docker push`;
+- PAT ou secret persistente;
+- Codex escritor;
+- commit técnico ou push Git;
+- SPRINT-12.
+
+Nenhuma Sprint ou Task está planejada. A primeira publicação externa permanece
+condicionada a autorização humana própria.
 
 ---
 

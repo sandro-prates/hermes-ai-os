@@ -12,11 +12,33 @@
 >
 > **Última Sprint concluída:** SPRINT-10 — Snapshot Quality Gate Integrity
 >
-> **Sprint atual:** nenhuma
+> **Sprint atual:** SPRINT-11 — Container Artifact Publication Baseline
 >
 > **Responsável:** Sandro Prates
 >
 > **Última verificação:** 20/07/2026
+
+## Ativação da SPRINT-11 — 2026-07-20
+
+### Estado autorizado
+
+- **Milestone:** M1 — Infraestrutura (`in_progress`).
+- **SPRINT-11 — Container Artifact Publication Baseline:** `in_progress`.
+- **Última Sprint concluída:** SPRINT-10 — Snapshot Quality Gate Integrity.
+- **Sprint planejada:** nenhuma.
+- **Task ativa ou planejada:** nenhuma.
+- **EPIC ou Task/DT formal criada:** nenhuma.
+- **Baseline publicada de ativação:** `b01753473be47d24e4d14a2d7691cdd1f12a405d`.
+- **Registry selecionado pelo planejamento:** GHCR.
+- **Visibilidade canônica do primeiro package:** `PRIVATE`.
+- **Visibilidade pública autorizada:** não.
+
+A autorização corrente cobre somente a ativação documental e seu snapshot exclusivo.
+Não estão autorizados workflow de publicação, Publication Gate, ADR-0009 técnica,
+login no GHCR, criação ou alteração de package, `docker push`, PAT, secret persistente,
+commit técnico, push Git ou SPRINT-12.
+
+A primeira publicação externa continuará dependente de autorização humana própria.
 
 ## Fechamento da SPRINT-10 — 2026-07-20
 
@@ -648,17 +670,19 @@ mudar.
 ## Estado operacional corrente
 
 - Última Sprint concluída: SPRINT-10 — Snapshot Quality Gate Integrity.
-- Sprint ativa: nenhuma.
+- Sprint ativa: SPRINT-11 — Container Artifact Publication Baseline (`in_progress`).
 - Sprint planejada: nenhuma.
 - Task ativa ou planejada: nenhuma.
 - M0 — Foundation: `completed` como fato histórico.
 - M1 — Infraestrutura: `in_progress`.
-- SPRINT-11: não autorizada.
-- Publicação de artefatos, Docker Compose e deployment: não autorizados.
+- Package visibility canônica: `PRIVATE`.
+- Visibilidade pública: não autorizada.
+- Implementação técnica, ADR-0009, Publication Gate, publicação de artefatos,
+  Docker Compose e deployment: não autorizados nesta etapa.
 
 A continuidade deve partir deste documento, do Project State, do handoff da
-SPRINT-10, dos ADRs aceitos e da validação direta do Git. Qualquer próximo incremento
-depende de autorização humana explícita.
+SPRINT-10, dos ADRs aceitos e da validação direta do Git. A implementação técnica e
+a primeira publicação externa dependem de autorizações humanas próprias.
 
 ---
 
