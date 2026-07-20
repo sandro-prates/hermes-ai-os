@@ -1,0 +1,476 @@
+name: Publish Container
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Full 40-character commit SHA already approved by both gates
+        required: true
+        type: string
+      confirm_external_publication:
+        description: Confirm that this run may publish externally to private GHCR
+        required: true
+        type: boolean
+        default: false
+
+permissions: {}
+
+jobs:
+  verify-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      expected_sha: ${{ steps.verify.outputs.expected_sha }}
+      quality_gate_run_id: ${{ steps.verify.outputs.quality_gate_run_id }}
+      container_gate_run_id: ${{ steps.verify.outputs.container_gate_run_id }}
+      publication_authorized: ${{ steps.verify.outputs.publication_authorized }}
+    steps:
+      - name: Validate dispatch and independently verify both push gates
+        id: verify
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          CONFIRM_EXTERNAL_PUBLICATION: ${{ inputs.confirm_external_publication }}
+          CURRENT_REF: ${{ github.ref }}
+          CURRENT_SHA: ${{ github.sha }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import re
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          expected = os.environ["EXPECTED_SHA"]
+          if os.environ["CURRENT_REF"] != "refs/heads/main":
+              raise SystemExit("Publication is restricted to refs/heads/main")
+          if not re.fullmatch(r"[0-9a-f]{40}", expected):
+              raise SystemExit("expected_sha must be a lowercase full SHA")
+          if os.environ["CURRENT_SHA"] != expected:
+              raise SystemExit("github.sha does not equal expected_sha")
+          if os.environ["CONFIRM_EXTERNAL_PUBLICATION"].lower() != "true":
+              raise SystemExit("External publication was not explicitly confirmed")
+
+          token = os.environ.get("GH_TOKEN", "")
+          if not token:
+              raise SystemExit("GITHUB_TOKEN is empty")
+          repository = os.environ["REPOSITORY"]
+
+          def approved_run(workflow_file: str) -> str:
+              query = urllib.parse.urlencode({"head_sha": expected, "per_page": "100"})
+              url = (
+                  f"https://api.github.com/repos/{repository}/actions/workflows/"
+                  f"{workflow_file}/runs?{query}"
+              )
+              request = urllib.request.Request(
+                  url,
+                  headers={
+                      "Accept": "application/vnd.github+json",
+                      "Authorization": f"Bearer {token}",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                  },
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      payload = json.load(response)
+              except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+                  raise SystemExit(f"Unable to verify {workflow_file}: {type(exc).__name__}") from exc
+              matches = [
+                  run for run in payload.get("workflow_runs", [])
+                  if run.get("head_sha") == expected
+                  and run.get("head_branch") == "main"
+                  and run.get("event") == "push"
+                  and run.get("status") == "completed"
+                  and run.get("conclusion") == "success"
+              ]
+              if not matches:
+                  raise SystemExit(f"No approved push run for {workflow_file} at expected_sha")
+              return str(max(matches, key=lambda run: int(run["id"]))["id"])
+
+          quality_id = approved_run("quality-gate.yml")
+          container_id = approved_run("container-gate.yml")
+          output = os.environ["GITHUB_OUTPUT"]
+          with open(output, "a", encoding="utf-8") as stream:
+              stream.write(f"expected_sha={expected}\n")
+              stream.write(f"quality_gate_run_id={quality_id}\n")
+              stream.write(f"container_gate_run_id={container_id}\n")
+              stream.write("publication_authorized=true\n")
+          PY
+
+  publish-container:
+    needs: verify-gates
+    if: needs.verify-gates.outputs.publication_authorized == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE_NAME: ghcr.io/sandro-prates/hermes-ai-os
+      IMAGE_TAG: sha-${{ needs.verify-gates.outputs.expected_sha }}
+      EXPECTED_SHA: ${{ needs.verify-gates.outputs.expected_sha }}
+      LOGIN_STATE_FILE: ${{ runner.temp }}/hermes-ghcr-login-state
+      DIGEST_STATE_FILE: ${{ runner.temp }}/hermes-published-digests
+    steps:
+      - name: Checkout the exact approved revision
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ inputs.expected_sha }}
+          persist-credentials: false
+
+      - name: Authenticate to GHCR with GITHUB_TOKEN
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          printf '%s\n' 'LOGIN_STATE=NOT_ATTEMPTED' > "$LOGIN_STATE_FILE"
+          test -n "$GHCR_TOKEN"
+          printf '%s\n' 'LOGIN_STATE=ATTEMPTED_NOT_CONFIRMED' > "$LOGIN_STATE_FILE"
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "${{ github.actor }}" --password-stdin
+          printf '%s\n' 'LOGIN_STATE=SUCCEEDED' > "$LOGIN_STATE_FILE"
+
+      - name: Authenticated registry preflight before build
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+          GHCR_ACTOR: ${{ github.actor }}
+        run: |
+          python - <<'PY'
+          import base64
+          import json
+          import os
+          import socket
+          import ssl
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          image = os.environ["IMAGE_NAME"].removeprefix("ghcr.io/")
+          tag = os.environ["IMAGE_TAG"]
+          token = os.environ.get("GHCR_TOKEN", "")
+          actor = os.environ.get("GHCR_ACTOR", "")
+          if not token or not actor:
+              raise SystemExit("Registry credentials are empty or invalid")
+
+          def registry_token() -> str:
+              query = urllib.parse.urlencode({"service": "ghcr.io", "scope": f"repository:{image}:pull"})
+              basic = base64.b64encode(f"{actor}:{token}".encode()).decode()
+              request = urllib.request.Request(
+                  f"https://ghcr.io/token?{query}", headers={"Authorization": f"Basic {basic}"}
+              )
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  payload = json.load(response)
+              value = payload.get("token", "")
+              if not value:
+                  raise SystemExit("Registry returned an empty token")
+              return value
+
+          try:
+              bearer = registry_token()
+              request = urllib.request.Request(
+                  f"https://ghcr.io/v2/{image}/manifests/{tag}",
+                  method="HEAD",
+                  headers={
+                      "Authorization": f"Bearer {bearer}",
+                      "Accept": "application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json",
+                  },
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      raise SystemExit(f"Tag already exists (HTTP {response.status}); overwrite and rebuild forbidden")
+              except urllib.error.HTTPError as exc:
+                  if exc.code != 404:
+                      reason = {
+                          401: "unauthorized",
+                          403: "forbidden",
+                          429: "rate limit",
+                      }.get(exc.code, "unexpected HTTP")
+                      raise SystemExit(f"Registry preflight hard stop: {reason} ({exc.code})") from exc
+                  get_request = urllib.request.Request(request.full_url, headers=dict(request.headers))
+                  try:
+                      urllib.request.urlopen(get_request, timeout=30)
+                  except urllib.error.HTTPError as get_exc:
+                      body = get_exc.read()
+                      try:
+                          payload = json.loads(body)
+                      except (UnicodeDecodeError, json.JSONDecodeError) as json_exc:
+                          raise SystemExit("Registry preflight hard stop: ambiguous 404 or invalid JSON") from json_exc
+                      errors = payload.get("errors")
+                      if get_exc.code == 404 and isinstance(errors, list) and errors and all(
+                          isinstance(item, dict) and item.get("code") == "MANIFEST_UNKNOWN"
+                          for item in errors
+                      ):
+                          print("TAG_CONFIRMED_ABSENT=SIM")
+                      else:
+                          raise SystemExit("Registry preflight hard stop: ambiguous 404") from get_exc
+                  else:
+                      raise SystemExit("Tag exists; overwrite and rebuild forbidden")
+          except (urllib.error.URLError, TimeoutError, socket.timeout, ssl.SSLError, json.JSONDecodeError) as exc:
+              if isinstance(exc, ssl.SSLError):
+                  reason = "TLS error"
+              elif isinstance(exc, (TimeoutError, socket.timeout)):
+                  reason = "timeout"
+              elif isinstance(exc, json.JSONDecodeError):
+                  reason = "invalid JSON"
+              else:
+                  reason = "network error"
+              raise SystemExit(f"Registry preflight hard stop: {reason}") from exc
+          PY
+
+      - name: Build one local linux amd64 image with required OCI labels
+        run: |
+          set -Eeuo pipefail
+          docker build --no-cache --pull=false --platform linux/amd64 \
+            --label org.opencontainers.image.source=https://github.com/sandro-prates/hermes-ai-os \
+            --label "org.opencontainers.image.revision=$EXPECTED_SHA" \
+            --label "org.opencontainers.image.version=$IMAGE_TAG" \
+            --label 'org.opencontainers.image.title=Hermes AI OS' \
+            --tag "$IMAGE_NAME:$IMAGE_TAG" .
+
+      - name: Verify the local image contract before push
+        run: |
+          set -Eeuo pipefail
+          ref="$IMAGE_NAME:$IMAGE_TAG"
+          test "$(docker image inspect --format '{{.Os}}' "$ref")" = linux
+          test "$(docker image inspect --format '{{.Architecture}}' "$ref")" = amd64
+          test "$(docker image inspect --format '{{.Config.User}}' "$ref")" = '10001:10001'
+          test "$(docker image inspect --format '{{json .Config.Healthcheck}}' "$ref")" != null
+          test "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.source"}}' "$ref")" = 'https://github.com/sandro-prates/hermes-ai-os'
+          test "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$ref")" = "$EXPECTED_SHA"
+          test "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.version"}}' "$ref")" = "$IMAGE_TAG"
+          test "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.title"}}' "$ref")" = 'Hermes AI OS'
+          test "$(docker run --rm "$ref" id -u)" = 10001
+          test "$(docker run --rm "$ref" id -g)" = 10001
+          ! docker run --rm "$ref" sh -c 'command -v uv || command -v pytest || command -v ruff || python -c "import httpx"'
+          docker run --rm "$ref" sh -c 'test ! -e /app/tests && test ! -e /app/docs'
+
+      - name: Authenticated registry preflight immediately before push
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+          GHCR_ACTOR: ${{ github.actor }}
+        run: |
+          python - <<'PY'
+          import base64
+          import json
+          import os
+          import socket
+          import ssl
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          image = os.environ["IMAGE_NAME"].removeprefix("ghcr.io/")
+          tag = os.environ["IMAGE_TAG"]
+          token = os.environ.get("GHCR_TOKEN", "")
+          actor = os.environ.get("GHCR_ACTOR", "")
+          if not token or not actor:
+              raise SystemExit("Registry credentials are empty or invalid")
+          try:
+              query = urllib.parse.urlencode({"service": "ghcr.io", "scope": f"repository:{image}:pull"})
+              basic = base64.b64encode(f"{actor}:{token}".encode()).decode()
+              auth = urllib.request.Request(
+                  f"https://ghcr.io/token?{query}", headers={"Authorization": f"Basic {basic}"}
+              )
+              with urllib.request.urlopen(auth, timeout=30) as response:
+                  bearer = json.load(response).get("token", "")
+              if not bearer:
+                  raise SystemExit("Registry returned an empty token")
+              url = f"https://ghcr.io/v2/{image}/manifests/{tag}"
+              headers = {
+                  "Authorization": f"Bearer {bearer}",
+                  "Accept": "application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json",
+              }
+              try:
+                  urllib.request.urlopen(urllib.request.Request(url, method="HEAD", headers=headers), timeout=30)
+              except urllib.error.HTTPError as exc:
+                  if exc.code != 404:
+                      reason = {
+                          401: "unauthorized",
+                          403: "forbidden",
+                          429: "rate limit",
+                      }.get(exc.code, "unexpected HTTP")
+                      raise SystemExit(f"Registry preflight hard stop: {reason} ({exc.code})") from exc
+                  try:
+                      urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=30)
+                  except urllib.error.HTTPError as get_exc:
+                      try:
+                          payload = json.loads(get_exc.read())
+                      except (UnicodeDecodeError, json.JSONDecodeError) as json_exc:
+                          raise SystemExit("Registry preflight hard stop: ambiguous 404 or invalid JSON") from json_exc
+                      errors = payload.get("errors")
+                      confirmed = (
+                          get_exc.code == 404 and isinstance(errors, list) and errors
+                          and all(isinstance(item, dict) and item.get("code") == "MANIFEST_UNKNOWN" for item in errors)
+                      )
+                      if not confirmed:
+                          raise SystemExit("Registry preflight hard stop: ambiguous 404") from get_exc
+                      print("TAG_CONFIRMED_ABSENT=SIM")
+                  else:
+                      raise SystemExit("Tag exists; overwrite and rebuild forbidden")
+              else:
+                  raise SystemExit("Tag exists; overwrite and rebuild forbidden")
+          except (urllib.error.URLError, TimeoutError, socket.timeout, ssl.SSLError, json.JSONDecodeError) as exc:
+              if isinstance(exc, ssl.SSLError):
+                  reason = "TLS error"
+              elif isinstance(exc, (TimeoutError, socket.timeout)):
+                  reason = "timeout"
+              elif isinstance(exc, json.JSONDecodeError):
+                  reason = "invalid JSON"
+              else:
+                  reason = "network error"
+              raise SystemExit(f"Registry preflight hard stop: {reason}") from exc
+          PY
+
+      - name: Push exactly once and capture the final manifest digest
+        run: |
+          set -Eeuo pipefail
+          push_log="$RUNNER_TEMP/hermes-docker-push.log"
+          docker push "$IMAGE_NAME:$IMAGE_TAG" 2>&1 | tee "$push_log"
+          push_digest=$(sed -nE "s/^${IMAGE_TAG}: digest: (sha256:[0-9a-f]{64}) size: [0-9]+$/\1/p" "$push_log")
+          test "$(printf '%s\n' "$push_digest" | sed '/^$/d' | wc -l)" -eq 1
+          printf 'PUSH_REPORTED_MANIFEST_DIGEST=%s\n' "$push_digest" > "$DIGEST_STATE_FILE"
+
+      - name: Inspect registry digest and verify private linked package
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+          GHCR_ACTOR: ${{ github.actor }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import base64
+          import json
+          import os
+          import re
+          import urllib.parse
+          import urllib.request
+
+          image = os.environ["IMAGE_NAME"].removeprefix("ghcr.io/")
+          tag = os.environ["IMAGE_TAG"]
+          basic = base64.b64encode(f'{os.environ["GHCR_ACTOR"]}:{os.environ["GHCR_TOKEN"]}'.encode()).decode()
+          query = urllib.parse.urlencode({"service": "ghcr.io", "scope": f"repository:{image}:pull"})
+          with urllib.request.urlopen(urllib.request.Request(
+              f"https://ghcr.io/token?{query}", headers={"Authorization": f"Basic {basic}"}
+          ), timeout=30) as response:
+              bearer = json.load(response).get("token", "")
+          if not bearer:
+              raise SystemExit("Registry returned an empty token")
+          request = urllib.request.Request(
+              f"https://ghcr.io/v2/{image}/manifests/{tag}",
+              method="HEAD",
+              headers={
+                  "Authorization": f"Bearer {bearer}",
+                  "Accept": "application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json",
+              },
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              registry_digest = response.headers.get("Docker-Content-Digest", "")
+          if not re.fullmatch(r"sha256:[0-9a-f]{64}", registry_digest):
+              raise SystemExit("Registry manifest digest is missing or invalid")
+
+          package_request = urllib.request.Request(
+              "https://api.github.com/users/sandro-prates/packages/container/hermes-ai-os",
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": f'Bearer {os.environ["GH_TOKEN"]}',
+                  "X-GitHub-Api-Version": "2022-11-28",
+              },
+          )
+          with urllib.request.urlopen(package_request, timeout=30) as response:
+              package = json.load(response)
+          if package.get("visibility") != "private":
+              raise SystemExit("ACTUAL_PACKAGE_VISIBILITY is not private")
+          repository = package.get("repository") or {}
+          if repository.get("full_name") != "sandro-prates/hermes-ai-os":
+              raise SystemExit("PACKAGE_LINKED_REPOSITORY is not sandro-prates/hermes-ai-os")
+          with open(os.environ["DIGEST_STATE_FILE"], "a", encoding="utf-8") as stream:
+              stream.write(f"REGISTRY_INSPECTED_MANIFEST_DIGEST={registry_digest}\n")
+          print("ACTUAL_PACKAGE_VISIBILITY=private")
+          print("PACKAGE_LINKED_REPOSITORY=sandro-prates/hermes-ai-os")
+          PY
+
+      - name: Remove tag, pull exclusively by digest, and validate RepoDigest
+        run: |
+          set -Eeuo pipefail
+          . "$DIGEST_STATE_FILE"
+          digest_pattern='^sha256:[0-9a-f]{64}$'
+          [[ "$PUSH_REPORTED_MANIFEST_DIGEST" =~ $digest_pattern ]]
+          [[ "$REGISTRY_INSPECTED_MANIFEST_DIGEST" =~ $digest_pattern ]]
+          test "$PUSH_REPORTED_MANIFEST_DIGEST" = "$REGISTRY_INSPECTED_MANIFEST_DIGEST"
+          docker image rm "$IMAGE_NAME:$IMAGE_TAG"
+          canonical="$IMAGE_NAME@$REGISTRY_INSPECTED_MANIFEST_DIGEST"
+          docker pull "$canonical"
+          repo_digest=$(docker image inspect --format '{{range .RepoDigests}}{{println .}}{{end}}' "$canonical" | sed -nE "s#^${IMAGE_NAME}@(sha256:[0-9a-f]{64})$#\1#p")
+          test "$(printf '%s\n' "$repo_digest" | sed '/^$/d' | wc -l)" -eq 1
+          [[ "$repo_digest" =~ $digest_pattern ]]
+          test "$repo_digest" = "$REGISTRY_INSPECTED_MANIFEST_DIGEST"
+          printf 'PULLED_IMAGE_REPODIGEST=%s\n' "$repo_digest" >> "$DIGEST_STATE_FILE"
+          test "$PUSH_REPORTED_MANIFEST_DIGEST" = "$REGISTRY_INSPECTED_MANIFEST_DIGEST"
+          test "$REGISTRY_INSPECTED_MANIFEST_DIGEST" = "$repo_digest"
+
+      - name: Smoke the pulled digest with console logging
+        run: |
+          set -Eeuo pipefail
+          . "$DIGEST_STATE_FILE"
+          canonical="$IMAGE_NAME@$REGISTRY_INSPECTED_MANIFEST_DIGEST"
+          test "$(docker image inspect --format '{{.Os}}' "$canonical")" = linux
+          test "$(docker image inspect --format '{{.Architecture}}' "$canonical")" = amd64
+          test "$(docker image inspect --format '{{.Config.User}}' "$canonical")" = '10001:10001'
+          test "$(docker run --rm "$canonical" python --version 2>&1)" = 'Python 3.14.6'
+          ! docker run --rm "$canonical" sh -c 'command -v uv || command -v pytest || command -v ruff || python -c "import httpx"'
+          docker run --rm "$canonical" sh -c 'test ! -e /app/tests && test ! -e /app/docs'
+          container=hermes-published-console
+          cleanup() { docker logs "$container" 2>&1 || true; docker rm --force "$container" >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          docker run --detach --read-only --name "$container" --env LOG_FORMAT=console --publish 18000:8000 "$canonical"
+          for attempt in $(seq 1 30); do
+            status=$(docker inspect --format '{{.State.Health.Status}}' "$container")
+            [ "$status" = healthy ] && break
+            [ "$status" = unhealthy ] && exit 1
+            sleep 1
+          done
+          test "$(docker inspect --format '{{.State.Health.Status}}' "$container")" = healthy
+          curl --fail --silent --show-error http://127.0.0.1:18000/
+          curl --fail --silent --show-error http://127.0.0.1:18000/api/v1/health
+          generated=$(curl --fail --silent --dump-header - http://127.0.0.1:18000/api/v1/health | grep -i '^x-request-id:' | awk '{print $2}' | tr -d '\r')
+          test -n "$generated"
+          preserved=$(curl --fail --silent --dump-header - -H 'X-Request-ID: publication-preserved-request' http://127.0.0.1:18000/api/v1/health | grep -i '^x-request-id:' | awk '{print $2}' | tr -d '\r')
+          test "$preserved" = publication-preserved-request
+          docker logs "$container" | grep -q 'request_id'
+
+      - name: Smoke the pulled digest with JSON logging
+        run: |
+          set -Eeuo pipefail
+          . "$DIGEST_STATE_FILE"
+          canonical="$IMAGE_NAME@$REGISTRY_INSPECTED_MANIFEST_DIGEST"
+          container=hermes-published-json
+          cleanup() { docker logs "$container" 2>&1 || true; docker rm --force "$container" >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          docker run --detach --read-only --name "$container" --env LOG_FORMAT=json --publish 18001:8000 "$canonical"
+          for attempt in $(seq 1 30); do
+            status=$(docker inspect --format '{{.State.Health.Status}}' "$container")
+            [ "$status" = healthy ] && break
+            [ "$status" = unhealthy ] && exit 1
+            sleep 1
+          done
+          test "$(docker inspect --format '{{.State.Health.Status}}' "$container")" = healthy
+          curl --fail --silent --show-error http://127.0.0.1:18001/api/v1/health >/dev/null
+          docker logs "$container" | grep -q '"request_id"'
+
+      - name: Logout defensively after every login attempt
+        if: always()
+        run: |
+          set -Eeuo pipefail
+          state=LOGIN_STATE=NOT_ATTEMPTED
+          if [ -f "$LOGIN_STATE_FILE" ]; then
+            state=$(cat "$LOGIN_STATE_FILE")
+          fi
+          printf '%s\n' "$state"
+          case "$state" in
+            LOGIN_STATE=NOT_ATTEMPTED) ;;
+            LOGIN_STATE=ATTEMPTED_NOT_CONFIRMED|LOGIN_STATE=SUCCEEDED) docker logout ghcr.io ;;
+            *) echo 'Unknown login state' >&2; exit 1 ;;
+          esac
