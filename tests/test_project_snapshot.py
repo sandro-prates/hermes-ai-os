@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+import tools.project_snapshot as project_snapshot
 from tools.project_snapshot import (
     SNAPSHOT_SCHEMA_VERSION,
     CommandResult,
@@ -1182,6 +1183,21 @@ quality:
         "03_CHANGELOG.md": "# Changelog\n",
     }.items():
         (repository / "docs" / name).write_text(content, encoding="utf-8")
+
+    application = repository / "apps/backend/app"
+    application.mkdir(parents=True)
+    (application / "__init__.py").write_text("", encoding="utf-8")
+    (application / "main.py").write_text(
+        "from fastapi import FastAPI\n\n"
+        'app = FastAPI(title="Snapshot Fixture", version="1.0.0")\n',
+        encoding="utf-8",
+    )
+    fixture_tests = repository / "tests"
+    fixture_tests.mkdir()
+    (fixture_tests / "test_smoke.py").write_text(
+        "def test_smoke() -> None:\n    assert True\n",
+        encoding="utf-8",
+    )
     (repository / "ignored.tmp").write_text("ignored\n", encoding="utf-8")
     command("git", "add", ".")
     command("git", "commit", "-m", "initial projection")
@@ -1218,3 +1234,294 @@ def test_git_state_type_documents_unknown_values() -> None:
     state = GitState(None, None, None, None, None, None, None, None)
 
     assert state.clean is None
+
+
+# SPRINT-10_FAIL_CLOSED_REGRESSION
+
+
+def live_quality_state(
+    gate: str | None = None,
+    *,
+    unavailable: bool = False,
+    pytest_warning: bool = False,
+) -> project_snapshot.QualityState:
+    passed = result(("gate",), returncode=0, stdout="passed\n")
+    selected = (
+        result(
+            ("gate",),
+            returncode=None if unavailable else 1,
+            stderr="simulated unavailable\n" if unavailable else "simulated failure\n",
+            unavailable=unavailable,
+        )
+        if gate
+        else passed
+    )
+    ruff = selected if gate == "ruff" else passed
+    pytest_result = selected if gate == "pytest" else passed
+    if pytest_warning and gate != "pytest":
+        pytest_result = result(
+            ("pytest",),
+            returncode=0,
+            stdout="133 passed, 1 warning in 0.01s\n",
+        )
+    application = selected if gate == "application_import" else passed
+    return project_snapshot.QualityState(
+        ruff=project_snapshot.summarize_quality(ruff, "ruff"),
+        pytest=project_snapshot.summarize_quality(pytest_result, "pytest"),
+        application_import=(
+            f"Indisponível — {application.stderr.strip()}"
+            if application.unavailable
+            else (
+                "Aprovada — FastAPI Hermes AI OS 0.0.1"
+                if application.succeeded
+                else f"Reprovada — código {application.returncode}"
+            )
+        ),
+        ruff_result=ruff,
+        pytest_result=pytest_result,
+        application_import_result=application,
+    )
+
+
+def clean_git_state() -> GitState:
+    return GitState(
+        branch="main",
+        upstream="origin/main",
+        commit="a466ac5 simulated",
+        commit_date="2026-07-19T00:00:00-03:00",
+        staged=(),
+        unstaged=(),
+        untracked=(),
+        clean=True,
+    )
+
+
+def test_inspect_quality_preserves_structured_results_and_runs_all_gates(
+    tmp_path: Path,
+) -> None:
+    calls: list[tuple[str, ...]] = []
+
+    def runner(
+        args: tuple[str, ...],
+        cwd: Path,
+        env: dict[str, str] | None,
+    ) -> CommandResult:
+        calls.append(args)
+        assert cwd == tmp_path
+        if "ruff" in args:
+            return result(args, returncode=1, stderr="ruff failure\n")
+        if "pytest" in args:
+            return result(
+                args,
+                returncode=0,
+                stdout="133 passed, 1 warning in 0.01s\n",
+            )
+        assert any("from app.main import app" in argument for argument in args)
+        assert env is not None
+        return result(
+            args,
+            returncode=None,
+            stderr="python unavailable\n",
+            unavailable=True,
+        )
+
+    quality = project_snapshot.inspect_quality(tmp_path, runner)
+
+    assert len(calls) == 3
+    assert quality.ruff_result.returncode == 1
+    assert quality.ruff_result.failed
+    assert quality.pytest_result.returncode == 0
+    assert quality.pytest_result.succeeded
+    assert "1 aviso(s)" in quality.pytest
+    assert quality.application_import_result.returncode is None
+    assert quality.application_import_result.unavailable
+    assert not quality.succeeded
+
+
+def test_quality_warnings_with_zero_returncode_are_non_blocking() -> None:
+    quality = live_quality_state(pytest_warning=True)
+
+    project_snapshot.ensure_quality_passed(quality)
+
+    assert quality.succeeded
+    assert "1 aviso(s)" in quality.pytest
+
+
+@pytest.mark.parametrize(
+    ("gate", "unavailable"),
+    [
+        ("ruff", False),
+        ("ruff", True),
+        ("pytest", False),
+        ("pytest", True),
+        ("application_import", False),
+        ("application_import", True),
+    ],
+)
+@pytest.mark.parametrize("check", [False, True])
+@pytest.mark.parametrize("preexisting", [False, True])
+def test_main_fails_closed_before_render_or_output_for_every_live_gate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    gate: str,
+    unavailable: bool,
+    check: bool,
+    preexisting: bool,
+) -> None:
+    output = tmp_path / "snapshot.md"
+    sentinel = b"conteudo anterior\n"
+    if preexisting:
+        output.write_bytes(sentinel)
+        before_bytes = output.read_bytes()
+        before_hash = hashlib.sha256(before_bytes).hexdigest()
+        before_stat = output.stat()
+
+    calls = {"render": 0, "apply": 0}
+    monkeypatch.setattr(project_snapshot, "find_git_root", lambda: tmp_path)
+    monkeypatch.setattr(
+        project_snapshot,
+        "inspect_git",
+        lambda root, selected_output: clean_git_state(),
+    )
+    monkeypatch.setattr(
+        project_snapshot,
+        "inspect_quality",
+        lambda root, runner: live_quality_state(gate, unavailable=unavailable),
+    )
+
+    def forbidden_render(root: Path, selected_output: Path) -> str:
+        calls["render"] += 1
+        pytest.fail("render_snapshot não pode ser chamado após gate reprovado.")
+
+    def forbidden_apply(output_path: Path, expected: str, *, check: bool) -> int:
+        calls["apply"] += 1
+        pytest.fail("apply_output não pode ser chamado após gate reprovado.")
+
+    monkeypatch.setattr(project_snapshot, "render_snapshot", forbidden_render)
+    monkeypatch.setattr(project_snapshot, "apply_output", forbidden_apply)
+
+    arguments = ["--output", str(output)]
+    if check:
+        arguments.append("--check")
+
+    exit_code = project_snapshot.main(arguments)
+    captured = capsys.readouterr()
+
+    assert exit_code != 0
+    assert calls == {"render": 0, "apply": 0}
+    assert "Snapshot atualizado:" not in captured.out
+    assert "Snapshot validado:" not in captured.out
+    assert "Gates de qualidade não aprovados:" in captured.err
+
+    if preexisting:
+        after_bytes = output.read_bytes()
+        after_stat = output.stat()
+        assert after_bytes == before_bytes
+        assert hashlib.sha256(after_bytes).hexdigest() == before_hash
+        assert after_stat.st_size == before_stat.st_size
+        assert after_stat.st_mtime_ns == before_stat.st_mtime_ns
+    else:
+        assert not output.exists()
+
+
+def test_audit_working_tree_does_not_bypass_failed_quality_gate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    output = tmp_path / "snapshot.md"
+    monkeypatch.setattr(project_snapshot, "find_git_root", lambda: tmp_path)
+    monkeypatch.setattr(
+        project_snapshot,
+        "inspect_git",
+        lambda root, selected_output: GitState(
+            branch="main",
+            upstream="origin/main",
+            commit="a466ac5 simulated",
+            commit_date="2026-07-19T00:00:00-03:00",
+            staged=(),
+            unstaged=("tools/project_snapshot.py",),
+            untracked=(),
+            clean=False,
+        ),
+    )
+    monkeypatch.setattr(
+        project_snapshot,
+        "inspect_quality",
+        lambda root, runner: live_quality_state("pytest"),
+    )
+    monkeypatch.setattr(
+        project_snapshot,
+        "render_snapshot",
+        lambda *args, **kwargs: pytest.fail(
+            "render_snapshot não pode ser chamado após gate reprovado."
+        ),
+    )
+    monkeypatch.setattr(
+        project_snapshot,
+        "apply_output",
+        lambda *args, **kwargs: pytest.fail(
+            "apply_output não pode ser chamado após gate reprovado."
+        ),
+    )
+
+    exit_code = project_snapshot.main(
+        ["--output", str(output), "--audit-working-tree"]
+    )
+    captured = capsys.readouterr()
+
+    assert exit_code != 0
+    assert not output.exists()
+    assert "Snapshot atualizado:" not in captured.out
+    assert "Snapshot validado:" not in captured.out
+    assert "Pytest reprovado" in captured.err
+
+
+def test_main_approved_path_preserves_generation_check_and_bytes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    output = tmp_path / "snapshot.md"
+    expected = "# Snapshot\n- ação íntegra\n"
+    monkeypatch.setattr(project_snapshot, "find_git_root", lambda: tmp_path)
+    monkeypatch.setattr(
+        project_snapshot,
+        "inspect_git",
+        lambda root, selected_output: clean_git_state(),
+    )
+    monkeypatch.setattr(
+        project_snapshot,
+        "inspect_quality",
+        lambda root, runner: live_quality_state(pytest_warning=True),
+    )
+    monkeypatch.setattr(
+        project_snapshot,
+        "render_snapshot",
+        lambda root, selected_output: expected,
+    )
+
+    assert project_snapshot.main(["--output", str(output)]) == 0
+    generated = capsys.readouterr()
+    generated_bytes = output.read_bytes()
+    assert f"Snapshot atualizado: {output}" in generated.out
+    assert generated_bytes == expected.encode("utf-8")
+    assert not generated_bytes.startswith(b"\xef\xbb\xbf")
+    assert b"\r" not in generated_bytes
+    assert generated_bytes.endswith(b"\n")
+
+    before_hash = hashlib.sha256(generated_bytes).hexdigest()
+    before_stat = output.stat()
+
+    assert project_snapshot.main(["--output", str(output), "--check"]) == 0
+    checked = capsys.readouterr()
+    after_bytes = output.read_bytes()
+    after_stat = output.stat()
+
+    assert f"Snapshot validado: {output}" in checked.out
+    assert "Snapshot atualizado:" not in checked.out
+    assert after_bytes == generated_bytes
+    assert hashlib.sha256(after_bytes).hexdigest() == before_hash
+    assert after_stat.st_size == before_stat.st_size
+    assert after_stat.st_mtime_ns == before_stat.st_mtime_ns

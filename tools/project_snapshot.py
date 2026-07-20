@@ -82,6 +82,20 @@ class QualityState:
     ruff: str
     pytest: str
     application_import: str
+    ruff_result: CommandResult
+    pytest_result: CommandResult
+    application_import_result: CommandResult
+
+    @property
+    def succeeded(self) -> bool:
+        return all(
+            result.succeeded
+            for result in (
+                self.ruff_result,
+                self.pytest_result,
+                self.application_import_result,
+            )
+        )
 
 
 @dataclass(frozen=True, order=True)
@@ -1288,7 +1302,31 @@ def inspect_quality(root: Path, runner: Runner) -> QualityState:
         ruff=summarize_quality(ruff, "ruff"),
         pytest=summarize_quality(pytest, "pytest"),
         application_import=import_status,
+        ruff_result=ruff,
+        pytest_result=pytest,
+        application_import_result=application,
     )
+
+
+def ensure_quality_passed(quality: QualityState) -> None:
+    """Reject snapshot processing unless every live quality gate succeeded."""
+    failed_gates: list[str] = []
+    gates = (
+        ("Ruff", quality.ruff_result),
+        ("Pytest", quality.pytest_result),
+        ("importação da aplicação", quality.application_import_result),
+    )
+    for label, result in gates:
+        if result.succeeded:
+            continue
+        if result.unavailable:
+            failed_gates.append(f"{label} indisponível")
+        else:
+            failed_gates.append(f"{label} reprovado — código {result.returncode}")
+    if failed_gates:
+        raise SnapshotError(
+            "Gates de qualidade não aprovados: " + "; ".join(failed_gates)
+        )
 
 
 def adr_lines(root: Path, paths: list[str] | None, runner: Runner) -> list[str]:
@@ -1615,6 +1653,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"Ruff executado: {live_quality.ruff}")
         print(f"Pytest executado: {live_quality.pytest}")
         print(f"Importação executada: {live_quality.application_import}")
+        ensure_quality_passed(live_quality)
         expected = render_snapshot(root, output)
         return apply_output(output, expected, check=args.check)
     except SnapshotError as error:
