@@ -118,57 +118,71 @@ Nenhuma Sprint foi criada para esta Task.
 
 # Sprint ativa
 
+Nenhuma Sprint está ativa.
+
+Nenhuma Task ou DT está ativa.
+
+SPRINT-11 não está autorizada.
+
+---
+
+# Última Sprint Concluída
+
 ## SPRINT-10 — Snapshot Quality Gate Integrity
 
-**Status:** 🟡 Em andamento (`in_progress`)
+**Status:** ✅ Concluída e publicada (`completed`)
 
-**Milestone:** M1 — Infraestrutura
+**Milestone:** M1 — Infraestrutura (`in_progress`)
 
 **EPIC:** nenhuma
 
 **Task ou DT formal:** nenhuma criada
 
-**Baseline publicada de ativação:**
-`6464999e0657ac90a2175b9c698d2886119b4223`
+**Implementação técnica:**
+`513afbaf64b11156d1859ed2bec8c85fff3cac7f`
 
-**Classificação:** bloqueador antes da publicação de artefatos de container.
+**Snapshot pós-implementação publicado:**
+`cb2171f315430c977ca929ffb468363a0d5f079e`
 
-**Defeito confirmado:** `tools/project_snapshot.py --check` pode informar falha em
-um gate ao vivo e ainda retornar exit code zero, permitindo escrita ou validação do
-snapshot. A evidência observada registrou Pytest interno reprovado com 92 testes
-aprovados e 3 warnings, enquanto a suíte independente da mesma baseline aprovou 133
-testes com 1 warning e os gates remotos concluíram com `success`.
+**Critérios de aceitação comprovados:**
 
-**Objetivo técnico autorizado somente para planejamento posterior:** tornar Ruff,
-Pytest e importação fail-closed no gerador, sem alterar o contrato determinístico do
-snapshot.
+- [x] falha de Ruff retorna exit code diferente de zero;
+- [x] falha de Pytest retorna exit code diferente de zero;
+- [x] falha de importação retorna exit code diferente de zero;
+- [x] nenhuma falha de gate permite escrita do snapshot;
+- [x] nenhuma falha de gate permite que `--check` declare validação;
+- [x] caminho integralmente aprovado continua gerando e validando o snapshot;
+- [x] geração e `--check` possuem regressões para os três gates;
+- [x] projeção determinística baseada em `HEAD` preservada;
+- [x] exclusão autorreferencial de `docs/PROJECT_SNAPSHOT.md` preservada;
+- [x] 24 regressões negativas fail-closed aprovadas;
+- [x] 77 testes de `tests/test_project_snapshot.py` aprovados;
+- [x] suíte completa com 161 testes aprovados e 1 warning conhecido;
+- [x] Ruff, importação, snapshot e `git diff --check` aprovados;
+- [x] Quality Gate run `29723471112` concluído com `success`;
+- [x] Container Gate run `29723471158` concluído com `success`;
+- [x] `apps/`, dependências, workflows, Dockerfile, ADRs aceitas e contratos de
+  container preservados;
+- [x] handoff `docs/HANDOFF_2026-07-20-SPRINT-10.md` criado.
 
-**Critérios de aceitação da futura implementação:**
+**Limites preservados:**
 
-- [ ] falha de Ruff retorna exit code diferente de zero;
-- [ ] falha de Pytest retorna exit code diferente de zero;
-- [ ] falha de importação retorna exit code diferente de zero;
-- [ ] nenhuma falha de gate permite escrita do snapshot;
-- [ ] nenhuma falha de gate permite que `--check` declare validação;
-- [ ] caminho integralmente aprovado continua gerando e validando o snapshot;
-- [ ] testes de regressão cobrem geração e `--check` para os três gates;
-- [ ] `apps/`, dependências, workflows, Dockerfile e comportamento público permanecem
-  inalterados;
-- [ ] suíte completa, Ruff, importação, snapshot e `git diff --check` aprovados.
+```text
+SPRINT_11_AUTHORIZED=NAO
+IMAGE_PUBLISHED=NAO
+DEPLOYMENT_EXECUTED=NAO
+COMPOSE_IMPLEMENTED=NAO
+REGISTRY_CONFIGURED=NAO
+NEW_DEPENDENCIES=NAO
+APPLICATION_BEHAVIOR_CHANGED=NAO
+```
 
-**Escopo desta ativação:** documentação, teste de continuidade do Project State,
-commit de ativação e commit exclusivo do snapshot.
-
-**Ainda não autorizado:** implementação técnica, GHCR ou outro registry, publicação
-de imagem, Docker Compose, deployment, novas dependências, mudanças em `apps/`,
-SPRINT-11 e push.
-
-**ADR:** nenhuma nova ADR requerida; trata-se de correção de integridade do contrato
-já adotado para o snapshot.
+M0 — Foundation permanece `completed` somente como fato histórico. M1 —
+Infraestrutura permanece `in_progress`.
 
 ---
 
-# Última Sprint Concluída
+# Sprint concluída anterior
 
 ## SPRINT-09 — Reproducible Container Baseline
 
@@ -180,7 +194,7 @@ já adotado para o snapshot.
 
 **Task ou DT formal:** nenhuma criada
 
-**Baseline publicada:** `29b0ecef81b319d369064d16435676f73e03c7ad`
+**Baseline publicada:** `29b0ecef81b319d369064f2a9b9c6fa477012fe2287`
 
 **Critérios existentes e comprovados:**
 

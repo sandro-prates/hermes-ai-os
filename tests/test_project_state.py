@@ -108,21 +108,57 @@ def test_real_project_state_has_explicit_active_completed_and_planned_values() -
     assert set(completed) == {"sprint", "task"}
     assert set(planned) == {"sprint", "task"}
 
-    assert active["sprint"] == {
-        "id": "SPRINT-10",
-        "title": "Snapshot Quality Gate Integrity",
-        "status": "in_progress",
-    }
+    assert active["sprint"] is None
     assert active["task"] is None
     assert completed["sprint"] == {
-        "id": "SPRINT-09",
-        "title": "Reproducible Container Baseline",
+        "id": "SPRINT-10",
+        "title": "Snapshot Quality Gate Integrity",
         "status": "completed",
     }
     assert completed["task"] is None
     assert planned["sprint"] is None
     assert planned["task"] is None
 
+    quality = state["quality"]
+    assert isinstance(quality, dict)
+    assert quality["pytest"] == {
+        "command": "python -m pytest",
+        "result": "passed",
+        "collected_tests": 161,
+        "passed_tests": 161,
+        "warnings": 1,
+    }
+
+    documentation = state["documentation"]
+    assert isinstance(documentation, dict)
+    handoff = documentation["handoff"]
+    assert isinstance(handoff, dict)
+    assert handoff["path"] == "docs/HANDOFF_2026-07-20-SPRINT-10.md"
+
+    closure = state["sprint_10_closure"]
+    assert isinstance(closure, dict)
+    assert closure["status"] == "completed"
+    assert closure["implementation_commit"] == (
+        "513afbaf64b11156d1859ed2bec8c85fff3cac7f"
+    )
+    assert closure["implementation_snapshot_commit"] == (
+        "cb2171f315430c977ca929ffb468363a0d5f079e"
+    )
+    assert closure["remote_acceptance"] == {
+        "quality_gate": {
+            "run_id": 29723471112,
+            "status": "completed",
+            "conclusion": "success",
+            "jobs_total": 4,
+        },
+        "container_gate": {
+            "run_id": 29723471158,
+            "status": "completed",
+            "conclusion": "success",
+            "jobs_total": 1,
+        },
+    }
+    assert closure["sprint_11_authorized"] is False
 
 
 def test_activation_contract_preserves_sprint_05_and_dt_007_as_last_completed() -> None:

@@ -10,58 +10,73 @@
 >
 > **Último EPIC concluído:** EPIC-004 — Foundation Reproducibility
 >
-> **Última Sprint concluída:** SPRINT-09 — Reproducible Container Baseline
+> **Última Sprint concluída:** SPRINT-10 — Snapshot Quality Gate Integrity
 >
-> **Sprint atual:** SPRINT-10 — Snapshot Quality Gate Integrity
+> **Sprint atual:** nenhuma
 >
 > **Responsável:** Sandro Prates
 >
-> **Última verificação:** 19/07/2026
+> **Última verificação:** 20/07/2026
 
-## Ativação da SPRINT-10 — 2026-07-19
+## Fechamento da SPRINT-10 — 2026-07-20
 
-### Estado de ativação
+### Estado final
 
 - **Milestone:** M1 — Infraestrutura (`in_progress`).
-- **SPRINT-10 — Snapshot Quality Gate Integrity:** `in_progress`.
-- **Última Sprint concluída:** SPRINT-09 — Reproducible Container Baseline.
-- **EPIC, Task ou DT formal:** nenhuma criada.
-- **Baseline publicada de ativação:**
-  `6464999e0657ac90a2175b9c698d2886119b4223`.
-- **Quality Gate da baseline:** run `29704668788`, `success`.
-- **Container Gate da baseline:** run `29704668667`, `success`.
-- **Nova ADR:** não requerida.
+- **SPRINT-10 — Snapshot Quality Gate Integrity:** `completed`.
+- **Sprint ativa:** nenhuma.
+- **Sprint planejada:** nenhuma.
+- **Task ativa ou planejada:** nenhuma.
+- **EPIC, Task/DT ou ADR formal criada:** nenhuma.
+- **SPRINT-11:** não autorizada.
 
-### Defeito bloqueador
+M0 — Foundation permanece `completed` somente como fato histórico. O encerramento
+da SPRINT-10 não conclui M1 e não autoriza automaticamente qualquer próximo
+incremento.
 
-Na publicação final da SPRINT-09, uma execução de
-`python tools/project_snapshot.py --check` informou internamente
-`Pytest executado: Reprovado — 92 aprovado(s), 3 aviso(s)`, mas o comando ainda
-retornou exit code zero e declarou o snapshot validado. Na mesma baseline, a suíte
-independente concluiu `133 passed, 1 warning` e os gates remotos terminaram com
-`success`; portanto, o defeito confirmado é o comportamento fail-open do gerador,
-não uma reprovação da baseline publicada.
+### Baselines e implementação
 
-### Objetivo vinculante
+- baseline publicada antes da ativação:
+  `6464999e0657ac90a2175b9c698d2886119b4223`;
+- ativação documental:
+  `f5e2da5c5ba419711d3c2e97309a152bec7e1965`;
+- snapshot da ativação:
+  `a466ac52ff36ea0b1be95fbee8985dcacb18017e`;
+- correção técnica fail-closed:
+  `513afbaf64b11156d1859ed2bec8c85fff3cac7f`;
+- snapshot pós-implementação publicado:
+  `cb2171f315430c977ca929ffb468363a0d5f079e`.
 
-Corrigir futuramente `tools/project_snapshot.py` para que qualquer falha nos gates
-ao vivo de Ruff, Pytest ou importação:
+A correção em `tools/project_snapshot.py` tornou fail-closed os gates ao vivo de
+Ruff, Pytest e importação. Qualquer reprovação retorna exit code diferente de zero
+e impede tanto a escrita quanto a validação do snapshot. O caminho de sucesso,
+a projeção determinística baseada em `HEAD` e a exclusão autorreferencial foram
+preservados.
 
-- resulte em exit code diferente de zero;
-- impeça a escrita do snapshot;
-- impeça que `--check` declare validação;
-- preserve o caminho de sucesso e o contrato determinístico existente.
+### Validação local
 
-O defeito está classificado como bloqueador antes da publicação de artefatos de
-container.
+- 24 regressões negativas específicas do comportamento fail-closed aprovadas;
+- 77 testes de `tests/test_project_snapshot.py` aprovados;
+- 161 testes totais aprovados;
+- 1 `StarletteDeprecationWarning` conhecido e não bloqueante;
+- Ruff aprovado;
+- importação aprovada: FastAPI Hermes AI OS `0.0.1`;
+- geração e `--check --audit-working-tree` do snapshot aprovados;
+- `git diff --check` aprovado.
 
-### Limites desta ativação
+### Aceitação remota
 
-Esta etapa é exclusivamente documental. Não estão autorizados nesta ativação:
-implementação técnica, mudanças em `tools/project_snapshot.py`, alterações em
-`apps/`, novas dependências, publicação em GHCR ou outro registry, Docker Compose,
-deployment, SPRINT-11 ou push. A implementação técnica dependerá de autorização
-humana específica após os dois commits de ativação.
+- Quality Gate run `29723471112`: `completed/success`, quatro jobs aprovados;
+- Container Gate run `29723471158`: `completed/success`, job `container-gate`
+  aprovado;
+- commit validado remotamente:
+  `cb2171f315430c977ca929ffb468363a0d5f079e`.
+
+### Limites preservados
+
+Nenhum arquivo em `apps/`, dependência, workflow, Dockerfile, ADR aceita ou
+implementação de container foi alterado pela SPRINT-10. Nenhuma imagem foi publicada,
+nenhum deployment foi executado e SPRINT-11 permanece não autorizada.
 
 ## Fechamento da SPRINT-09 — 2026-07-19
 
@@ -269,8 +284,8 @@ Evoluir desde uma instalação local até uma plataforma comercial gerenciada, c
 
 - Branch operacional: `main`.
 - Upstream configurado: `origin/main`.
-- Baseline publicada da SPRINT-09 confirmada em
-  `29b0ecef81b319d369064d16435676f73e03c7ad`, com `HEAD`, `origin/main` e
+- Baseline publicada da SPRINT-10 confirmada em
+  `cb2171f315430c977ca929ffb468363a0d5f079e`, com `HEAD`, `origin/main` e
   `remote main` sincronizados antes do fechamento documental final.
 - Divergência confirmada nessa baseline: ahead `0`, behind `0`.
 - Working tree, staging, tracked unstaged e untracked validados como limpos antes
@@ -287,6 +302,10 @@ Evoluir desde uma instalação local até uma plataforma comercial gerenciada, c
   de container em `ff01f10` e snapshot de implementação em `29b0ece`.
 - A publicação de `29b0ece` foi comprovada por `git ls-remote`; Quality Gate
   `29689585477` e Container Gate `29689585471` concluíram com `success`.
+- A SPRINT-10 foi ativada em `f5e2da5`, recebeu snapshot em `a466ac5`, correção
+  fail-closed em `513afba` e snapshot pós-implementação em `cb2171f`.
+- A publicação de `cb2171f` foi comprovada por `git ls-remote`; Quality Gate
+  `29723471112` e Container Gate `29723471158` concluíram com `success`.
 - O estado operacional de branch, upstream e working tree deve ser consultado
   diretamente com Git.
 
@@ -417,6 +436,23 @@ Container Gate, testes contratuais e ADR-0008 proposta.
 Snapshot atualizado após a implementação e publicado como baseline remota de
 aceitação da SPRINT-09.
 
+### `f5e2da5`
+
+Ativação documental da SPRINT-10 — Snapshot Quality Gate Integrity.
+
+### `a466ac5`
+
+Snapshot atualizado após a ativação da SPRINT-10.
+
+### `513afba`
+
+Gates ao vivo de Ruff, Pytest e importação tornados fail-closed no gerador do
+snapshot, com regressões negativas para geração e `--check`.
+
+### `cb2171f`
+
+Snapshot pós-implementação da SPRINT-10 publicado e validado remotamente.
+
 ## Trabalho concluído histórico
 
 ### EPIC-004 — Foundation Reproducibility — Concluída
@@ -539,12 +575,14 @@ Evidência Git:
 
 Resultado verificado:
 
-- 133 testes coletados;
-- 133 testes aprovados;
+- 161 testes coletados;
+- 161 testes aprovados;
 - 1 aviso de depreciação do `TestClient`;
+- 77 testes de `tests/test_project_snapshot.py`;
+- 24 regressões negativas específicas do comportamento fail-closed;
 - 43 testes contratuais do Quality Gate;
 - 14 testes contratuais da baseline e do Container Gate;
-- Quality Gate run `29689585477` e Container Gate run `29689585471` aprovados.
+- Quality Gate run `29723471112` e Container Gate run `29723471158` aprovados.
 
 O aviso de depreciação é uma observação conhecida e não bloqueia o fechamento.
 
@@ -564,6 +602,7 @@ A análise estática está aprovada.
 - `docs/01_PROJECT_STATE.yaml` — estado operacional verificável.
 - `docs/02_BACKLOG.md` — trabalho e dívida técnica.
 - `docs/03_CHANGELOG.md` — histórico de mudanças.
+- `docs/HANDOFF_2026-07-20-SPRINT-10.md` — continuidade operacional atual.
 - `docs/adr/` — decisões arquiteturais.
 
 ADRs aceitos:
@@ -608,18 +647,18 @@ mudar.
 
 ## Estado operacional corrente
 
-- Última Sprint concluída: SPRINT-09 — Reproducible Container Baseline.
-- Sprint ativa: SPRINT-10 — Snapshot Quality Gate Integrity (`in_progress`).
+- Última Sprint concluída: SPRINT-10 — Snapshot Quality Gate Integrity.
+- Sprint ativa: nenhuma.
 - Sprint planejada: nenhuma.
 - Task ativa ou planejada: nenhuma.
 - M0 — Foundation: `completed` como fato histórico.
 - M1 — Infraestrutura: `in_progress`.
-- Implementação técnica da SPRINT-10: não autorizada nesta ativação.
+- SPRINT-11: não autorizada.
 - Publicação de artefatos, Docker Compose e deployment: não autorizados.
 
 A continuidade deve partir deste documento, do Project State, do handoff da
-SPRINT-09, dos ADRs aceitos e da validação direta do Git. O próximo gate é a
-autorização humana para a implementação técnica da SPRINT-10.
+SPRINT-10, dos ADRs aceitos e da validação direta do Git. Qualquer próximo incremento
+depende de autorização humana explícita.
 
 ---
 

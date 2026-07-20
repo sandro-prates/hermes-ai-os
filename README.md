@@ -34,10 +34,15 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
   Quality Gate `29689585477` e Container Gate `29689585471` aprovados.
 - ADR-0008 — Baseline reproduzível de container aceita após comprovação local e
   remota.
-- SPRINT-10 — Snapshot Quality Gate Integrity ativa em M1, sem nova EPIC ou
-  Task/DT formal; a implementação técnica ainda não foi iniciada.
-- O comportamento fail-open dos gates ao vivo de `tools/project_snapshot.py` está
-  classificado como bloqueador antes da publicação de artefatos de container.
+- SPRINT-10 — Snapshot Quality Gate Integrity concluída e publicada em M1, sem
+  nova EPIC, Task/DT ou ADR formal.
+- Os gates ao vivo de Ruff, Pytest e importação em `tools/project_snapshot.py`
+  operam de forma fail-closed desde o commit técnico
+  `513afbaf64b11156d1859ed2bec8c85fff3cac7f`.
+- O snapshot pós-implementação foi publicado em
+  `cb2171f315430c977ca929ffb468363a0d5f079e`.
+- Quality Gate run `29723471112` e Container Gate run `29723471158` concluíram
+  com `success` para a baseline publicada da SPRINT-10.
 - DT-007 foi concluída como pesquisa no commit `126aff8`; suas recomendações somente
   se tornaram oficiais quando aprovadas e comprovadas na SPRINT-07.
 
@@ -57,6 +62,8 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
 - Matriz automatizada para Ubuntu Python 3.12, 3.13 e 3.14 e Windows Python 3.14.
 - Validação automática de lock, snapshot, Ruff, Pytest, importação e preservação da
   árvore rastreada.
+- Execução fail-closed dos gates ao vivo do snapshot: falhas de Ruff, Pytest ou
+  importação retornam exit code diferente de zero e impedem geração ou validação.
 - Baseline reproduzível de container Linux com inputs pinados por digest completo.
 - Build Docker multi-stage com Python `3.14.6`, instalação bloqueada pelo `uv.lock`
   e runtime mínimo.
@@ -103,7 +110,7 @@ docs/
 ├── 01_PROJECT_STATE.yaml
 ├── 02_BACKLOG.md
 ├── 03_CHANGELOG.md
-├── HANDOFF_2026-07-19-SPRINT-09.md
+├── HANDOFF_2026-07-20-SPRINT-10.md
 └── PROJECT_SNAPSHOT.md
 ```
 
@@ -270,13 +277,14 @@ Executar os testes:
 python -m pytest
 ```
 
-Estado atual verificado no fechamento da SPRINT-09: 133 testes aprovados e
+Estado atual verificado no fechamento da SPRINT-10: 161 testes aprovados e
 1 aviso de depreciação não bloqueante do `TestClient` relacionado ao `httpx`.
-Ruff, importação, endpoints, Request ID, logging, snapshot, os 43 contratos do
-Quality Gate e os 14 contratos do container foram aprovados localmente. O Quality
-Gate run `29689585477` aprovou as quatro combinações da matriz, e o Container Gate
-run `29689585471` aprovou integralmente o contrato da imagem. Execute sempre os
-comandos acima para obter o resultado local atual; a quantidade de testes pode evoluir.
+`tests/test_project_snapshot.py` aprovou 77 testes, incluindo 24 regressões
+fail-closed. Ruff, importação e snapshot foram aprovados localmente. O Quality Gate
+run `29723471112` aprovou as quatro combinações da matriz, e o Container Gate run
+`29723471158` aprovou o contrato da imagem para o commit
+`cb2171f315430c977ca929ffb468363a0d5f079e`. Execute sempre os comandos acima para
+obter o resultado local atual; a quantidade de testes pode evoluir.
 
 ## Dependências reproduzíveis
 
@@ -309,10 +317,10 @@ Sua validade operacional deve ser confirmada sem escrita com:
 python tools/project_snapshot.py --check
 ```
 
-A SPRINT-10 está ativa para tornar os gates ao vivo de Ruff, Pytest e importação
-fail-closed: qualquer falha deverá retornar exit code diferente de zero e impedir
-a escrita ou a validação do snapshot. Nesta ativação documental, o comportamento
-técnico ainda não foi alterado.
+Desde a SPRINT-10, os gates ao vivo de Ruff, Pytest e importação operam de forma
+fail-closed: qualquer reprovação retorna exit code diferente de zero e impede a
+escrita ou a validação do snapshot. O caminho de sucesso preserva a projeção
+determinística baseada em `HEAD` e a exclusão autorreferencial do relatório.
 
 ## Documentação do projeto
 
@@ -320,15 +328,15 @@ técnico ainda não foi alterado.
 - [Estado operacional](docs/01_PROJECT_STATE.yaml)
 - [Backlog](docs/02_BACKLOG.md)
 - [Changelog](docs/03_CHANGELOG.md)
-- [Handoff da SPRINT-09](docs/HANDOFF_2026-07-19-SPRINT-09.md)
+- [Handoff da SPRINT-10](docs/HANDOFF_2026-07-20-SPRINT-10.md)
 - [Architecture Decision Records](docs/adr/README.md)
 
 ## Limitações atuais
 
-O projeto permanece em `M1 — Infraestrutura`, que ainda não está concluído. A
-SPRINT-10 — Snapshot Quality Gate Integrity está ativa somente no plano documental;
-a implementação técnica ainda não foi autorizada. A publicação de artefatos de
-container permanece bloqueada até a comprovação do comportamento fail-closed.
+O projeto permanece em `M1 — Infraestrutura`, que ainda não está concluído.
+Nenhuma Sprint ou Task está ativa ou planejada, e a SPRINT-11 não está autorizada.
+A correção fail-closed foi comprovada, mas publicação de artefatos, Docker Compose,
+registry e deployment continuam dependentes de autorização futura específica.
 
 A baseline de container cobre `linux/amd64`, mas não inclui Docker Compose, registry,
 publicação de imagem, deployment, persistência ou orquestração. Banco de dados,

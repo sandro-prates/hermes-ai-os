@@ -8,19 +8,63 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
-### Ativação documental da SPRINT-10 — 2026-07-19
+Nenhuma mudança adicional registrada após o fechamento local da SPRINT-10.
 
-- SPRINT-10 — Snapshot Quality Gate Integrity ativada em M1.
-- Escopo vinculante: corrigir o comportamento fail-open dos gates ao vivo de Ruff,
-  Pytest e importação em `tools/project_snapshot.py`.
-- Defeito classificado como bloqueador antes da publicação de artefatos.
-- Baseline publicada: `6464999e0657ac90a2175b9c698d2886119b4223`.
-- Quality Gate `29704668788` e Container Gate `29704668667` concluídos com
-  `success`.
-- Nenhuma EPIC, Task/DT ou ADR criada.
-- Nesta ativação não houve implementação técnica, mudança em `apps/`, dependência,
-  workflow, container, publicação de imagem, Docker Compose ou deployment.
-- SPRINT-11 e push permanecem não autorizados.
+## [SPRINT-10] — 2026-07-20
+
+SPRINT-10 — Snapshot Quality Gate Integrity concluída em M1, sem nova EPIC,
+Task/DT formal ou ADR.
+
+### Adicionado
+
+- regressões negativas para falhas de Ruff, Pytest e importação durante geração e
+  `--check` do snapshot;
+- handoff `docs/HANDOFF_2026-07-20-SPRINT-10.md`.
+
+### Corrigido
+
+- `tools/project_snapshot.py` passou a propagar de forma fail-closed qualquer
+  reprovação dos gates ao vivo;
+- falhas de Ruff, Pytest ou importação agora retornam exit code diferente de zero;
+- geração e validação não prosseguem depois de gate reprovado;
+- caminho de sucesso, projeção baseada em `HEAD` e exclusão autorreferencial foram
+  preservados.
+
+### Commits publicados
+
+- implementação técnica:
+  `513afbaf64b11156d1859ed2bec8c85fff3cac7f`;
+- snapshot pós-implementação:
+  `cb2171f315430c977ca929ffb468363a0d5f079e`.
+
+### Validado
+
+- 24 regressões negativas fail-closed aprovadas;
+- 77 testes de `tests/test_project_snapshot.py` aprovados;
+- 161 testes totais aprovados, com 1 warning conhecido;
+- Ruff aprovado;
+- importação FastAPI Hermes AI OS `0.0.1` aprovada;
+- geração, `--check --audit-working-tree` e `git diff --check` aprovados;
+- Quality Gate run `29723471112` concluído com `success` em quatro jobs;
+- Container Gate run `29723471158` concluído com `success` no job
+  `container-gate`.
+
+### Preservado
+
+- nenhum arquivo em `apps/`;
+- `pyproject.toml` e `uv.lock`;
+- workflows e Dockerfile;
+- ADRs aceitas;
+- implementação e contratos da baseline de container;
+- ausência de publicação de imagem, registry, Docker Compose ou deployment.
+
+### Continuidade
+
+- SPRINT-10 passa de `in_progress` para `completed`;
+- nenhuma Sprint, Task ou DT permanece ativa ou planejada;
+- M0 permanece `completed` somente como fato histórico;
+- M1 permanece `in_progress`;
+- SPRINT-11 permanece não autorizada.
 
 ## [SPRINT-09] — 2026-07-19
 
