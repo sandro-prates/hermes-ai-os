@@ -837,8 +837,10 @@ jobs:
           docker image rm "$IMAGE_NAME:$IMAGE_TAG"
           canonical="$IMAGE_NAME@$REGISTRY_INSPECTED_MANIFEST_DIGEST"
           docker pull "$canonical"
-          repo_digest=$(docker image inspect --format '{{range .RepoDigests}}{{println .}}{{end}}' "$canonical" | sed -nE "s#^${IMAGE_NAME}@(sha256:[0-9a-f]{64})$#\1#p")
-          test "$(printf '%s\n' "$repo_digest" | sed '/^$/d' | wc -l)" -eq 1
+          repo_digest_entry=$(docker image inspect --format '{{index .RepoDigests 0}}' "$canonical")
+          repo_digest_prefix="${IMAGE_NAME}@sha256:"
+          [[ "$repo_digest_entry" == "$repo_digest_prefix"* ]]
+          repo_digest=${repo_digest_entry#"${IMAGE_NAME}@"}
           [[ "$repo_digest" =~ $digest_pattern ]]
           test "$repo_digest" = "$REGISTRY_INSPECTED_MANIFEST_DIGEST"
           printf 'PULLED_IMAGE_REPODIGEST=%s\n' "$repo_digest" >> "$DIGEST_STATE_FILE"

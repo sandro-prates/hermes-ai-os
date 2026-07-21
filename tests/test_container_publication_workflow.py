@@ -210,6 +210,59 @@ def test_triple_digest_validation_and_canonical_pull() -> None:
     assert 'docker pull "$canonical"' in text
 
 
+def test_repodigest_uses_explicit_image_prefix_and_bash_parameter_expansion() -> None:
+    script = publication_step(
+        "Remove tag, pull exclusively by digest, and validate RepoDigest"
+    )["run"]
+    assert "{{index .RepoDigests 0}}" in script
+    assert "{{range .RepoDigests}}" not in script
+    assert 'repo_digest_prefix="${IMAGE_NAME}@sha256:"' in script
+    assert '[[ "$repo_digest_entry" == "$repo_digest_prefix"* ]]' in script
+    assert 'repo_digest=${repo_digest_entry#"${IMAGE_NAME}@"}' in script
+    assert not re.search(r"docker image inspect[^\n]*\|\s*sed\b", script)
+
+
+def test_repodigest_rejects_other_repository_or_missing_sha256_prefix() -> None:
+    script = publication_step(
+        "Remove tag, pull exclusively by digest, and validate RepoDigest"
+    )["run"]
+    prefix_check = script.index(
+        '[[ "$repo_digest_entry" == "$repo_digest_prefix"* ]]'
+    )
+    extraction = script.index('repo_digest=${repo_digest_entry#"${IMAGE_NAME}@"}')
+    digest_check = script.index('[[ "$repo_digest" =~ $digest_pattern ]]')
+    assert prefix_check < extraction < digest_check
+    assert 'repo_digest_prefix="${IMAGE_NAME}@sha256:"' in script
+    assert "digest_pattern='^sha256:[0-9a-f]{64}$'" in script
+
+
+def test_repodigest_is_compared_with_both_reported_digests_before_smoke() -> None:
+    steps = job("publish-container")["steps"]
+    validation_index = next(
+        index
+        for index, step in enumerate(steps)
+        if step["name"]
+        == "Remove tag, pull exclusively by digest, and validate RepoDigest"
+    )
+    script = steps[validation_index]["run"]
+    assert (
+        'test "$PUSH_REPORTED_MANIFEST_DIGEST" = '
+        '"$REGISTRY_INSPECTED_MANIFEST_DIGEST"'
+    ) in script
+    assert (
+        'test "$REGISTRY_INSPECTED_MANIFEST_DIGEST" = "$repo_digest"'
+    ) in script
+    smoke_names = {
+        "Smoke the pulled digest with console logging",
+        "Smoke the pulled digest with JSON logging",
+    }
+    assert all(
+        validation_index < index
+        for index, step in enumerate(steps)
+        if step["name"] in smoke_names
+    )
+
+
 def test_post_publication_private_visibility_and_repository_link_are_required() -> None:
     text = commands("publish-container")
     assert "api.github.com/users/sandro-prates/packages/container/hermes-ai-os" in text
