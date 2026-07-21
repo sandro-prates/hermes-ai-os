@@ -3,7 +3,7 @@
 ## 1. Identificação
 
 - schema do snapshot: 3
-- fingerprint SHA-256 da árvore projetada: `e410d982a460678318c3afd3dcbbd02f2f48f287836f368b000454ab756448d0`
+- fingerprint SHA-256 da árvore projetada: `f6913ec92d2a548b4c4b8fd2e77b0e99fe2185af5249d08495560bf59015bcba`
 - arquivos na projeção: 63
 - projeto: Hermes AI OS
 - versão: 0.0.1
