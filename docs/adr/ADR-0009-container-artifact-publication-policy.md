@@ -15,8 +15,9 @@ credenciais do repositório.
 
 Publicar no GHCR sob o namespace
 `ghcr.io/sandro-prates/hermes-ai-os`, com visibilidade obrigatoriamente privada e
-vínculo obrigatório ao repositório `sandro-prates/hermes-ai-os`. A autenticação usa
-somente o `GITHUB_TOKEN`; PAT e segredo persistente adicional são proibidos.
+vínculo obrigatório ao repositório `sandro-prates/hermes-ai-os`. A publicação normal usa somente o `GITHUB_TOKEN`; PAT e segredo persistente
+adicional são proibidos no workflow normal. Um eventual PAT classic temporário para
+bootstrap administrativo externo é apenas proposta e exige autorização separada.
 
 O workflow é exclusivamente manual (`workflow_dispatch`) e exige confirmação
 humana, branch `main` e SHA Git integral de 40 caracteres igual ao SHA da execução.
@@ -107,3 +108,36 @@ este workflow; qualquer ação no package exige autorização operacional separa
 
 Esta ADR permanece `Proposed` até que a política seja revisada e a evidência remota
 de uma publicação explicitamente autorizada seja avaliada.
+
+## Emenda de recuperação do package privado da SPRINT-11
+
+O workflow normal não cria o primeiro package. A publicação exige package GHCR
+preexistente, metadata `private`, vínculo exato com `sandro-prates/hermes-ai-os`,
+Actions access explicitamente configurado e herança de acesso desabilitada.
+
+Antes do login e do build, e novamente depois de um futuro push, o workflow executa
+metadata autenticada e probe anônimo completo do Registry V2. Challenge HTTP 401
+isolado não comprova privacidade. O gate somente aprova quando token com acesso efetivo
+de pull, lista de tags e manifestos não são obtidos anonimamente.
+
+O workflow não corrige visibilidade, vínculo, herança, Actions access, package ou tags.
+Falhas de autenticação, autorização, rede, rate limit, JSON ou campos ausentes são
+bloqueantes. Publicações normais continuam usando exclusivamente `github.token`.
+
+O incidente do run `29773487377` publicou o digest
+`sha256:d6705f96c24194d548b66facc4dd72904045de823e66bb0fb1f3fc3a9b687dec`
+e comprovou acesso anônimo, sem autorização de visibilidade pública. A causa raiz
+permanece não comprovada; o package atual permanece evidência até gate destrutivo.
+
+Um eventual bootstrap administrativo é operação externa separada e apenas proposta.
+PAT classic temporário, escopo candidato `write:packages`, ausência de `repo` e
+`delete:packages`, tag temporária, logout e revogação exigem autorização própria.
+
+```text
+ROOT_CAUSE=NOT_YET_PROVEN
+PAT_BOOTSTRAP_METHOD=PROPOSED
+PAT_CREATION_AUTHORIZED=NAO
+BOOTSTRAP_PUSH_AUTHORIZED=NAO
+```
+
+**Status da decisão:** permanece `Proposed`.

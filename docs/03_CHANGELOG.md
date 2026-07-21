@@ -8,6 +8,22 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
+### Incidente de visibilidade no GHCR e recuperação local da SPRINT-11 — 2026-07-20
+
+- run `29773487377` publicou o digest
+  `sha256:d6705f96c24194d548b66facc4dd72904045de823e66bb0fb1f3fc3a9b687dec`
+  e falhou na validação de política privada;
+- auditoria read-only confirmou acesso anônimo a manifest por tag e digest, lista de
+  tags e config OCI;
+- visibilidade pública não foi autorizada, o package não foi excluído e a causa raiz
+  permanece não comprovada;
+- recuperação local exige package GHCR preexistente, metadata `private`, vínculo exato
+  e acesso anônimo negado antes do login/build e novamente depois de futuro push;
+- ADR-0009 permanece `Proposed`;
+- exclusão, PAT, bootstrap, novo dispatch, rerun, push Git e fechamento da SPRINT-11
+  permanecem não autorizados.
+
+
 ### Ativação documental da SPRINT-11 — 2026-07-20
 
 - SPRINT-11 — Container Artifact Publication Baseline ativada em M1 com status

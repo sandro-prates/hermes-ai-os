@@ -132,31 +132,37 @@ Nenhuma Sprint foi criada para esta Task.
 
 **Baseline publicada de ativação:** `b01753473be47d24e4d14a2d7691cdd1f12a405d`
 
-**Etapa autorizada:** ativação documental e snapshot exclusivo.
+**Etapa corrente:** recuperação local fail-closed do contrato de package privado.
 
-**Decisões vinculantes já aprovadas:**
+**Fatos comprovados:**
 
 ```text
-REGISTRY=GHCR
-PACKAGE_VISIBILITY=PRIVATE
+FAILED_PUBLICATION_RUN=29773487377
+PUBLISHED_DIGEST=sha256:d6705f96c24194d548b66facc4dd72904045de823e66bb0fb1f3fc3a9b687dec
+EFFECTIVE_PACKAGE_ACCESS=PUBLIC
+PACKAGE_IS_PRIVATE=NAO
 PUBLIC_VISIBILITY_AUTHORIZED=NAO
+PACKAGE_POLICY_VIOLATED=SIM
+ROOT_CAUSE=NOT_YET_PROVEN
 ```
 
-**Ainda não autorizado:**
+**Critérios da recuperação local:**
 
-- implementação do workflow de publicação;
-- criação ou execução do Publication Gate;
-- criação técnica da ADR-0009;
-- login no GHCR;
-- criação ou alteração de package;
-- `docker push`;
-- PAT ou secret persistente;
-- Codex escritor;
-- commit técnico ou push Git;
-- SPRINT-12.
+- [x] preservar o package público atual como evidência;
+- [x] manter ADR-0009 em `Proposed`;
+- [x] registrar causa raiz como não comprovada;
+- [ ] exigir package preexistente antes do login e do build;
+- [ ] exigir metadata `private` e vínculo exato ao repositório;
+- [ ] executar probe anônimo completo do Registry V2;
+- [ ] negar acesso anônimo a token efetivo, tags e manifestos;
+- [ ] repetir metadata, vínculo, probe anônimo e digest após futuro push;
+- [ ] validar localmente e criar commits separados, parando antes do push.
 
-Nenhuma Sprint ou Task está planejada. A primeira publicação externa permanece
-condicionada a autorização humana própria.
+**Não autorizado:** exclusão de package/tag, mudança de visibilidade, criação de PAT,
+bootstrap, login/pull/push local no GHCR, novo `workflow_dispatch`, rerun, push Git,
+promoção da ADR-0009, fechamento da SPRINT-11 ou ativação da SPRINT-12.
+
+Nenhuma Sprint ou Task adicional está planejada.
 
 ---
 

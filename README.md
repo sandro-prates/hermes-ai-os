@@ -43,11 +43,19 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
   `cb2171f315430c977ca929ffb468363a0d5f079e`.
 - Quality Gate run `29723471112` e Container Gate run `29723471158` concluíram
   com `success` para a baseline publicada da SPRINT-10.
-- SPRINT-11 — Container Artifact Publication Baseline está ativa em M1, sem nova
-  EPIC ou Task/DT formal. A etapa atual é exclusivamente documental; workflow de
-  publicação, ADR-0009 técnica e publicação externa ainda não foram iniciados.
-- O registry selecionado para o planejamento é o GHCR. A visibilidade canônica do
-  primeiro package é `PRIVATE`, e visibilidade pública não está autorizada.
+- SPRINT-11 — Container Artifact Publication Baseline permanece ativa em M1, com
+  status `in_progress`, sem nova EPIC ou Task/DT formal.
+- O workflow manual de publicação e a ADR-0009 foram implementados; a correção do
+  contexto do runner está publicada na baseline `06640a82f22b692358e67417b6b352471332fcdd`.
+- A primeira execução externa, run `29773487377`, publicou o digest
+  `sha256:d6705f96c24194d548b66facc4dd72904045de823e66bb0fb1f3fc3a9b687dec`
+  antes de falhar na verificação de política privada. A auditoria comprovou acesso
+  anônimo ao conteúdo, embora visibilidade pública nunca tenha sido autorizada.
+- A causa raiz permanece não comprovada. A recuperação local passa a exigir package
+  GHCR preexistente, vinculado ao repositório, com metadata `private` e acesso anônimo
+  negado antes de login, build ou push.
+- Exclusão do package, bootstrap, PAT, novo dispatch, rerun e fechamento da SPRINT-11
+  continuam sem autorização.
 - DT-007 foi concluída como pesquisa no commit `126aff8`; suas recomendações somente
   se tornaram oficiais quando aprovadas e comprovadas na SPRINT-07.
 
@@ -339,11 +347,12 @@ determinística baseada em `HEAD` e a exclusão autorreferencial do relatório.
 ## Limitações atuais
 
 O projeto permanece em `M1 — Infraestrutura`, que ainda não está concluído.
-A SPRINT-11 — Container Artifact Publication Baseline está ativa, sem Task/DT formal,
-e nenhuma Sprint ou Task está planejada. A implementação técnica, a ADR-0009, o
-Publication Gate, o login no GHCR e a primeira publicação externa não estão
-autorizados nesta etapa. O primeiro package deverá permanecer `PRIVATE`; visibilidade
-pública não está autorizada.
+A SPRINT-11 — Container Artifact Publication Baseline permanece ativa, sem Task/DT
+formal e sem Sprint ou Task adicional planejada. O workflow e a ADR-0009 existem, mas
+a primeira execução externa falhou depois de publicar um artefato anonimamente
+acessível, contrariando a política `PRIVATE`. A recuperação local fail-closed está em
+andamento; exclusão, bootstrap, PAT, novo dispatch, rerun e fechamento permanecem não
+autorizados.
 
 A baseline de container cobre `linux/amd64`, mas não inclui Docker Compose, registry,
 publicação de imagem, deployment, persistência ou orquestração. Banco de dados,

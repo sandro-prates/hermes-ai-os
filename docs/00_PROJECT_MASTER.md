@@ -33,12 +33,19 @@
 - **Visibilidade canônica do primeiro package:** `PRIVATE`.
 - **Visibilidade pública autorizada:** não.
 
-A autorização corrente cobre somente a ativação documental e seu snapshot exclusivo.
-Não estão autorizados workflow de publicação, Publication Gate, ADR-0009 técnica,
-login no GHCR, criação ou alteração de package, `docker push`, PAT, secret persistente,
-commit técnico, push Git ou SPRINT-12.
+A ativação documental inicial limitava-se ao estado e ao snapshot. Desde então, o
+workflow manual, seus testes e a ADR-0009 foram implementados e publicados. A primeira
+execução externa autorizada, run `29773487377`, publicou o digest
+`sha256:d6705f96c24194d548b66facc4dd72904045de823e66bb0fb1f3fc3a9b687dec`
+e falhou depois do push porque a política privada não foi comprovada.
 
-A primeira publicação externa continuará dependente de autorização humana própria.
+A auditoria read-only comprovou manifest, digest, lista de tags e config OCI acessíveis
+sem credenciais. Visibilidade pública não foi autorizada, o package permanece preservado
+como evidência e a causa raiz continua `NOT_YET_PROVEN`. A recuperação local exige que
+o workflow normal publique somente sobre package preexistente, metadata `private`,
+vínculo exato ao repositório e acesso anônimo negado. Exclusão, PAT, bootstrap, novo
+dispatch, rerun, push Git desta recuperação, aceitação da ADR e encerramento da Sprint
+possuem autorizações separadas.
 
 ## Fechamento da SPRINT-10 — 2026-07-20
 
