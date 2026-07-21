@@ -3,8 +3,8 @@
 ## 1. Identificação
 
 - schema do snapshot: 3
-- fingerprint SHA-256 da árvore projetada: `aa19fb35086fa521a6c186312c28eca38b630300493843bcf82ca98849312d19`
-- arquivos na projeção: 62
+- fingerprint SHA-256 da árvore projetada: `e410d982a460678318c3afd3dcbbd02f2f48f287836f368b000454ab756448d0`
+- arquivos na projeção: 63
 - projeto: Hermes AI OS
 - versão: 0.0.1
 - estado analisado: projeção determinística da árvore commitada
@@ -91,6 +91,8 @@
 │   │   ├── ADR-0008-reproducible-container-baseline.md
 │   │   ├── ADR-0009-container-artifact-publication-policy.md
 │   │   └── README.md
+│   ├── incidents
+│   │   └── INC-0001-ghcr-public-package-bootstrap.md
 │   └── research
 │       └── 2026-07-12-stack-tecnologica.md
 ├── tests
