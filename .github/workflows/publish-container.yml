@@ -858,10 +858,12 @@ jobs:
           test "$(docker image inspect --format '{{.Architecture}}' "$canonical")" = amd64
           test "$(docker image inspect --format '{{.Config.User}}' "$canonical")" = '10001:10001'
           test "$(docker run --rm "$canonical" python --version 2>&1)" = 'Python 3.14.6'
-          ! docker run --rm "$canonical" sh -c 'command -v uv || command -v pytest || command -v ruff || python -c "import httpx"'
+          ! docker run --rm "$canonical" sh -c 'command -v uv || command -v pytest || command -v ruff || python -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec(\"httpx\") else 1)"'
           docker run --rm "$canonical" sh -c 'test ! -e /app/tests && test ! -e /app/docs'
           container=hermes-published-console
-          cleanup() { docker logs "$container" 2>&1 || true; docker rm --force "$container" >/dev/null 2>&1 || true; }
+          log_file=$(mktemp)
+          logs_captured=NAO
+          cleanup() { [ "$logs_captured" = SIM ] || docker logs "$container" 2>&1 || true; docker rm --force "$container" >/dev/null 2>&1 || true; rm -f "$log_file"; }
           trap cleanup EXIT
           docker run --detach --read-only --name "$container" --env LOG_FORMAT=console --publish 18000:8000 "$canonical"
           for attempt in $(seq 1 30); do
@@ -877,7 +879,16 @@ jobs:
           test -n "$generated"
           preserved=$(curl --fail --silent --dump-header - -H 'X-Request-ID: publication-preserved-request' http://127.0.0.1:18000/api/v1/health | grep -i '^x-request-id:' | awk '{print $2}' | tr -d '\r')
           test "$preserved" = publication-preserved-request
-          docker logs "$container" | grep -q 'request_id'
+          if docker logs "$container" >"$log_file" 2>&1; then
+            logs_captured=SIM
+          else
+            logs_status=$?
+            logs_captured=SIM
+            cat "$log_file"
+            exit "$logs_status"
+          fi
+          cat "$log_file"
+          grep -Fq 'request_id' "$log_file"
 
       - name: Smoke the pulled digest with JSON logging
         env:
@@ -887,7 +898,9 @@ jobs:
           . "$DIGEST_STATE_FILE"
           canonical="$IMAGE_NAME@$REGISTRY_INSPECTED_MANIFEST_DIGEST"
           container=hermes-published-json
-          cleanup() { docker logs "$container" 2>&1 || true; docker rm --force "$container" >/dev/null 2>&1 || true; }
+          log_file=$(mktemp)
+          logs_captured=NAO
+          cleanup() { [ "$logs_captured" = SIM ] || docker logs "$container" 2>&1 || true; docker rm --force "$container" >/dev/null 2>&1 || true; rm -f "$log_file"; }
           trap cleanup EXIT
           docker run --detach --read-only --name "$container" --env LOG_FORMAT=json --publish 18001:8000 "$canonical"
           for attempt in $(seq 1 30); do
@@ -898,7 +911,16 @@ jobs:
           done
           test "$(docker inspect --format '{{.State.Health.Status}}' "$container")" = healthy
           curl --fail --silent --show-error http://127.0.0.1:18001/api/v1/health >/dev/null
-          docker logs "$container" | grep -q '"request_id"'
+          if docker logs "$container" >"$log_file" 2>&1; then
+            logs_captured=SIM
+          else
+            logs_status=$?
+            logs_captured=SIM
+            cat "$log_file"
+            exit "$logs_status"
+          fi
+          cat "$log_file"
+          grep -Fq '"request_id"' "$log_file"
 
       - name: Logout defensively after every login attempt
         if: always()

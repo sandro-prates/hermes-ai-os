@@ -307,6 +307,43 @@ def test_runtime_smoke_contract_is_complete_and_digest_only(fragment: str) -> No
     assert "@$REGISTRY_INSPECTED_MANIFEST_DIGEST" in smoke
 
 
+def test_console_smoke_captures_complete_logs_before_fail_closed_assertion() -> None:
+    script = publication_step("Smoke the pulled digest with console logging")["run"]
+    capture = 'docker logs "$container" >"$log_file" 2>&1'
+    display = 'cat "$log_file"'
+    assertion = "grep -Fq 'request_id' \"$log_file\""
+    assert capture in script
+    assert script.index(capture) < script.rindex(display) < script.index(assertion)
+    assert 'logs_status=$?' in script
+    assert 'exit "$logs_status"' in script
+    assert not re.search(
+        r"docker logs[^\n]*\|\s*(?:grep(?:\s+[^\n|]*)?\s+-q|head|sed\b)",
+        script,
+    )
+    assert "|| true" not in script[script.index(capture) : script.index(assertion)]
+
+
+def test_httpx_absence_probe_is_quiet_and_requires_no_production_dependency() -> None:
+    script = publication_step("Smoke the pulled digest with console logging")["run"]
+    assert 'importlib.util.find_spec(\\"httpx\\")' in script
+    assert 'import httpx' not in script
+    assert "pip install" not in script
+
+
+def test_both_smokes_capture_logs_and_json_remains_after_console() -> None:
+    steps = job("publish-container")["steps"]
+    names = [step["name"] for step in steps]
+    console_name = "Smoke the pulled digest with console logging"
+    json_name = "Smoke the pulled digest with JSON logging"
+    assert names.index(console_name) < names.index(json_name)
+    for name, required in ((console_name, "request_id"), (json_name, '\"request_id\"')):
+        script = publication_step(name)["run"]
+        assert 'docker logs "$container" >"$log_file" 2>&1' in script
+        assert 'cat "$log_file"' in script
+        assert f"grep -Fq '{required}' \"$log_file\"" in script
+        assert 'exit "$logs_status"' in script
+
+
 def test_logout_is_always_and_tracks_three_states() -> None:
     logout = next(
         step for step in job("publish-container")["steps"] if "Logout defensively" in step["name"]
