@@ -370,3 +370,184 @@ def test_context_scope_repair_adds_no_action_or_install_dependency() -> None:
         r"(?m)^\s*(?:python\s+-m\s+)?pip\s+install\b",
         commands("publish-container"),
     )
+
+PRIVATE_PACKAGE_PREFLIGHT_STEP = "Verify preconfigured private GHCR package"
+PRIVATE_PACKAGE_POST_PUSH_STEP = (
+    "Inspect registry digest and verify private linked package"
+)
+
+
+def publication_step(name: str) -> dict:
+    matches = [
+        step
+        for step in job("publish-container")["steps"]
+        if step["name"] == name
+    ]
+    assert len(matches) == 1
+    return matches[0]
+
+
+def test_private_package_preflight_precedes_login_build_and_push() -> None:
+    names = [step["name"] for step in job("publish-container")["steps"]]
+    assert names.index(PRIVATE_PACKAGE_PREFLIGHT_STEP) < names.index(
+        "Authenticate to GHCR with GITHUB_TOKEN"
+    )
+    assert names.index(PRIVATE_PACKAGE_PREFLIGHT_STEP) < names.index(
+        "Build one local linux amd64 image with required OCI labels"
+    )
+    assert names.index(PRIVATE_PACKAGE_PREFLIGHT_STEP) < names.index(
+        "Push exactly once and capture the final manifest digest"
+    )
+    step = publication_step(PRIVATE_PACKAGE_PREFLIGHT_STEP)
+    assert step["env"] == {"GH_TOKEN": "${{ github.token }}"}
+    assert "docker " not in step["run"]
+
+
+def test_private_package_preflight_requires_complete_metadata() -> None:
+    script = publication_step(PRIVATE_PACKAGE_PREFLIGHT_STEP)["run"]
+    for required in (
+        "PACKAGE_API",
+        "VERSIONS_API",
+        "package metadata visibility is absent",
+        "package metadata visibility is not private",
+        "package repository metadata is absent",
+        "package repository link is not the expected repository",
+        "package versions are absent",
+        "package version metadata is absent",
+        "package version tags field is absent",
+        "preconfigured package has no probe tag",
+        "PACKAGE_EXISTS=SIM",
+        "PACKAGE_METADATA_VISIBILITY=private",
+        "PACKAGE_REPOSITORY_LINK=",
+        "PRIVATE_PACKAGE_PREFLIGHT=APPROVED",
+    ):
+        assert required in script
+    for blocking_status in (401, 403, 404, 429):
+        assert f"{blocking_status}:" in script
+    for blocking_failure in (
+        "empty response",
+        "invalid JSON",
+        "URLError",
+        "TimeoutError",
+        "socket.timeout",
+        "ssl.SSLError",
+    ):
+        assert blocking_failure in script
+
+
+def test_anonymous_probe_follows_registry_v2_bearer_flow() -> None:
+    for name in (
+        PRIVATE_PACKAGE_PREFLIGHT_STEP,
+        PRIVATE_PACKAGE_POST_PUSH_STEP,
+    ):
+        script = publication_step(name)["run"]
+        for required in (
+            "WWW-Authenticate",
+            "Bearer",
+            "realm",
+            "service",
+            "scope",
+            "repository:{IMAGE_REPOSITORY}:pull",
+            "https://ghcr.io/v2/{IMAGE_REPOSITORY}/tags/list",
+            "https://ghcr.io/v2/{IMAGE_REPOSITORY}/manifests/{probe_tag}",
+            "token_url",
+            "anonymous_bearer",
+            "ANONYMOUS_PULL_TOKEN_GRANTED=NAO",
+            "ANONYMOUS_TAG_LIST_ACCESS=DENIED",
+            "ANONYMOUS_MANIFEST_ACCESS=DENIED",
+        ):
+            assert required in script
+        assert "initial_status != 401" in script
+        assert "tags_status" in script
+        assert "manifest_status" in script
+        assert "anonymous content access allowed" in script
+
+
+def test_initial_registry_challenge_is_not_private_evidence() -> None:
+    script = publication_step(PRIVATE_PACKAGE_PREFLIGHT_STEP)["run"]
+    challenge_index = script.index("initial_status != 401")
+    token_index = script.index("token_url")
+    tags_index = script.index("tags_status")
+    manifest_index = script.index("manifest_status")
+    approval_index = script.index("PRIVATE_PACKAGE_PREFLIGHT=APPROVED")
+    assert challenge_index < token_index < tags_index < manifest_index
+    assert manifest_index < approval_index
+
+
+def test_workflow_has_no_bootstrap_or_package_mutation_mode() -> None:
+    text = raw()
+    dispatch = workflow()["on"]["workflow_dispatch"]
+    assert set(dispatch["inputs"]) == {
+        "expected_sha",
+        "confirm_external_publication",
+    }
+    assert not re.search(r"(?i)\bpat\b|personal access token", text)
+    assert "secrets." not in text
+    assert not re.search(
+        r'method\s*=\s*["\'](?:POST|PATCH|PUT|DELETE)["\']',
+        text,
+    )
+    for forbidden in (
+        "delete package",
+        "delete tag",
+        "change visibility",
+        "set visibility",
+        "bootstrap mode",
+        "workflow rerun",
+        "gh run rerun",
+    ):
+        assert forbidden not in text.lower()
+
+
+def test_normal_publication_uses_only_github_token() -> None:
+    token_values = []
+    for job_definition in workflow()["jobs"].values():
+        for step in job_definition["steps"]:
+            environment = step.get("env", {})
+            for key in ("GH_TOKEN", "GHCR_TOKEN"):
+                if key in environment:
+                    token_values.append(environment[key])
+    assert token_values
+    assert set(token_values) == {"${{ github.token }}"}
+
+
+def test_post_push_repeats_private_and_anonymous_denial_checks() -> None:
+    script = publication_step(PRIVATE_PACKAGE_POST_PUSH_STEP)["run"]
+    for required in (
+        "verified_package_metadata()",
+        "verify_anonymous_access_denied(image_tag)",
+        "PACKAGE_METADATA_VISIBILITY=private",
+        "PACKAGE_REPOSITORY_LINK=",
+        "ANONYMOUS_PULL_TOKEN_GRANTED=NAO",
+        "ANONYMOUS_TAG_LIST_ACCESS=DENIED",
+        "ANONYMOUS_MANIFEST_ACCESS=DENIED",
+        "AUTHENTICATED_MANIFEST_DIGEST=",
+        "PRIVATE_PACKAGE_POST_PUSH=APPROVED",
+    ):
+        assert required in script
+
+
+def test_pull_and_smoke_follow_post_push_private_gate() -> None:
+    steps = job("publish-container")["steps"]
+    names = [step["name"] for step in steps]
+    gate_index = names.index(PRIVATE_PACKAGE_POST_PUSH_STEP)
+    downstream = (
+        "Remove tag, pull exclusively by digest, and validate RepoDigest",
+        "Smoke the pulled digest with console logging",
+        "Smoke the pulled digest with JSON logging",
+    )
+    assert all(gate_index < names.index(name) for name in downstream)
+
+
+def test_private_package_recovery_preserves_publication_contract() -> None:
+    text = raw()
+    assert text.count("docker push ") == 1
+    assert ":latest" not in text
+    assert "IMAGE_TAG: latest" not in text
+    assert set(workflow()["on"]) == {"workflow_dispatch"}
+    assert set(workflow()["jobs"]) == {"verify-gates", "publish-container"}
+    verify_script = job("verify-gates")["steps"][0]["run"]
+    assert 'approved_run("quality-gate.yml")' in verify_script
+    assert 'approved_run("container-gate.yml")' in verify_script
+    assert "workflow rerun" not in text.lower()
+    assert "gh run rerun" not in text.lower()

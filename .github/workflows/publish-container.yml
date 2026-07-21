@@ -121,6 +121,228 @@ jobs:
           ref: ${{ inputs.expected_sha }}
           persist-credentials: false
 
+      - name: Verify preconfigured private GHCR package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import re
+          import socket
+          import ssl
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          EXPECTED_REPOSITORY = "sandro-prates/hermes-ai-os"
+          IMAGE_REPOSITORY = "sandro-prates/hermes-ai-os"
+          PACKAGE_API = "https://api.github.com/users/sandro-prates/packages/container/hermes-ai-os"
+          VERSIONS_API = (
+              "https://api.github.com/users/sandro-prates/"
+              "packages/container/hermes-ai-os/versions?per_page=100"
+          )
+          API_HEADERS = {
+              "Accept": "application/vnd.github+json",
+              "Authorization": f'Bearer {os.environ.get("GH_TOKEN", "")}',
+              "X-GitHub-Api-Version": "2022-11-28",
+          }
+          REGISTRY_ACCEPT = (
+              "application/vnd.oci.image.manifest.v1+json, "
+              "application/vnd.docker.distribution.manifest.v2+json"
+          )
+
+
+          def hard_stop(message: str) -> None:
+              raise SystemExit(f"PRIVATE_PACKAGE_HARD_STOP: {message}")
+
+
+          def api_json(url: str, label: str):
+              if not os.environ.get("GH_TOKEN", ""):
+                  hard_stop("GITHUB_TOKEN is empty")
+              request = urllib.request.Request(url, headers=API_HEADERS)
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      if response.status != 200:
+                          hard_stop(f"{label} returned HTTP {response.status}")
+                      body = response.read()
+              except urllib.error.HTTPError as exc:
+                  reason = {
+                      401: "unauthorized",
+                      403: "forbidden",
+                      404: "ambiguous 404",
+                      429: "rate limit",
+                  }.get(exc.code, "unexpected HTTP")
+                  hard_stop(f"{label}: {reason} ({exc.code})")
+              except (
+                  urllib.error.URLError,
+                  TimeoutError,
+                  socket.timeout,
+                  ssl.SSLError,
+              ) as exc:
+                  hard_stop(f"{label}: {type(exc).__name__}")
+              if not body:
+                  hard_stop(f"{label}: empty response")
+              try:
+                  return json.loads(body)
+              except (UnicodeDecodeError, json.JSONDecodeError):
+                  hard_stop(f"{label}: invalid JSON")
+
+
+          def verified_package_metadata() -> None:
+              package = api_json(PACKAGE_API, "package metadata")
+              if not isinstance(package, dict):
+                  hard_stop("package metadata is not an object")
+              if "visibility" not in package:
+                  hard_stop("package metadata visibility is absent")
+              if package.get("visibility") != "private":
+                  hard_stop("package metadata visibility is not private")
+              repository = package.get("repository")
+              if not isinstance(repository, dict):
+                  hard_stop("package repository metadata is absent")
+              if repository.get("full_name") != "sandro-prates/hermes-ai-os":
+                  hard_stop("package repository link is not the expected repository")
+              print("PACKAGE_EXISTS=SIM")
+              print("PACKAGE_METADATA_VISIBILITY=private")
+              print(f"PACKAGE_REPOSITORY_LINK={EXPECTED_REPOSITORY}")
+              print("ACTUAL_PACKAGE_VISIBILITY=private")
+              print("PACKAGE_LINKED_REPOSITORY=sandro-prates/hermes-ai-os")
+
+
+          def existing_probe_tag() -> str:
+              versions = api_json(VERSIONS_API, "package versions")
+              if not isinstance(versions, list) or not versions:
+                  hard_stop("package versions are absent")
+              tags: set[str] = set()
+              for version in versions:
+                  if not isinstance(version, dict):
+                      hard_stop("package version is not an object")
+                  metadata = version.get("metadata")
+                  if not isinstance(metadata, dict):
+                      hard_stop("package version metadata is absent")
+                  container = metadata.get("container")
+                  if not isinstance(container, dict):
+                      hard_stop("package container metadata is absent")
+                  raw_tags = container.get("tags")
+                  if not isinstance(raw_tags, list):
+                      hard_stop("package version tags field is absent")
+                  tags.update(
+                      value for value in raw_tags
+                      if isinstance(value, str) and value
+                  )
+              if not tags:
+                  hard_stop("preconfigured package has no probe tag")
+              return sorted(tags)[0]
+
+
+          def anonymous_get(
+              url: str,
+              bearer: str = "",
+              accept: str = "application/json",
+          ):
+              headers = {"Accept": accept}
+              if bearer:
+                  headers["Authorization"] = f"Bearer {bearer}"
+              request = urllib.request.Request(url, headers=headers)
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      return response.status, dict(response.headers), response.read()
+              except urllib.error.HTTPError as exc:
+                  return exc.code, dict(exc.headers), exc.read()
+              except (
+                  urllib.error.URLError,
+                  TimeoutError,
+                  socket.timeout,
+                  ssl.SSLError,
+              ) as exc:
+                  hard_stop(f"anonymous registry probe: {type(exc).__name__}")
+
+
+          def bearer_challenge(value: str) -> dict[str, str]:
+              if not re.match(r"^\s*Bearer\s+", value, flags=re.IGNORECASE):
+                  hard_stop("registry challenge is not Bearer")
+              parameters = {
+                  match.group(1).lower(): match.group(2)
+                  for match in re.finditer(
+                      r'([A-Za-z][A-Za-z0-9_-]*)="([^"]*)"',
+                      value,
+                  )
+              }
+              if not all(parameters.get(key) for key in ("realm", "service", "scope")):
+                  hard_stop("registry challenge is incomplete")
+              expected_scope = f"repository:{IMAGE_REPOSITORY}:pull"
+              if parameters["scope"] != expected_scope:
+                  hard_stop("registry challenge scope is unexpected")
+              return parameters
+
+
+          def require_denied(status: int, label: str) -> None:
+              if status == 200:
+                  hard_stop(f"{label}: anonymous content access allowed")
+              if status not in {401, 403, 404}:
+                  hard_stop(f"{label}: ambiguous HTTP {status}")
+
+
+          def verify_anonymous_access_denied(probe_tag: str) -> None:
+              tags_url = f"https://ghcr.io/v2/{IMAGE_REPOSITORY}/tags/list?n=100"
+              manifest_url = (
+                  f"https://ghcr.io/v2/{IMAGE_REPOSITORY}/manifests/{probe_tag}"
+              )
+              initial_status, initial_headers, _ = anonymous_get(tags_url)
+              if initial_status == 200:
+                  hard_stop("anonymous tags list was accessible before challenge")
+              if initial_status != 401:
+                  hard_stop(f"registry initial challenge returned HTTP {initial_status}")
+              challenge = bearer_challenge(
+                  initial_headers.get("WWW-Authenticate")
+                  or initial_headers.get("www-authenticate")
+                  or ""
+              )
+              token_url = challenge["realm"] + "?" + urllib.parse.urlencode(
+                  {
+                      "service": challenge["service"],
+                      "scope": challenge["scope"],
+                  }
+              )
+              token_status, _, token_body = anonymous_get(token_url)
+              anonymous_bearer = ""
+              token_response = "DENIED"
+              if token_status == 200:
+                  try:
+                      token_payload = json.loads(token_body)
+                  except (UnicodeDecodeError, json.JSONDecodeError):
+                      hard_stop("anonymous token response is invalid JSON")
+                  if not isinstance(token_payload, dict):
+                      hard_stop("anonymous token response is not an object")
+                  anonymous_bearer = str(
+                      token_payload.get("token")
+                      or token_payload.get("access_token")
+                      or ""
+                  )
+                  if not anonymous_bearer:
+                      hard_stop("anonymous token endpoint returned an empty token")
+                  token_response = "ISSUED_WITHOUT_VERIFIED_PULL_ACCESS"
+              elif token_status not in {401, 403}:
+                  hard_stop(f"anonymous token endpoint returned HTTP {token_status}")
+              tags_status, _, _ = anonymous_get(tags_url, anonymous_bearer)
+              manifest_status, _, _ = anonymous_get(
+                  manifest_url,
+                  anonymous_bearer,
+                  REGISTRY_ACCEPT,
+              )
+              require_denied(tags_status, "anonymous tags list")
+              require_denied(manifest_status, "anonymous manifest")
+              print(f"ANONYMOUS_TOKEN_ENDPOINT_RESPONSE={token_response}")
+              print("ANONYMOUS_PULL_TOKEN_GRANTED=NAO")
+              print("ANONYMOUS_TAG_LIST_ACCESS=DENIED")
+              print("ANONYMOUS_MANIFEST_ACCESS=DENIED")
+
+
+          verified_package_metadata()
+          verify_anonymous_access_denied(existing_probe_tag())
+          print("PRIVATE_PACKAGE_PREFLIGHT=APPROVED")
+          PY
+
       - name: Authenticate to GHCR with GITHUB_TOKEN
         env:
           GHCR_TOKEN: ${{ github.token }}
@@ -347,53 +569,261 @@ jobs:
           import json
           import os
           import re
+          import socket
+          import ssl
+          import urllib.error
           import urllib.parse
           import urllib.request
 
-          image = os.environ["IMAGE_NAME"].removeprefix("ghcr.io/")
-          tag = os.environ["IMAGE_TAG"]
-          basic = base64.b64encode(f'{os.environ["GHCR_ACTOR"]}:{os.environ["GHCR_TOKEN"]}'.encode()).decode()
-          query = urllib.parse.urlencode({"service": "ghcr.io", "scope": f"repository:{image}:pull"})
-          with urllib.request.urlopen(urllib.request.Request(
-              f"https://ghcr.io/token?{query}", headers={"Authorization": f"Basic {basic}"}
-          ), timeout=30) as response:
-              bearer = json.load(response).get("token", "")
-          if not bearer:
-              raise SystemExit("Registry returned an empty token")
+          EXPECTED_REPOSITORY = "sandro-prates/hermes-ai-os"
+          IMAGE_REPOSITORY = "sandro-prates/hermes-ai-os"
+          PACKAGE_API = "https://api.github.com/users/sandro-prates/packages/container/hermes-ai-os"
+          API_HEADERS = {
+              "Accept": "application/vnd.github+json",
+              "Authorization": f'Bearer {os.environ.get("GH_TOKEN", "")}',
+              "X-GitHub-Api-Version": "2022-11-28",
+          }
+          REGISTRY_ACCEPT = (
+              "application/vnd.oci.image.manifest.v1+json, "
+              "application/vnd.docker.distribution.manifest.v2+json"
+          )
+
+
+          def hard_stop(message: str) -> None:
+              raise SystemExit(f"PRIVATE_PACKAGE_HARD_STOP: {message}")
+
+
+          def api_json(url: str, label: str):
+              if not os.environ.get("GH_TOKEN", ""):
+                  hard_stop("GITHUB_TOKEN is empty")
+              request = urllib.request.Request(url, headers=API_HEADERS)
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      if response.status != 200:
+                          hard_stop(f"{label} returned HTTP {response.status}")
+                      body = response.read()
+              except urllib.error.HTTPError as exc:
+                  reason = {
+                      401: "unauthorized",
+                      403: "forbidden",
+                      404: "ambiguous 404",
+                      429: "rate limit",
+                  }.get(exc.code, "unexpected HTTP")
+                  hard_stop(f"{label}: {reason} ({exc.code})")
+              except (
+                  urllib.error.URLError,
+                  TimeoutError,
+                  socket.timeout,
+                  ssl.SSLError,
+              ) as exc:
+                  hard_stop(f"{label}: {type(exc).__name__}")
+              if not body:
+                  hard_stop(f"{label}: empty response")
+              try:
+                  return json.loads(body)
+              except (UnicodeDecodeError, json.JSONDecodeError):
+                  hard_stop(f"{label}: invalid JSON")
+
+
+          def verified_package_metadata() -> None:
+              package = api_json(PACKAGE_API, "package metadata")
+              if not isinstance(package, dict):
+                  hard_stop("package metadata is not an object")
+              if "visibility" not in package:
+                  hard_stop("package metadata visibility is absent")
+              if package.get("visibility") != "private":
+                  hard_stop("package metadata visibility is not private")
+              repository = package.get("repository")
+              if not isinstance(repository, dict):
+                  hard_stop("package repository metadata is absent")
+              if repository.get("full_name") != "sandro-prates/hermes-ai-os":
+                  hard_stop("package repository link is not the expected repository")
+              print("PACKAGE_METADATA_VISIBILITY=private")
+              print(f"PACKAGE_REPOSITORY_LINK={EXPECTED_REPOSITORY}")
+              print("ACTUAL_PACKAGE_VISIBILITY=private")
+              print("PACKAGE_LINKED_REPOSITORY=sandro-prates/hermes-ai-os")
+
+
+          def anonymous_get(
+              url: str,
+              bearer: str = "",
+              accept: str = "application/json",
+          ):
+              headers = {"Accept": accept}
+              if bearer:
+                  headers["Authorization"] = f"Bearer {bearer}"
+              request = urllib.request.Request(url, headers=headers)
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      return response.status, dict(response.headers), response.read()
+              except urllib.error.HTTPError as exc:
+                  return exc.code, dict(exc.headers), exc.read()
+              except (
+                  urllib.error.URLError,
+                  TimeoutError,
+                  socket.timeout,
+                  ssl.SSLError,
+              ) as exc:
+                  hard_stop(f"anonymous registry probe: {type(exc).__name__}")
+
+
+          def bearer_challenge(value: str) -> dict[str, str]:
+              if not re.match(r"^\s*Bearer\s+", value, flags=re.IGNORECASE):
+                  hard_stop("registry challenge is not Bearer")
+              parameters = {
+                  match.group(1).lower(): match.group(2)
+                  for match in re.finditer(
+                      r'([A-Za-z][A-Za-z0-9_-]*)="([^"]*)"',
+                      value,
+                  )
+              }
+              if not all(parameters.get(key) for key in ("realm", "service", "scope")):
+                  hard_stop("registry challenge is incomplete")
+              if parameters["scope"] != f"repository:{IMAGE_REPOSITORY}:pull":
+                  hard_stop("registry challenge scope is unexpected")
+              return parameters
+
+
+          def require_denied(status: int, label: str) -> None:
+              if status == 200:
+                  hard_stop(f"{label}: anonymous content access allowed")
+              if status not in {401, 403, 404}:
+                  hard_stop(f"{label}: ambiguous HTTP {status}")
+
+
+          def verify_anonymous_access_denied(probe_tag: str) -> None:
+              tags_url = f"https://ghcr.io/v2/{IMAGE_REPOSITORY}/tags/list?n=100"
+              manifest_url = (
+                  f"https://ghcr.io/v2/{IMAGE_REPOSITORY}/manifests/{probe_tag}"
+              )
+              initial_status, initial_headers, _ = anonymous_get(tags_url)
+              if initial_status == 200:
+                  hard_stop("anonymous tags list was accessible before challenge")
+              if initial_status != 401:
+                  hard_stop(f"registry initial challenge returned HTTP {initial_status}")
+              challenge = bearer_challenge(
+                  initial_headers.get("WWW-Authenticate")
+                  or initial_headers.get("www-authenticate")
+                  or ""
+              )
+              token_url = challenge["realm"] + "?" + urllib.parse.urlencode(
+                  {
+                      "service": challenge["service"],
+                      "scope": challenge["scope"],
+                  }
+              )
+              token_status, _, token_body = anonymous_get(token_url)
+              anonymous_bearer = ""
+              token_response = "DENIED"
+              if token_status == 200:
+                  try:
+                      token_payload = json.loads(token_body)
+                  except (UnicodeDecodeError, json.JSONDecodeError):
+                      hard_stop("anonymous token response is invalid JSON")
+                  if not isinstance(token_payload, dict):
+                      hard_stop("anonymous token response is not an object")
+                  anonymous_bearer = str(
+                      token_payload.get("token")
+                      or token_payload.get("access_token")
+                      or ""
+                  )
+                  if not anonymous_bearer:
+                      hard_stop("anonymous token endpoint returned an empty token")
+                  token_response = "ISSUED_WITHOUT_VERIFIED_PULL_ACCESS"
+              elif token_status not in {401, 403}:
+                  hard_stop(f"anonymous token endpoint returned HTTP {token_status}")
+              tags_status, _, _ = anonymous_get(tags_url, anonymous_bearer)
+              manifest_status, _, _ = anonymous_get(
+                  manifest_url,
+                  anonymous_bearer,
+                  REGISTRY_ACCEPT,
+              )
+              require_denied(tags_status, "anonymous tags list")
+              require_denied(manifest_status, "anonymous manifest")
+              print(f"ANONYMOUS_TOKEN_ENDPOINT_RESPONSE={token_response}")
+              print("ANONYMOUS_PULL_TOKEN_GRANTED=NAO")
+              print("ANONYMOUS_TAG_LIST_ACCESS=DENIED")
+              print("ANONYMOUS_MANIFEST_ACCESS=DENIED")
+
+
+          def authenticated_bearer() -> str:
+              token = os.environ.get("GHCR_TOKEN", "")
+              actor = os.environ.get("GHCR_ACTOR", "")
+              if not token or not actor:
+                  hard_stop("registry credentials are empty")
+              query = urllib.parse.urlencode(
+                  {
+                      "service": "ghcr.io",
+                      "scope": f"repository:{IMAGE_REPOSITORY}:pull",
+                  }
+              )
+              basic = base64.b64encode(f"{actor}:{token}".encode()).decode()
+              request = urllib.request.Request(
+                  f"https://ghcr.io/token?{query}",
+                  headers={"Authorization": f"Basic {basic}"},
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      payload = json.load(response)
+              except (
+                  urllib.error.URLError,
+                  TimeoutError,
+                  socket.timeout,
+                  ssl.SSLError,
+                  json.JSONDecodeError,
+              ) as exc:
+                  hard_stop(f"authenticated registry token: {type(exc).__name__}")
+              bearer = str(payload.get("token", ""))
+              if not bearer:
+                  hard_stop("authenticated registry token is empty")
+              return bearer
+
+
+          image_tag = os.environ["IMAGE_TAG"]
+          state_file = os.environ["DIGEST_STATE_FILE"]
+          if not os.path.isfile(state_file):
+              hard_stop("digest state file is absent")
+          state: dict[str, str] = {}
+          with open(state_file, encoding="utf-8") as stream:
+              for line in stream:
+                  key, separator, value = line.strip().partition("=")
+                  if separator:
+                      state[key] = value
+          expected_digest = state.get("PUSH_REPORTED_MANIFEST_DIGEST", "")
+          if not re.fullmatch(r"sha256:[0-9a-f]{64}", expected_digest):
+              hard_stop("published manifest digest is absent or invalid")
+
+          verified_package_metadata()
+          verify_anonymous_access_denied(image_tag)
+
           request = urllib.request.Request(
-              f"https://ghcr.io/v2/{image}/manifests/{tag}",
+              f"https://ghcr.io/v2/{IMAGE_REPOSITORY}/manifests/{image_tag}",
               method="HEAD",
               headers={
-                  "Authorization": f"Bearer {bearer}",
-                  "Accept": "application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json",
+                  "Authorization": f"Bearer {authenticated_bearer()}",
+                  "Accept": REGISTRY_ACCEPT,
               },
           )
-          with urllib.request.urlopen(request, timeout=30) as response:
-              registry_digest = response.headers.get("Docker-Content-Digest", "")
-          if not re.fullmatch(r"sha256:[0-9a-f]{64}", registry_digest):
-              raise SystemExit("Registry manifest digest is missing or invalid")
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  actual_digest = response.headers.get("Docker-Content-Digest", "")
+          except urllib.error.HTTPError as exc:
+              hard_stop(f"authenticated manifest inspection HTTP {exc.code}")
+          except (
+              urllib.error.URLError,
+              TimeoutError,
+              socket.timeout,
+              ssl.SSLError,
+          ) as exc:
+              hard_stop(f"authenticated manifest inspection: {type(exc).__name__}")
+          if actual_digest != expected_digest:
+              hard_stop("authenticated manifest digest differs from pushed digest")
 
-          package_request = urllib.request.Request(
-              "https://api.github.com/users/sandro-prates/packages/container/hermes-ai-os",
-              headers={
-                  "Accept": "application/vnd.github+json",
-                  "Authorization": f'Bearer {os.environ["GH_TOKEN"]}',
-                  "X-GitHub-Api-Version": "2022-11-28",
-              },
-          )
-          with urllib.request.urlopen(package_request, timeout=30) as response:
-              package = json.load(response)
-          if package.get("visibility") != "private":
-              raise SystemExit("ACTUAL_PACKAGE_VISIBILITY is not private")
-          repository = package.get("repository") or {}
-          if repository.get("full_name") != "sandro-prates/hermes-ai-os":
-              raise SystemExit("PACKAGE_LINKED_REPOSITORY is not sandro-prates/hermes-ai-os")
-          with open(os.environ["DIGEST_STATE_FILE"], "a", encoding="utf-8") as stream:
-              stream.write(f"REGISTRY_INSPECTED_MANIFEST_DIGEST={registry_digest}\n")
-          print("ACTUAL_PACKAGE_VISIBILITY=private")
-          print("PACKAGE_LINKED_REPOSITORY=sandro-prates/hermes-ai-os")
+          with open(state_file, "a", encoding="utf-8") as stream:
+              stream.write(f"REGISTRY_INSPECTED_MANIFEST_DIGEST={actual_digest}\n")
+          print(f"AUTHENTICATED_MANIFEST_DIGEST={actual_digest}")
+          print("PRIVATE_PACKAGE_POST_PUSH=APPROVED")
           PY
-
       - name: Remove tag, pull exclusively by digest, and validate RepoDigest
         env:
           DIGEST_STATE_FILE: ${{ runner.temp }}/hermes-published-digests
