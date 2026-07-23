@@ -3,8 +3,8 @@
 ## 1. Identificação
 
 - schema do snapshot: 3
-- fingerprint SHA-256 da árvore projetada: `54a07d0943fc34c2fa6c168e8f7a3ccb5d45affa2ad6fcdb2d82f45e1f6150a1`
-- arquivos na projeção: 63
+- fingerprint SHA-256 da árvore projetada: `42dff9d0aa5eac56cdb20dd6e321d7b98e6502354546a48bb0a8f3428a886114`
+- arquivos na projeção: 64
 - projeto: Hermes AI OS
 - versão: 0.0.1
 - estado analisado: projeção determinística da árvore commitada
@@ -18,13 +18,13 @@
 - EPIC: nenhuma EPIC associada
 - Status da EPIC: não aplicável
 - Sprint: SPRINT-11 — Container Artifact Publication Baseline
-- Status da Sprint: in_progress
+- Status da Sprint: completed
 - Task: nenhuma Task ou DT formal
 - Status da Task: não aplicável
 
 ## 3. Continuidade de Sprint
 
-- Sprint ativa: SPRINT-11 — Container Artifact Publication Baseline
+- Sprint ativa: nenhuma
 - Próxima Sprint planejada: nenhuma
 
 ## 4. Estrutura Relevante
@@ -80,6 +80,7 @@
 │   ├── HANDOFF_2026-07-18-SPRINT-08.md
 │   ├── HANDOFF_2026-07-19-SPRINT-09.md
 │   ├── HANDOFF_2026-07-20-SPRINT-10.md
+│   ├── HANDOFF_2026-07-23-SPRINT-11.md
 │   ├── adr
 │   │   ├── ADR-0001-pyproject-como-fonte-de-dependencias.md
 │   │   ├── ADR-0002-pacote-central-de-observabilidade.md
@@ -194,7 +195,7 @@
 - ADR-0006-uv-lock-como-lock-oficial-de-dependencias — Accepted
 - ADR-0007 — GitHub Actions como quality gate — Accepted
 - ADR-0008 — Baseline reproduzível de container — Accepted
-- ADR-0009 — Política de publicação do artefato de container — Proposed
+- ADR-0009 — Política de publicação do artefato de container — Accepted
 
 ## 12. Problemas Conhecidos
 
