@@ -116,15 +116,15 @@ Nenhuma Sprint foi criada para esta Task.
 
 ---
 
-# Sprint ativa
+# Última Sprint concluída
 
 ## SPRINT-11 — Container Artifact Publication Baseline
 
-**Status:** 🟡 Em andamento (`in_progress`)
+**Status:** ✅ Concluída (`completed`)
 
 **Milestone:** M1 — Infraestrutura (`in_progress`)
 
-**Última Sprint concluída:** SPRINT-10 — Snapshot Quality Gate Integrity
+**Sprint ativa ou planejada:** nenhuma
 
 **EPIC:** nenhuma
 
@@ -132,7 +132,7 @@ Nenhuma Sprint foi criada para esta Task.
 
 **Baseline publicada de ativação:** `b01753473be47d24e4d14a2d7691cdd1f12a405d`
 
-**Etapa corrente:** recuperação local fail-closed do contrato de package privado.
+**Resultado:** política controlada de publicação aceita com 6 de 6 critérios.
 
 **Fatos comprovados:**
 
@@ -149,24 +149,25 @@ ROOT_CAUSE=NOT_YET_PROVEN
 **Critérios da recuperação local:**
 
 - [x] preservar o package público atual como evidência;
-- [x] manter ADR-0009 em `Proposed`;
+- [x] promover ADR-0009 a `Accepted` após aprovação da evidência;
 - [x] registrar causa raiz como não comprovada;
-- [ ] exigir package preexistente antes do login e do build;
-- [ ] exigir metadata `private` e vínculo exato ao repositório;
-- [ ] executar probe anônimo completo do Registry V2;
-- [ ] negar acesso anônimo a token efetivo, tags e manifestos;
-- [ ] repetir metadata, vínculo, probe anônimo e digest após futuro push;
-- [ ] validar localmente e criar commits separados, parando antes do push.
+- [x] exigir package preexistente antes do login e do build;
+- [x] exigir metadata `private` e vínculo exato ao repositório;
+- [x] executar probe anônimo completo do Registry V2;
+- [x] negar acesso anônimo a token efetivo, tags e manifestos;
+- [x] repetir metadata, vínculo, probe anônimo e digest após o push;
+- [x] aprovar Quality Gate #12, Container Gate #10 e Publish Container Run #5;
+- [x] comprovar um dispatch, um push, nenhum rerun, dois smokes e logout.
 
-**Não autorizado:** exclusão de package/tag, mudança de visibilidade, criação de PAT,
-bootstrap, login/pull/push local no GHCR, novo `workflow_dispatch`, rerun, push Git,
-promoção da ADR-0009, fechamento da SPRINT-11 ou ativação da SPRINT-12.
+**Histórico:** Runs #2, #3 e #4 falharam antes dos hotfixes `131a06e`
+(RepoDigest) e `fb64b92` (SIGPIPE). O Run #5 no SHA `88fa687` é a execução final
+aceita. Não houve deployment, SBOM, signing ou attestation.
 
 Nenhuma Sprint ou Task adicional está planejada.
 
 ---
 
-# Última Sprint Concluída
+# Sprint concluída anterior
 
 ## SPRINT-10 — Snapshot Quality Gate Integrity
 

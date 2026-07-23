@@ -43,19 +43,18 @@ execução de agentes de Inteligência Artificial. O projeto busca combinar oper
   `cb2171f315430c977ca929ffb468363a0d5f079e`.
 - Quality Gate run `29723471112` e Container Gate run `29723471158` concluíram
   com `success` para a baseline publicada da SPRINT-10.
-- SPRINT-11 — Container Artifact Publication Baseline permanece ativa em M1, com
-  status `in_progress`, sem nova EPIC ou Task/DT formal.
-- O workflow manual de publicação e a ADR-0009 foram implementados; a correção do
-  contexto do runner está publicada na baseline `06640a82f22b692358e67417b6b352471332fcdd`.
-- A primeira execução externa, run `29773487377`, publicou o digest
-  `sha256:d6705f96c24194d548b66facc4dd72904045de823e66bb0fb1f3fc3a9b687dec`
-  antes de falhar na verificação de política privada. A auditoria comprovou acesso
-  anônimo ao conteúdo, embora visibilidade pública nunca tenha sido autorizada.
-- A causa raiz permanece não comprovada. A recuperação local passa a exigir package
-  GHCR preexistente, vinculado ao repositório, com metadata `private` e acesso anônimo
-  negado antes de login, build ou push.
-- Exclusão do package, bootstrap, PAT, novo dispatch, rerun e fechamento da SPRINT-11
-  continuam sem autorização.
+- SPRINT-11 — Container Artifact Publication Baseline concluída em M1, sem nova
+  EPIC ou Task/DT formal; ADR-0009 aceita com 6 de 6 critérios satisfeitos.
+- A baseline final `88fa6871c8e73c02270f9be45c76154d28587559` foi publicada pelo
+  Publish Container Run #5 (`29874199694`), com um dispatch, um push, nenhum rerun,
+  smokes console/JSON e logout aprovados.
+- O package GHCR final é privado, vinculado a `sandro-prates/hermes-ai-os`, com
+  manifest digest
+  `sha256:c1a2a88d5cc2493ab0a3af06be9dda4dc8c07e724b07cbdb1907273f34f19a44`.
+- Os hotfixes `131a06e` (RepoDigest) e `fb64b92` (SIGPIPE) resolveram as falhas
+  intermediárias anteriores à execução final aceita.
+- Não há Sprint ou Task ativa ou planejada; DT-009 permanece a última Task formal,
+  criada e concluída exclusivamente na SPRINT-06.
 - DT-007 foi concluída como pesquisa no commit `126aff8`; suas recomendações somente
   se tornaram oficiais quando aprovadas e comprovadas na SPRINT-07.
 
@@ -151,7 +150,8 @@ docker run --rm --read-only --publish 8000:8000 hermes-ai-os:local
 
 A imagem usa usuário não root, expõe a porta `8000`, possui healthcheck e preserva
 os contratos de `GET /`, `GET /api/v1/health`, Request ID e logging console/JSON.
-Nenhuma imagem foi publicada e nenhum deployment foi executado.
+A publicação controlada da imagem da SPRINT-11 foi concluída; nenhum deployment foi
+executado.
 
 ## Requisitos
 
@@ -341,21 +341,18 @@ determinística baseada em `HEAD` e a exclusão autorreferencial do relatório.
 - [Estado operacional](docs/01_PROJECT_STATE.yaml)
 - [Backlog](docs/02_BACKLOG.md)
 - [Changelog](docs/03_CHANGELOG.md)
-- [Handoff da SPRINT-10](docs/HANDOFF_2026-07-20-SPRINT-10.md)
+- [Handoff da SPRINT-11](docs/HANDOFF_2026-07-23-SPRINT-11.md)
 - [Architecture Decision Records](docs/adr/README.md)
 
 ## Limitações atuais
 
 O projeto permanece em `M1 — Infraestrutura`, que ainda não está concluído.
-A SPRINT-11 — Container Artifact Publication Baseline permanece ativa, sem Task/DT
-formal e sem Sprint ou Task adicional planejada. O workflow e a ADR-0009 existem, mas
-a primeira execução externa falhou depois de publicar um artefato anonimamente
-acessível, contrariando a política `PRIVATE`. A recuperação local fail-closed está em
-andamento; exclusão, bootstrap, PAT, novo dispatch, rerun e fechamento permanecem não
-autorizados.
+A SPRINT-11 — Container Artifact Publication Baseline está concluída, sem Task/DT
+formal e sem Sprint ou Task adicional planejada. O package final é privado e sua
+publicação controlada foi aceita; SPRINT-12 não foi ativada.
 
-A baseline de container cobre `linux/amd64`, mas não inclui Docker Compose, registry,
-publicação de imagem, deployment, persistência ou orquestração. Banco de dados,
+A baseline de container cobre `linux/amd64`, mas não inclui Docker Compose,
+deployment, SBOM, signing, attestation, persistência ou orquestração. Banco de dados,
 runtime de agentes, memória, dashboard e integrações externas ainda não estão
 implementados. A prova Linux da SPRINT-07 ocorreu em Docker Desktop/WSL2, não em host
 físico Linux administrado separadamente. A interoperabilidade de terceiros do

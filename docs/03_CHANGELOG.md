@@ -8,6 +8,26 @@ O formato segue uma adaptação de Keep a Changelog, mas somente fatos verificá
 
 ## [Unreleased]
 
+## [SPRINT-11] — 2026-07-23
+
+SPRINT-11 — Container Artifact Publication Baseline concluída em M1, sem nova
+EPIC ou Task/DT formal. ADR-0009 foi aceita com 6 de 6 critérios satisfeitos.
+
+- baseline final `88fa6871c8e73c02270f9be45c76154d28587559`;
+- Quality Gate #12, Container Gate #10 e Publish Container Run #5 aprovados;
+- package `PRIVATE`, vínculo e controles de acesso comprovados;
+- um dispatch, um push, nenhum rerun, smokes console/JSON e logout aprovados;
+- `131a06e` corrigiu RepoDigest; `fb64b92` corrigiu SIGPIPE;
+- Runs #2, #3 e #4 preservados como falhas intermediárias;
+- pacote final aprovado: ZIP SHA-256
+  `c4769d901a6c4471ef37cb02741a537de221417c21c4352a48d94322135c3efd`
+  e manifest SHA-256
+  `a5c3bea81977dcdead1f1b4ccc320702078fcee9a21b1b3d878db016881d9fe7`;
+- nenhuma Sprint ou Task ativa ou planejada; DT-009 permanece na SPRINT-06;
+- M1 permanece `in_progress`; SPRINT-12 e MASTER 3 não foram criados;
+- nenhum deployment, SBOM, signing ou attestation foi executado;
+- warning conhecido do `TestClient`/`httpx` permanece não bloqueante.
+
 ### Incidente de visibilidade no GHCR e recuperação local da SPRINT-11 — 2026-07-20
 
 - run `29773487377` publicou o digest

@@ -10,17 +10,39 @@
 >
 > **Último EPIC concluído:** EPIC-004 — Foundation Reproducibility
 >
-> **Última Sprint concluída:** SPRINT-10 — Snapshot Quality Gate Integrity
+> **Última Sprint concluída:** SPRINT-11 — Container Artifact Publication Baseline
 >
-> **Sprint atual:** SPRINT-11 — Container Artifact Publication Baseline
+> **Sprint atual:** nenhuma
 >
 > **Responsável:** Sandro Prates
 >
-> **Última verificação:** 20/07/2026
+> **Última verificação:** 23/07/2026
 
-## Ativação da SPRINT-11 — 2026-07-20
+## Fechamento da SPRINT-11 — 2026-07-23
 
-### Estado autorizado
+- **SPRINT-11:** `completed`; **ADR-0009:** `Accepted` (`6_OF_6`).
+- **M1:** `in_progress`; Sprint ativa ou planejada: nenhuma.
+- Nova EPIC ou Task/DT: não; `work.last_completed.task=null`.
+- DT-009 permanece exclusivamente histórica na SPRINT-06.
+- SPRINT-12: `NOT_ACTIVATED`; MASTER 2: `ACTIVE_SOLE_COORDINATOR`;
+  MASTER 3: `NOT_CREATED`.
+
+A baseline final é `88fa6871c8e73c02270f9be45c76154d28587559`. Quality Gate #12,
+Container Gate #10 e Publish Container Run #5 foram aprovados. Para o SHA final
+houve um dispatch, um push, nenhum rerun, smokes console/JSON e logout aprovados.
+O package está `PRIVATE`, vinculado a `sandro-prates/hermes-ai-os`, com digest
+`sha256:c1a2a88d5cc2493ab0a3af06be9dda4dc8c07e724b07cbdb1907273f34f19a44`.
+
+O pacote final de evidência foi aprovado (ZIP SHA-256
+`c4769d901a6c4471ef37cb02741a537de221417c21c4352a48d94322135c3efd`;
+manifest SHA-256
+`a5c3bea81977dcdead1f1b4ccc320702078fcee9a21b1b3d878db016881d9fe7`).
+`131a06e` corrigiu RepoDigest e `fb64b92` corrigiu SIGPIPE após falhas
+intermediárias. Nenhum deployment, SBOM, signing ou attestation foi executado.
+
+## Ativação histórica da SPRINT-11 — 2026-07-20
+
+### Estado autorizado naquele momento
 
 - **Milestone:** M1 — Infraestrutura (`in_progress`).
 - **SPRINT-11 — Container Artifact Publication Baseline:** `in_progress`.
@@ -676,20 +698,21 @@ mudar.
 
 ## Estado operacional corrente
 
-- Última Sprint concluída: SPRINT-10 — Snapshot Quality Gate Integrity.
-- Sprint ativa: SPRINT-11 — Container Artifact Publication Baseline (`in_progress`).
+- Última Sprint concluída: SPRINT-11 — Container Artifact Publication Baseline.
+- Sprint ativa: nenhuma.
 - Sprint planejada: nenhuma.
 - Task ativa ou planejada: nenhuma.
 - M0 — Foundation: `completed` como fato histórico.
 - M1 — Infraestrutura: `in_progress`.
 - Package visibility canônica: `PRIVATE`.
 - Visibilidade pública: não autorizada.
-- Implementação técnica, ADR-0009, Publication Gate, publicação de artefatos,
-  Docker Compose e deployment: não autorizados nesta etapa.
+- ADR-0009: `Accepted`.
+- Docker Compose, deployment, SBOM, signing e attestation: ausentes.
+- SPRINT-12: não ativada.
 
 A continuidade deve partir deste documento, do Project State, do handoff da
-SPRINT-10, dos ADRs aceitos e da validação direta do Git. A implementação técnica e
-a primeira publicação externa dependem de autorizações humanas próprias.
+SPRINT-11, dos ADRs aceitos e da validação direta do Git. Qualquer novo incremento
+depende de autorização explícita.
 
 ---
 

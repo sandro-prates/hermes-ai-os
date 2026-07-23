@@ -1,6 +1,6 @@
 # ADR-0009 — Política de publicação do artefato de container
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Data:** 20/07/2026
 - **Escopo:** M1 / SPRINT-11 — Controlled Container Artifact Publication
 
@@ -11,7 +11,7 @@ Container Gate. Falta estabelecer como uma revisão já aprovada pode ser public
 como artefato imutável, sem transformar a publicação em deployment nem ampliar as
 credenciais do repositório.
 
-## Decisão proposta
+## Decisão
 
 Publicar no GHCR sob o namespace
 `ghcr.io/sandro-prates/hermes-ai-os`, com visibilidade obrigatoriamente privada e
@@ -106,8 +106,11 @@ este workflow; qualquer ação no package exige autorização operacional separa
    são comprovados.
 6. O logout obrigatório conclui com sucesso.
 
-Esta ADR permanece `Proposed` até que a política seja revisada e a evidência remota
-de uma publicação explicitamente autorizada seja avaliada.
+Os seis critérios foram satisfeitos pela publicação final autorizada da baseline
+`88fa6871c8e73c02270f9be45c76154d28587559`. O Quality Gate #12 e o Container Gate
+#10 foram aprovados; o Publish Container Run #5 (attempt 1) concluiu com sucesso,
+com um dispatch, um push, nenhum rerun, smokes console e JSON aprovados e logout
+concluído.
 
 ## Emenda de recuperação do package privado da SPRINT-11
 
@@ -129,15 +132,23 @@ O incidente do run `29773487377` publicou o digest
 e comprovou acesso anônimo, sem autorização de visibilidade pública. A causa raiz
 permanece não comprovada; o package atual permanece evidência até gate destrutivo.
 
-Um eventual bootstrap administrativo é operação externa separada e apenas proposta.
-PAT classic temporário, escopo candidato `write:packages`, ausência de `repo` e
-`delete:packages`, tag temporária, logout e revogação exigem autorização própria.
+O bootstrap administrativo privado foi executado como operação externa separada.
+A evidência aprovada comprova revogação do PAT temporário, probe pós-revogação HTTP
+401 e ausência de segredo persistido. O workflow normal final permaneceu restrito ao
+`github.token`.
 
 ```text
-ROOT_CAUSE=NOT_YET_PROVEN
-PAT_BOOTSTRAP_METHOD=PROPOSED
-PAT_CREATION_AUTHORIZED=NAO
-BOOTSTRAP_PUSH_AUTHORIZED=NAO
+FINAL_PACKAGE_VISIBILITY=PRIVATE
+FINAL_MANIFEST_DIGEST=sha256:c1a2a88d5cc2493ab0a3af06be9dda4dc8c07e724b07cbdb1907273f34f19a44
+FINAL_REPOSITORY_LINK=sandro-prates/hermes-ai-os
+ADR_0009_ACCEPTANCE_CRITERIA_SATISFIED=6_OF_6
 ```
 
-**Status da decisão:** permanece `Proposed`.
+Os commits `131a06e` e `fb64b92` corrigiram, respectivamente, a validação de
+RepoDigest sem `sed` e o risco de SIGPIPE nos checks de logs dos smokes. As falhas
+intermediárias dos Runs #2, #3 e #4 permanecem como histórico; somente o Run #5 da
+baseline final constitui a aceitação.
+
+Deployment, SBOM, signing e attestation não foram executados.
+
+**Status da decisão:** `Accepted` em 23/07/2026.

@@ -1,7 +1,7 @@
 schema_version: 2
 last_verified:
-  date: '2026-07-20'
-  method: 'ativação documental da SPRINT-11 sobre a baseline publicada b01753473be47d24e4d14a2d7691cdd1f12a405d; implementação técnica e publicação externa não iniciadas'
+  date: '2026-07-23'
+  method: 'fechamento documental da SPRINT-11 sobre a baseline bloqueante 88fa6871c8e73c02270f9be45c76154d28587559 e pacote final de evidência primária aprovado'
 project:
   name: Hermes AI OS
   version: 0.0.1
@@ -196,15 +196,12 @@ repository:
     reason: avoid_self_reference
 work:
   active:
-    sprint:
-      id: SPRINT-11
-      title: Container Artifact Publication Baseline
-      status: in_progress
+    sprint: null
     task: null
   last_completed:
     sprint:
-      id: SPRINT-10
-      title: Snapshot Quality Gate Integrity
+      id: SPRINT-11
+      title: Container Artifact Publication Baseline
       status: completed
     task: null
   planned:
@@ -733,6 +730,64 @@ sprint_11_activation_baseline:
   compose_authorized: false
   deployment_authorized: false
   sprint_12_authorized: false
+sprint_11_closure:
+  status: completed
+  milestone: M1 — Infraestrutura
+  baseline:
+    commit: 88fa6871c8e73c02270f9be45c76154d28587559
+    branch: main
+  formal_epic_created: false
+  formal_task_created: false
+  last_formal_task:
+    id: DT-009
+    activated_in_sprint: SPRINT-06
+  adr_0009_status: Accepted
+  publication:
+    registry: ghcr.io
+    package: sandro-prates/hermes-ai-os
+    visibility: PRIVATE
+    repository_link: sandro-prates/hermes-ai-os
+    actions_access_role: WRITE
+    inheritance_disabled: true
+    tag: sha-88fa6871c8e73c02270f9be45c76154d28587559
+    manifest_digest: sha256:c1a2a88d5cc2493ab0a3af06be9dda4dc8c07e724b07cbdb1907273f34f19a44
+    config_digest: sha256:250486f19c036207b492e7addcffca5959c2abf8ad46fe8a1c5757f025277052
+    workflow_run_id: 29874199694
+    workflow_run_number: 5
+    workflow_run_attempt: 1
+    dispatch_count_for_final_head: 1
+    push_count_for_final_head: 1
+    rerun_count: 0
+    console_smoke: passed
+    json_smoke: passed
+    logout: passed
+  remote_gates:
+    quality_gate:
+      run_id: 29873254326
+      run_number: 12
+      conclusion: success
+    container_gate:
+      run_id: 29873254322
+      run_number: 10
+      conclusion: success
+  hotfixes:
+    repodigest_commit: 131a06e
+    sigpipe_commit: fb64b92
+  evidence:
+    package_zip_sha256: c4769d901a6c4471ef37cb02741a537de221417c21c4352a48d94322135c3efd
+    manifest_sha256: a5c3bea81977dcdead1f1b4ccc320702078fcee9a21b1b3d878db016881d9fe7
+    master_2_file_review_status: APPROVED
+    evidence_gate: PASSED
+    adr_0009_acceptance_criteria: 6_OF_6
+  deployment_executed: false
+  sbom_created: false
+  signing_executed: false
+  attestation_created: false
+  active_sprint: null
+  planned_sprint: null
+  sprint_12_status: NOT_ACTIVATED
+  master_2_status: ACTIVE_SOLE_COORDINATOR
+  master_3_status: NOT_CREATED
 continuity:
   snapshot:
     source_of_truth: docs/PROJECT_SNAPSHOT.md
@@ -746,7 +801,8 @@ continuity:
   - Ler docs/03_CHANGELOG.md
   - Ler os ADRs aceitos em docs/adr/
   - Executar git status --short --branch
-  - Não iniciar implementação técnica, ADR-0009, Publication Gate ou publicação externa sem autorização explícita
+  - Ler docs/HANDOFF_2026-07-23-SPRINT-11.md
+  - Não ativar SPRINT-12 ou criar MASTER 3 sem autorização explícita
   audit:
     status: continuous
     required_checks:
